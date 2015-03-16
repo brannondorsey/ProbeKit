@@ -1,0 +1,22 @@
+{
+  "name": "SSIDButterflyCollection",
+  "version": "0.1.0",
+  "description": "Collect and Visualize SSID Probe Requests",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/brannondorsey/SSIDButterflyCollection"
+  },
+  "author": "brannon@brannondorsey.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/brannondorsey/SSIDButterflyCollection/issues"
+  },
+  "homepage": "https://github.com/brannondorsey/SSIDButterflyCollection",
+  "dependencies": {
+    "express": "^4.12.2"
+  }
+}
