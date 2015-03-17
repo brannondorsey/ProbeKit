@@ -25,19 +25,53 @@ if (proc.status != 0) {
 }
 
 // check for tshark
-proc = spawnSync('which', ['tsark']);
+proc = spawnSync('which', ['tshark']);
 if (proc.status != 0) {
 	console.log('tshark not found, please install tshark with:\n\tsudo apt-get install tshark');
 	process.exit(1);
 }
 
+// set device down
+proc = spawnSync('ifconfig', [argv.interface, 'down']);
+if (proc.status != 0) {
+	console.log(proc.stderr);
+	console.log('ifconfig could not take down ' + argv.interface + ', make sure that it is not already in use.');
+	process.exit(1);
+}
+
+// put the device into monitor mode
+proc = spawnSync('iwconfig', [argv.interface, 'mode', 'monitor']);
+if (proc.status != 0) {
+	console.log(proc.stderr);
+	console.log('iwconfig could set ' + argv.interface + ' to monitor mode, make sure that it is not already in use.');
+	process.exit(1);
+}
+
+// set device up
+proc = spawnSync('ifconfig', [argv.interface, 'up']);
+if (proc.status != 0) {
+	console.log(proc.stderr);
+	console.log('ifconfig could not bring up ' + argv.interface + ', make sure that it is not already in use.');
+	process.exit(1);
+}
+
 var outputFile = argv.output || __dirname + '/../data/probes.csv';
-
 var writeStream = fs.createWriteStream(outputFile, { flags: 'a', encoding: 'utf8' });
-
 var probeParser = new TsharkProbeParser();
 
-tsharkProcess = spawn('tshark', ['-i', argv.interface, '-n', '-I', '-l', 'subtype', 'probereq']);
+// set interface to hop channels
+var channelHopProcess = spawn(__dirname + '/../shell/channel_hop.sh', [argv.interface]);
+
+channelHopProcess.stdout.on('data', function (data) {
+	console.log('[channel_hop.sh]: ' + data.toString());
+});
+
+channelHopProcess.stderr.on('data', function (data) {
+	console.log('[channel_hop.sh ERROR]' + data.toString());
+});
+
+// launch tshark
+var tsharkProcess = spawn('tshark', ['-i', argv.interface, '-n', '-I', '-l', 'subtype', 'probereq']);
 
 tsharkProcess.stdout.on('data', function (data) {
 	
