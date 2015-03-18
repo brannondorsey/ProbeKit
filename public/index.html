@@ -78,6 +78,7 @@
   				numMacs: 0,
   				macs: {}
   			};
+
   			var rawCSV = undefined;
   			
   			$.ajax({
@@ -94,7 +95,7 @@
 			var socket = io.connect("http://" + window.location.host);
 			socket.on('probeReceived', function (probe) {
 			    // add the probe to our master probeData object
-			    addProbe(probe.mac, probe.ssid, probe.timestamp);
+			    addProbe(probe.mac, probe.ssid, probe.timestamp, false);
 			});
 
 			function parseCSVToProbeData() {
@@ -104,14 +105,16 @@
 					for (var i = 0; i < lines.length; i++) {
 						var probe = lines[i].split(',');
 						if (probe.length == 3) {
-							addProbe(probe[0], probe[1], probe[2]);
+							addProbe(probe[0], probe[1], probe[2], true);
 						}
 					}
 				}
 			}
 
-			function addProbe(mac, ssid, timestamp) {
+			function addProbe(mac, ssid, timestamp, fromCSV) {
 				
+				onBeforeProbeAdded(mac, ssid, timestamp, fromCSV);
+
 				if (!probeData.macs.hasOwnProperty(mac)) {
 					probeData.macs[mac] = {};
 					probeData.macs[mac].knownNetworks = [];
@@ -126,20 +129,21 @@
 					probeData.macs[mac].knownNetworks.push(ssid);
 				}
 
-				onProbeAdded(mac, ssid, timestamp);
+				onProbeAdded(mac, ssid, timestamp, fromCSV);
 			}
 
-			function onProbeAdded(mac, ssid, timestamp) {
-				var time = moment(parseInt(timestamp)).format('YYYY-MM-DD HH:mm:ss');
-				//$('#dump').prepend(time + '    MAC: ' + mac + '    SSID: ' + ssid + '\n');
-				if( probeData.macs.hasOwnProperty(mac) ) {
+			function onBeforeProbeAdded(mac, ssid, timestamp, fromCSV) {
+				if(probeData.macs.hasOwnProperty(mac)) {
 					// flap
 				} else {
-					makeButterfly( mac );
+					makeButterfly(mac);
 				}
-
 			}
 
+			function onProbeAdded(mac, ssid, timestamp, fromCSV) {
+				var time = moment(parseInt(timestamp)).format('YYYY-MM-DD HH:mm:ss');
+				//$('#dump').prepend(time + '    MAC: ' + mac + '    SSID: ' + ssid + '\n');
+			}
   		});
   </script>
 </body>
