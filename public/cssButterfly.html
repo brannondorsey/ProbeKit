@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Probe Collection</title>
+		<meta charset="utf-8">
+		<style>
+
+    		/* ~'~._.~'~._.~'~._.~'~._.~'~._.~'~._. GENERAL ~'~._.~'~._.~'~._.~'~._. */
+			/* ~'~._.~'~._.~'~._.~'~._.~'~._.~'~._.~'~._.~'~._.~'~._.~'~._.~'~._.~'~.*/
+
+    		*, *:before, *:after { -moz-box-sizing:border-box; -webkit-box-sizing:border-box; box-sizing:border-box; }
+			 
+			html {
+			  font: 100%/1.5 "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+			  font-weight: 400;
+			  text-rendering: optimizeLegibility;
+			  -webkit-font-smoothing: antialiased;
+			}
+			@media (min-width:640px)  { html { font-size:112%; } }
+			@media (min-width:1024px) { html { font-size:120%; } }
+
+			body { background-color:#fff; color:#555; }
+
+			section { text-align:center; padding:32px 0; }
+			@media (min-width:640px) { section { padding:64px 0; } }
+
+			.container { margin:0 auto; max-width:848px; width:90%; }
+
+			a { color:#cc3399; text-decoration:none; }
+			a:hover { text-decoration:underline; }
+
+			::-moz-selection { background:#cc3399; color:#fff; text-shadow:none; }
+    		::selection { background:#cc3399; color:#fff; text-shadow:none; }
+
+
+
+    		/* cssgrid + tab for SNIPPET */
+
+    		/* cssanimation + tab for SNIPPET */
+
+
+
+			.butterfly {
+				width:343px;
+				height:300px;
+				margin: 0 auto;
+			}
+
+			.butterfly .top {  	
+			 	display:block; 
+			 	width: 100%; 
+			 	height: 50%; 
+			}
+				.butterfly .top .left { 
+					display:inline-block;
+					float:left; 
+					width: 44%;
+					height: 100%; 
+					background-color: green; 
+					border-radius: 0% 83% 10% 150%;
+					transform: rotate(160deg) rotateY(20deg);
+					position: relative; left:2%;
+					animation : flap-lt 180ms ease-in 4 alternate;
+				}
+				.butterfly .top .right { 
+					display:inline-block; 
+					float: right;
+					width: 44%;
+					height: 100%; 
+					background-color: green; 
+					border-radius: 150% 10% 83% 0%; 
+					transform: rotate(20deg) rotateY(20deg);
+					position: relative; left:-2%;
+					animation : flap-rt 180ms ease-in 4 alternate;
+				}
+
+			.butterfly .bottom {  	
+			 	display:block; 
+			 	width: 100%; 
+			 	height: 50%; 
+			}
+				.butterfly .bottom .left { 
+					display: inline-block;
+					width: 26.4%;
+					height: 60%;
+					background-color: #008000;
+					border-radius: 108% 10% 120% 40%;
+					position: relative; left:24%; top:-21%;
+					animation : flap-lb 180ms ease-in 4 alternate;
+				}
+				.butterfly .bottom .right { 
+					display: inline-block;
+					width: 26.4%;
+					height: 60%;
+					background-color: #008000;
+					border-radius: 10% 108% 40% 120%;
+					position: relative; left:22%; top:-21%;
+					animation : flap-rb 180ms ease-in 4 alternate;
+				}
+
+			@keyframes flap-lt {
+			  100% { transform  : rotate(160deg) rotateY(60deg); left:12%; }
+			}
+			@keyframes flap-lb {
+			  100% { transform  : rotateY(60deg); left:31%; }
+			}
+			@keyframes flap-rt {
+			  100% { transform  : rotate(20deg) rotateY(60deg); left:-12%; }
+			}
+			@keyframes flap-rb {
+			  100% { transform  : rotateY(60deg); left:16%; }
+			}
+
+
+
+    	</style>
+	</head>
+	<body>
+
+
+		<script>
+
+
+
+		Math.norm = function(value, min, max) { return (value - min) / (max - min); };
+		Math.lerp = function(norm, min, max) { return (max - min) * norm + min; };
+		Math.map = function(value, sourceMin, sourceMax, destMin, destMax) {
+			return Math.lerp(Math.norm(value, sourceMin, sourceMax), destMin, destMax);
+		};
+			
+
+		function makeButterfly( parent, data ){
+			var butterfly = document.createElement('div');
+				butterfly.className = "butterfly";
+			var top = document.createElement('div');
+				top.className = "top";
+			var tleft = document.createElement('div');
+				tleft.className = "left";
+			var tright = document.createElement('div');
+				tright.className = "right";
+			var bottom = document.createElement('div');
+				bottom.className = "bottom";
+			var bleft = document.createElement('div');
+				bleft.className = "left";
+			var bright = document.createElement('div');
+				bright.className = "right";
+
+			var d = data.split(':');
+			var r = parseInt( d[0], 16 );
+			var g = parseInt( d[1], 16 );
+			var b = parseInt( d[2], 16 );
+			var col = "rgb("+r+","+g+","+b+")";
+			tleft.style.background = tright.style.background = bleft.style.background = bright.style.background = col;
+
+			var w = Math.map( parseInt( d[3], 16 ), 0,255, 200,250 );
+			var h = Math.map( parseInt( d[4], 16 ), 0,255, 200,300 );
+			butterfly.style.width = Math.floor(w)+"px";
+			butterfly.style.height = Math.floor(h)+"px";
+
+			var rad3 = Math.map( parseInt( d[4], 16 ), 0,255, 64,113 );
+			var rad4 = Math.map( parseInt( d[5], 16 ), 0,255, 3,18 );
+			tleft.style.borderRadius = "0% "+Math.floor(rad3)+"% "+Math.floor(rad4)+"% 150%";
+			tright.style.borderRadius = "150% "+Math.floor(rad4)+"% "+Math.floor(rad3)+"% 0%";
+
+			var ran = Math.floor( (Math.random()*100) + 130);
+			tleft.style.animation = 'flap-lt '+ran+'ms ease-in 4 alternate';
+			tright.style.animation = 'flap-rt '+ran+'ms ease-in 4 alternate';
+			bleft.style.animation = 'flap-lb '+ran+'ms ease-in 4 alternate';
+			bright.style.animation = 'flap-rb '+ran+'ms ease-in 4 alternate';
+
+			top.appendChild(tleft); top.appendChild(tright);
+			bottom.appendChild(bleft); bottom.appendChild(bright);
+			butterfly.appendChild(top); butterfly.appendChild(bottom);
+			parent.appendChild(butterfly);
+		}
+
+
+
+		var mac = '74:f0:6d:9b:62:5f';
+		// var mac = '0c:3e:9f:86:96:84';
+		// var mac ='18:af:61:54:f7:12';
+		var dad = document.body;
+		makeButterfly( dad, mac );
+
+
+
+		</script>
+	</body>
+</html>
