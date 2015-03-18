@@ -1,6 +1,7 @@
 var fs = require('fs');
 var path = require('path');
 var spawn = require('child_process').spawn;
+var spawnSync = require('child_process').spawnSync;
 var express = require('express');
 var app = express();
 var server = require('http').Server(app);
@@ -36,6 +37,13 @@ if (!iface || help) {
 
 if (csvOnly && liveOnly) {
 	console.log('Both --csv-only and --live-only flags are present. These flags are mutually exclusive. Use --help flat to print usage.');
+	process.exit(0);
+}
+
+var rootCheckProc = spawnSync('id', ['-u'], { encoding: 'utf8' });
+if (rootCheckProc.output[1] != '0\n') {
+	console.log('This script must be run as root.');
+	console.log('    sudo node server.js --interface=<device> [options]');
 	process.exit(0);
 }
 
