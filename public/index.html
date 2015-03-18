@@ -5,13 +5,14 @@
   <meta charset="utf-8">
 
   <title>Butteryfly Test</title>
+  <link rel="stylesheet" type="text/css" href="css/styles.css">
 
-  <!-- <link rel="stylesheet" href="css/styles.css"> -->
 </head>
 
 <body>
 
-  <pre id="dump"></pre>
+  <div id="net"></div>
+
   <script src="js/jquery-1.11.2.min.js"></script>
   <script src="js/underscore-1.8.2.min.js"></script>
   <script src="js/moment-min.2.9.0.js"></script>
@@ -19,6 +20,59 @@
   <script type="text/javascript">
   		
   		$(document).ready(function(){
+
+	  		Math.norm = function(value, min, max) { return (value - min) / (max - min); };
+			Math.lerp = function(norm, min, max) { return (max - min) * norm + min; };
+			Math.map = function(value, sourceMin, sourceMax, destMin, destMax) {
+				return Math.lerp(Math.norm(value, sourceMin, sourceMax), destMin, destMax);
+			};
+
+			function makeButterfly( data ){
+				var parent = document.getElementById('net');
+				var butterfly = document.createElement('div');
+					butterfly.className = "butterfly";
+					butterfly.id = "_"+data;
+				var top = document.createElement('div');
+					top.className = "top";
+				var tleft = document.createElement('div');
+					tleft.className = "left";
+				var tright = document.createElement('div');
+					tright.className = "right";
+				var bottom = document.createElement('div');
+					bottom.className = "bottom";
+				var bleft = document.createElement('div');
+					bleft.className = "left";
+				var bright = document.createElement('div');
+					bright.className = "right";
+
+				var d = data.split(':');
+				var r = parseInt( d[0], 16 );
+				var g = parseInt( d[1], 16 );
+				var b = parseInt( d[2], 16 );
+				var col = "rgb("+r+","+g+","+b+")";
+				tleft.style.background = tright.style.background = bleft.style.background = bright.style.background = col;
+
+				var w = Math.map( parseInt( d[3], 16 ), 0,255, 200,250 );
+				var h = Math.map( parseInt( d[4], 16 ), 0,255, 200,300 );
+				butterfly.style.width = Math.floor(w)+"px";
+				butterfly.style.height = Math.floor(h)+"px";
+
+				var rad3 = Math.map( parseInt( d[4], 16 ), 0,255, 64,113 );
+				var rad4 = Math.map( parseInt( d[5], 16 ), 0,255, 3,18 );
+				tleft.style.borderRadius = "0% "+Math.floor(rad3)+"% "+Math.floor(rad4)+"% 150%";
+				tright.style.borderRadius = "150% "+Math.floor(rad4)+"% "+Math.floor(rad3)+"% 0%";
+
+				var ran = Math.floor( (Math.random()*100) + 130);
+				tleft.style.animation = 'flap-lt '+ran+'ms ease-in 4 alternate';
+				tright.style.animation = 'flap-rt '+ran+'ms ease-in 4 alternate';
+				bleft.style.animation = 'flap-lb '+ran+'ms ease-in 4 alternate';
+				bright.style.animation = 'flap-rb '+ran+'ms ease-in 4 alternate';
+
+				top.appendChild(tleft); top.appendChild(tright);
+				bottom.appendChild(bleft); bottom.appendChild(bright);
+				butterfly.appendChild(top); butterfly.appendChild(bottom);
+				parent.appendChild(butterfly);
+			}
   
   			var probeData = {
   				numMacs: 0,
@@ -77,7 +131,13 @@
 
 			function onProbeAdded(mac, ssid, timestamp) {
 				var time = moment(parseInt(timestamp)).format('YYYY-MM-DD HH:mm:ss');
-				$('#dump').prepend(time + '    MAC: ' + mac + '    SSID: ' + ssid + '\n');
+				//$('#dump').prepend(time + '    MAC: ' + mac + '    SSID: ' + ssid + '\n');
+				if( probeData.macs.hasOwnProperty(mac) ) {
+					// flap
+				} else {
+					makeButterfly( mac );
+				}
+
 			}
 
   		});
