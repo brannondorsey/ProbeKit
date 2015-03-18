@@ -1,4 +1,6 @@
 var fs = require('fs');
+var path = require('path');
+var spawn = require('child_process').spawn;
 var express = require('express');
 var app = express();
 var server = require('http').Server(app);
@@ -8,18 +10,40 @@ var moment = require('moment');
 var TsharkProbeParser = require('./src/TsharkProbeParser');
 var TsharkProcessLauncher = require('./src/TsharkProcessLauncher');
 
-if (argv.interface == undefined) {
-	console.log('Usage: node scriptname --interface=<interface_name> [--output=probes.csv]');
-	process.exit(1);
+var help = argv.help || argv.h;
+var iface = argv.interface || argv.i;
+var outputFile = argv.output || argv.o || __dirname + '/../data/probes.csv';
+var csvOnly = argv['csv-only'] || argv.n;
+var liveOnly = argv['live-only'] || argv.l;
+var dryRun = argv['dry-run'] || argv.d;
+var launchBrowser = argv['launch-browser'] || argv.b;
+var dontServe = argv['dont-serve'] || argv.x;
+
+if (!iface || help) {
+	console.log('Usage: sudo node server --interface=<device> [options]');
+	console.log('Options:');
+	console.log('    --help, -h                        Get help. Shows this screen. ');
+	console.log('    --interface=<device, -i <device>  Interface to capture probe requests with. e.g. -i wlan0');
+	console.log('                                      This interface will use monitor mode by default.');
+	console.log('    --output=<file>, -o <file>        Output Probes to CSV file. Using data/probes.csv by default.');
+	console.log('    --csv-only, -n                    Use input CSV only, do not use tshark to live capture probes.');
+	console.log('    --live-only, -l                   Use tshark probe stream only. Do not load probes from CSV.');
+	console.log('    --dry-run, -d                     Do not stream probe requests to output file.');
+	console.log('    --launch-browser, -b              Open the server\'s url in the system\'s default browser.');
+	console.log('    --dont-serve, -x                  Do not launch the server. Used for collecting probe requests only.');
+	process.exit(0);
 }
 
-var outputFile = argv.output || __dirname + '/../data/probes.csv';
+if (csvOnly && liveOnly) {
+	console.log('Both --csv-only and --live-only flags are present. These flags are mutually exclusive. Use --help flat to print usage.');
+	process.exit(0);
+}
 
 var probeParser = new TsharkProbeParser();
-var procLauncher = new TsharkProcessLauncher(argv.interface, true);
+var procLauncher = new TsharkProcessLauncher(iface, true);
 var tsharkProcess = procLauncher.tsharkProcess;
 var channelHopProcess = procLauncher.channelHopProcess;
-var writeStream = fs.createWriteStream(outputFile, { flags: 'a', encoding: 'utf8' });
+var writeStream = (dryRun) ? undefined : fs.createWriteStream(outputFile, { flags: 'a', encoding: 'utf8' });
 
 tsharkProcess.stdout.on('data', function (data) {
 	
@@ -38,32 +62,54 @@ tsharkProcess.stderr.on('data', function (data) {
 
 tsharkProcess.on('close', function (code) {
   	console.log('tshark process exited with code ' + code);
-  	writeStream.close();
+  	if (writeStream) {
+  		writeStream.close();
+  	}
 });
 
 // register event first
 probeParser.on('probeReceived', function(packet){
 	
-	var csvLine = packet.mac + ',' + packet.ssid + ',' + packet.timestamp + '\n'
-	writeStream.write(csvLine);
+	if (writeStream) {
+		var csvLine = packet.mac + ',' + packet.ssid + ',' + packet.timestamp + '\n'
+		writeStream.write(csvLine);
+	}
 
 	console.log(moment(packet.timestamp).format('YYYY-MM-DD HH:mm:ss') + '    MAC: ' + packet.mac + '    SSID: ' + packet.ssid);
 });
 
-app.use('/data', express.static(__dirname + '/../data'));
-app.use(express.static(__dirname + '/../public'));
+if (liveOnly) {
+	app.get('/data/probes.csv', function(req, res){
+		res.sendFile(path.resolve(__dirname + '/../data/empty.csv'));
+	});
+}
+
+app.use('/data', express.static(path.resolve(__dirname + '/../data')));
+app.use(express.static(path.resolve(__dirname + '/../public')));
 
 io.on('connection', function (socket) {
     probeParser.on('probeReceived', function(probe){
-  		socket.emit('probeReceived', probe);
+    	if (!csvOnly) {
+    		socket.emit('probeReceived', probe);
+    	}
     });
 });
 
-server.listen(3000, function () {
+if (!dontServe) {
 
-  var host = server.address().address
-  var port = server.address().port
+	server.listen(3000, function () {
 
-  console.log('Server listening at http://%s:%s', host, port)
+	  var host = server.address().address
+	  var port = server.address().port
 
-});
+	  console.log('[ server ] Server listening at http://%s:%s', host, port)
+	  
+	  if (launchBrowser) {
+	  	var url = 'http://localhost:' + port;
+	  	console.log('[ server ] Launching default system browser to url: ' + url)
+	  	var browserProc = spawn('xdg-open', [url]);
+	  	browserProc.stderr.pipe(process.stderr);
+	  }
+
+	});
+}
