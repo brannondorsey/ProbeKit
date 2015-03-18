@@ -25,11 +25,11 @@ if (!iface || help) {
 	console.log('Options:');
 	console.log('    --help, -h                        Get help. Shows this screen. ');
 	console.log('    --interface=<device, -i <device>  Interface to capture probe requests with. e.g. -i wlan0');
-	console.log('                                      This interface will use monitor mode by default.');
+	console.log('                                      This interface will use be set into monitor mode.');
 	console.log('    --output=<file>, -o <file>        Output Probes to CSV file. Using data/probes.csv by default.');
 	console.log('    --csv-only, -n                    Use input CSV only, do not use tshark to live capture probes.');
 	console.log('    --live-only, -l                   Use tshark probe stream only. Do not load probes from CSV.');
-	console.log('    --dry-run, -d                     Do not stream probe requests to output file.');
+	console.log('    --dry-run, -d                     Do not stream captured probe requests to output file.');
 	console.log('    --launch-browser, -b              Open the server\'s url in the system\'s default browser.');
 	console.log('    --dont-serve, -x                  Do not launch the server. Used for collecting probe requests only.');
 	process.exit(0);
@@ -47,33 +47,47 @@ if (rootCheckProc.output[1] != '0\n') {
 	process.exit(0);
 }
 
+var procLauncher = undefined;
+var tsharkProcess = undefined;
+var channelHopProcess = undefined;
+var writeStream = undefined;
+
 var probeParser = new TsharkProbeParser();
-var procLauncher = new TsharkProcessLauncher(iface, true);
-var tsharkProcess = procLauncher.tsharkProcess;
-var channelHopProcess = procLauncher.channelHopProcess;
-var writeStream = (dryRun) ? undefined : fs.createWriteStream(outputFile, { flags: 'a', encoding: 'utf8' });
 
-tsharkProcess.stdout.on('data', function (data) {
+if (!csvOnly) {
+	procLauncher = new TsharkProcessLauncher(iface, true);
+	tsharkProcess = procLauncher.tsharkProcess;
+	channelHopProcess = procLauncher.channelHopProcess;
+}
+
+if (!dryRun) {
+	writeStream = fs.createWriteStream(outputFile, { flags: 'a', encoding: 'utf8' });
+}
+
+if (tsharkProcess) {
+
+	tsharkProcess.stdout.on('data', function (data) {
 	
-	var lines = data.toString('utf8').split('\n');
-	
-	for (var i = 0; i < lines.length; i++) {
-		// this will fire the probeParser.on('probeReceived') event
-		// if the packet is parsed successfully
-		probeParser.parseLine(lines[i]);
-	}
-});
+		var lines = data.toString('utf8').split('\n');
+		
+		for (var i = 0; i < lines.length; i++) {
+			// this will fire the probeParser.on('probeReceived') event
+			// if the packet is parsed successfully
+			probeParser.parseLine(lines[i]);
+		}
+	});
 
-tsharkProcess.stderr.on('data', function (data) {
-  	console.log('stderr: ' + data);
-});
+	tsharkProcess.stderr.on('data', function (data) {
+	  	console.log('stderr: ' + data);
+	});
 
-tsharkProcess.on('close', function (code) {
-  	console.log('tshark process exited with code ' + code);
-  	if (writeStream) {
-  		writeStream.close();
-  	}
-});
+	tsharkProcess.on('close', function (code) {
+	  	console.log('tshark process exited with code ' + code);
+	  	if (writeStream) {
+	  		writeStream.close();
+	  	}
+	});
+}
 
 // register event first
 probeParser.on('probeReceived', function(packet){
