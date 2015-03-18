@@ -48,12 +48,12 @@ if which node &> /dev/null; then
 		if [[ "$NODESURE" != "Y" || "$NODESURE" != "y" || "$NODESURE" != "" ]]; then
 			echo "[install.sh] Aborting install process. Please install Nodejs v0.12 yourself."
 			exit 0;
-		else
-			echo "[install.sh] Updating Nodejs deb source to v0.12.x."
-			curl -sL https://deb.nodesource.com/setup_0.12 | bash -
 		fi
 	fi
 fi
+
+echo "[install.sh] Updating Nodejs deb source to v0.12.x."
+curl -sL https://deb.nodesource.com/setup_0.12 | bash -
 
 #install dependencies
 #TODO missing anything in $DEPENDENCIES?
