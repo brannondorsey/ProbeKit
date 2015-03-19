@@ -182,22 +182,17 @@
 				var nfoL = document.getElementById('nfo-left');
 					nfoR.innerHTML = "";
 					nfoL.innerHTML = "";
-				var MaxLen = Math.floor($('#nfo-right').width());
 				$('#screen').fadeIn(500,function(){
 					for (var i = 0; i < probeData.macs[id].knownNetworks.length; i++) {
 						var div = document.createElement('div');
 							div.className = "knownNetwork";
-						var netwrk = probeData.macs[id].knownNetworks[i];
-							if (netwrk.length > MaxLen) {
-					            div.innerHTML = netwrk.substring(0, MaxLen) + "...";
-					        } else {
-					        	div.innerHTML = probeData.macs[id].knownNetworks[i];
-					        }
-							
+					        div.innerHTML = probeData.macs[id].knownNetworks[i];
 						nfoR.appendChild(div);
 					};
 					var nfo = document.getElementById('nfo');
 					nfo.onclick = function(){ $('#screen').fadeOut(500) }
+					var scr33n = document.getElementById('screen');
+					scr33n.onclick = function(){ $('#screen').fadeOut(500) };
 
 					makeNfoButterfly( id );
 					var mac = document.createElement('div');
