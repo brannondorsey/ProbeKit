@@ -12,18 +12,7 @@ html {
 @media (min-width:640px)  { html { font-size:112%; } }
 @media (min-width:1024px) { html { font-size:120%; } }
 
-body { 
-background: #ffffff;
-/*background: -moz-radial-gradient(center, ellipse cover,  #ffffff 0%, #ffffff 49%, #dddddd 100%);
-background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%,#ffffff), color-stop(49%,#ffffff), color-stop(100%,#dddddd));
-background: -webkit-radial-gradient(center, ellipse cover,  #ffffff 0%,#ffffff 49%,#dddddd 100%);
-background: -o-radial-gradient(center, ellipse cover,  #ffffff 0%,#ffffff 49%,#dddddd 100%);
-background: -ms-radial-gradient(center, ellipse cover,  #ffffff 0%,#ffffff 49%,#dddddd 100%);
-background: radial-gradient(ellipse at center,  #ffffff 0%,#ffffff 49%,#dddddd 100%);
-filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#dddddd',GradientType=1 );*/
-
-	color:#555; 
-}
+body {  background: #ffffff;color:#555; }
 
 section { text-align:center; padding:32px 0; }
 @media (min-width:640px) { section { padding:64px 0; } }
@@ -37,11 +26,30 @@ a:hover { text-decoration:underline; }
 ::selection { background:#cc3399; color:#fff; text-shadow:none; }
 
 
-
-/* ~'~._.~'~._.~'~._.~'~._.~'~._.~'~._. TABLES  ~'~._.~'~._.~'~._.~'~._. */
+/* ~'~._.~'~._.~'~._.~'~._.~'~._.~'~ NFO POP UP ~'~._.~'~._.~'~._.~'~._. */
 /* ~'~._.~'~._.~'~._.~'~._.~'~._.~'~._.~'~._.~'~._.~'~._.~'~._.~'~._.~'~.*/
 
-/*! RWD .column by http://www.adamkaplan.me/grid/ */
+#screen {
+	position: fixed; z-index: 10;
+	top: 0px; left: 0px;
+	width:100%; height:100%;
+	background: rgba(0,0,0,0.8);
+	display: none;
+}
+#nfo {
+	margin: 10% auto;
+	width:50%;
+	max-height: 75%;
+	overflow-y: scroll;
+	padding:20px;
+	background: none repeat scroll 0% 0% #eee;
+	border: 2px solid #fff;
+	box-shadow: 1px 2px 6px rgba(0, 0, 0, 0.5);
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+}
+
+/*! rwd column via http://www.adamkaplan.me/grid/ */
 
 .column { margin-bottom: 1.5rem; }
 @media (min-width: 640px) {
@@ -65,6 +73,21 @@ a:hover { text-decoration:underline; }
 .clearfix:after { content: " "; display: table;}
 .clearfix:after { clear: both; }
 .clearfix { *zoom: 1; }	 
+.nfo-butterfly { 	
+	max-width:100%;
+	max-height:100%;
+	margin: 0 auto;
+	display: inline-block;
+}
+.nfo-mac {
+	border-top: 2px solid rgb(204, 204, 204);
+	padding-top: 15px;
+	margin-top: -40px;
+}
+.nfo-time {
+	padding-top: 2px;
+}
+#nfo-right div { overflow: hidden; text-overflow: ellipsis; }
 
 
 /* ~'~._.~'~._.~'~._.~'~._.~'~._.~'~. BUTTERFLY ~'~._.~'~._.~'~._.~'~._. */
@@ -77,16 +100,15 @@ a:hover { text-decoration:underline; }
 	margin: 0 auto;
 	display: inline-block;
  	position: absolute; top:0px; left:0px;
- 	transition: top 0.5s ease;
- 	transition: left 0.5s ease;
+ 	transition: all 0.5s ease;
 }
 
-	.butterfly .top {  	
+	.butterfly .top, .nfo-butterfly .top {  	
 	 	display:block; 
 	 	width: 100%; 
 	 	height: 50%; 
 	}
-		.butterfly .top .left { 
+		.butterfly .top .left, .nfo-butterfly .top .left { 
 			display:inline-block;
 			float:left; 
 			width: 44%;
@@ -97,7 +119,7 @@ a:hover { text-decoration:underline; }
 			position: relative; left:2%;
 			animation : flap-lt 180ms ease-in 4 alternate;
 		}
-		.butterfly .top .right { 
+		.butterfly .top .right, .nfo-butterfly .top .right { 
 			display:inline-block; 
 			float: right;
 			width: 44%;
@@ -109,12 +131,12 @@ a:hover { text-decoration:underline; }
 			animation : flap-rt 180ms ease-in 4 alternate;
 		}
 
-	.butterfly .bottom {  	
+	.butterfly .bottom, .nfo-butterfly .bottom {  	
 	 	display:block; 
 	 	width: 100%; 
 	 	height: 50%; 
 	}
-		.butterfly .bottom .left { 
+		.butterfly .bottom .left, .nfo-butterfly .bottom .left { 
 			display: inline-block;
 			width: 26.4%;
 			height: 60%;
@@ -123,7 +145,7 @@ a:hover { text-decoration:underline; }
 			position: relative; left:24%; top:-21%;
 			animation : flap-lb 180ms ease-in 4 alternate;
 		}
-		.butterfly .bottom .right { 
+		.butterfly .bottom .right, .nfo-butterfly .bottom .right { 
 			display: inline-block;
 			width: 26.4%;
 			height: 60%;
