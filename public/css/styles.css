@@ -12,7 +12,18 @@ html {
 @media (min-width:640px)  { html { font-size:112%; } }
 @media (min-width:1024px) { html { font-size:120%; } }
 
-body { background-color:#fff; color:#555; }
+body { 
+background: #ffffff;
+/*background: -moz-radial-gradient(center, ellipse cover,  #ffffff 0%, #ffffff 49%, #dddddd 100%);
+background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%,#ffffff), color-stop(49%,#ffffff), color-stop(100%,#dddddd));
+background: -webkit-radial-gradient(center, ellipse cover,  #ffffff 0%,#ffffff 49%,#dddddd 100%);
+background: -o-radial-gradient(center, ellipse cover,  #ffffff 0%,#ffffff 49%,#dddddd 100%);
+background: -ms-radial-gradient(center, ellipse cover,  #ffffff 0%,#ffffff 49%,#dddddd 100%);
+background: radial-gradient(ellipse at center,  #ffffff 0%,#ffffff 49%,#dddddd 100%);
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#dddddd',GradientType=1 );*/
+
+	color:#555; 
+}
 
 section { text-align:center; padding:32px 0; }
 @media (min-width:640px) { section { padding:64px 0; } }
@@ -59,63 +70,68 @@ a:hover { text-decoration:underline; }
 /* ~'~._.~'~._.~'~._.~'~._.~'~._.~'~. BUTTERFLY ~'~._.~'~._.~'~._.~'~._. */
 /* ~'~._.~'~._.~'~._.~'~._.~'~._.~'~._.~'~._.~'~._.~'~._.~'~._.~'~._.~'~.*/
 
+
 .butterfly {
 	width:343px;
 	height:300px;
 	margin: 0 auto;
+	display: inline-block;
+ 	position: absolute; top:0px; left:0px;
+ 	transition: top 0.5s ease;
+ 	transition: left 0.5s ease;
 }
 
-.butterfly .top {  	
- 	display:block; 
- 	width: 100%; 
- 	height: 50%; 
-}
-	.butterfly .top .left { 
-		display:inline-block;
-		float:left; 
-		width: 44%;
-		height: 100%; 
-		background-color: green; 
-		border-radius: 0% 83% 10% 150%;
-		transform: rotate(160deg) rotateY(20deg);
-		position: relative; left:2%;
-		animation : flap-lt 180ms ease-in 4 alternate;
+	.butterfly .top {  	
+	 	display:block; 
+	 	width: 100%; 
+	 	height: 50%; 
 	}
-	.butterfly .top .right { 
-		display:inline-block; 
-		float: right;
-		width: 44%;
-		height: 100%; 
-		background-color: green; 
-		border-radius: 150% 10% 83% 0%; 
-		transform: rotate(20deg) rotateY(20deg);
-		position: relative; left:-2%;
-		animation : flap-rt 180ms ease-in 4 alternate;
-	}
+		.butterfly .top .left { 
+			display:inline-block;
+			float:left; 
+			width: 44%;
+			height: 100%; 
+			background-color: green; 
+			border-radius: 0% 83% 10% 150%;
+			transform: rotate(160deg) rotateY(20deg);
+			position: relative; left:2%;
+			animation : flap-lt 180ms ease-in 4 alternate;
+		}
+		.butterfly .top .right { 
+			display:inline-block; 
+			float: right;
+			width: 44%;
+			height: 100%; 
+			background-color: green; 
+			border-radius: 150% 10% 83% 0%; 
+			transform: rotate(20deg) rotateY(20deg);
+			position: relative; left:-2%;
+			animation : flap-rt 180ms ease-in 4 alternate;
+		}
 
-.butterfly .bottom {  	
- 	display:block; 
- 	width: 100%; 
- 	height: 50%; 
-}
-	.butterfly .bottom .left { 
-		display: inline-block;
-		width: 26.4%;
-		height: 60%;
-		background-color: #008000;
-		border-radius: 108% 10% 120% 40%;
-		position: relative; left:24%; top:-21%;
-		animation : flap-lb 180ms ease-in 4 alternate;
+	.butterfly .bottom {  	
+	 	display:block; 
+	 	width: 100%; 
+	 	height: 50%; 
 	}
-	.butterfly .bottom .right { 
-		display: inline-block;
-		width: 26.4%;
-		height: 60%;
-		background-color: #008000;
-		border-radius: 10% 108% 40% 120%;
-		position: relative; left:22%; top:-21%;
-		animation : flap-rb 180ms ease-in 4 alternate;
-	}
+		.butterfly .bottom .left { 
+			display: inline-block;
+			width: 26.4%;
+			height: 60%;
+			background-color: #008000;
+			border-radius: 108% 10% 120% 40%;
+			position: relative; left:24%; top:-21%;
+			animation : flap-lb 180ms ease-in 4 alternate;
+		}
+		.butterfly .bottom .right { 
+			display: inline-block;
+			width: 26.4%;
+			height: 60%;
+			background-color: #008000;
+			border-radius: 10% 108% 40% 120%;
+			position: relative; left:22%; top:-21%;
+			animation : flap-rb 180ms ease-in 4 alternate;
+		}
 
 @keyframes flap-lt {
   100% { transform  : rotate(160deg) rotateY(60deg); left:12%; }
