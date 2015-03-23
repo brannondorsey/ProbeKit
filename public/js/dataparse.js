@@ -9,6 +9,12 @@ var probeData = {
 	macs: {}
 };
 
+var filter = {
+    manufacturer: [],
+    networks: [],
+    time: {}
+};
+
 var rawCSV = undefined;
 	
 $.ajax({
@@ -16,7 +22,7 @@ $.ajax({
   	success: function(data) {
 	  rawCSV = data;
 	  parseCSVToProbeData();
-	  // console.log( probeData.macs )
+	  applyFilter();
   	},
   	error: function(err){
   		throw err;
@@ -51,6 +57,7 @@ function addProbe(mac, ssid, timestamp, fromCSV) {
 		probeData.macs[mac].knownNetworks = [];
 		probeData.macs[mac].lastSeen = 0;
 		probeData.macs[mac].timesSeen = 0;
+		probeData.macs[mac].mac = mac;
 		probeData.numMacs++;
 	}
 
@@ -75,4 +82,66 @@ function onBeforeProbeAdded(mac, ssid, timestamp, fromCSV) {
 function onProbeAdded(mac, ssid, timestamp, fromCSV) {
 	var time = moment(parseInt(timestamp)).format('YYYY-MM-DD HH:mm:ss');
 	//$('#dump').prepend(time + '    MAC: ' + mac + '    SSID: ' + ssid + '\n');
+}
+
+// Filtering
+//////////////////////////////////////////////////////////////////////////
+
+// update the DOM with butterflies that pass filter
+function applyFilter() {
+	
+	var macs = getFilteredMacs();
+	
+	// clear #net
+	$('#net').empty();
+	
+	if (macs.length > 0) {
+		for (var i = 0; i < macs.length; i++) {
+			updatePositions();
+			makeButterfly(macs[i].mac);
+		}
+	} else {
+		// no results...
+	}
+}
+
+// resets the global filter var
+function clearFilter() {
+
+	filter = {
+	    manufacturer: [],
+	    networks: [],
+	    time: {}
+	};
+}
+
+// returns an array of macs that pass all filters
+function getFilteredMacs() {
+	
+	// get an array of filtered mac addresses
+	return _.filter(probeData.macs, function(macObj, mac){
+		
+		// filter networks
+		if (filter.networks.length > 0 && 
+			!_.some(macObj.knownNetworks, function(network){ return _.contains(filter.networks, network) })){
+			return false;
+		};
+
+		// filter manufacturer
+		if (filter.manufacturer.length > 0 && 
+			!_.some(filter.manufacturer, function(manufacturerMac){ 
+				return manufacturerMac == mac.substring(0, 8) 
+			})) {
+			return false;
+		}
+
+		// TODO: filter using all collected timestamps
+		if (filter.time.from != undefined && 
+			filter.time.to != undefined &&
+			!(macObj.lastSeen >= filter.time.from && macObj.lastSeen <= filter.time.to)) {
+			return false;
+		}
+
+		return true;
+	});
 }
