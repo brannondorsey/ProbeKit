@@ -58,7 +58,7 @@ curl -sL https://deb.nodesource.com/setup_0.12 | bash -
 #install dependencies
 #TODO missing anything in $DEPENDENCIES?
 # Modified Script by martedì at http://www.mirkopagliai.it/bash-scripting-check-for-and-install-missing-dependencies/
-PKGSTOINSTALL="nodejs tshark"
+PKGSTOINSTALL="nodejs tshark git firefox"
 
 # If some dependencies are missing, asks if user wants to install
 if [[ "$PKGSTOINSTALL" != "" ]]; then

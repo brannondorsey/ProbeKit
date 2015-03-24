@@ -84,6 +84,9 @@ a:hover { text-decoration:underline; }
 	padding-top: 15px;
 	margin-top: -40px;
 }
+.nfo-mkr {
+	padding-top: 2px;
+}
 .nfo-time {
 	padding-top: 2px;
 }
