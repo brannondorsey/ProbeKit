@@ -15,6 +15,7 @@ var cellHeight = 350;
 
 function makeButterfly( data, ssid ){
 	var ssidMatch = false;
+	var ndata = data.substring(0,8);
 	if (ssid.constructor == Array) {
 		for (var i = 0; i < ssid.length; i++) {
 			var check = filter.networks.indexOf(ssid[i]) > -1
@@ -24,13 +25,13 @@ function makeButterfly( data, ssid ){
 		ssidMatch = filter.networks.indexOf(ssid) > -1;
 	}
 
-	if(!filt.stat || ssidMatch || filter.manufacturer.indexOf(data) > -1){
+	if(!filt.stat || ssidMatch || filter.manufacturer.indexOf(ndata) > -1){
 
 		updatePositions(); // update responsive grid 
 
 		var parent = document.getElementById('net');
-		var butterfly = document.createElement('div');
-			butterfly.className = "butterfly";
+		var butterfly = document.createElement('div')
+;			butterfly.className = "butterfly";
 			butterfly.id = "_"+data;
 			butterfly.onclick = function() { getInfo(data) };
 
@@ -83,7 +84,8 @@ function makeButterfly( data, ssid ){
 
 // flap butterfly after it's already been created ( ie. when another proberequest from pre-existing MAC shows up ) ------------
 function flapButterfly( id, ssid ){
-	if( !filt.stat || filter.networks.indexOf(ssid) > -1 || filter.manufacturer.indexOf(id) > -1 ){
+	var nid = id.substring(0,8);
+	if( !filt.stat || filter.networks.indexOf(ssid) > -1 || filter.manufacturer.indexOf(nid) > -1 ){
 		var b = document.getElementById( '_'+id );
 		var t = Math.floor( (Math.random()*300) + 500);
 		b.childNodes[0].childNodes[0].style.animation = "flap-lt 180ms ease-in infinite alternate";
@@ -227,7 +229,17 @@ var filt = {
 		var s1 = document.createElement('span');
 			s1.className = "filt-ntwrk";
 			s1.id = "f_"+val;
-			s1.innerHTML = val;	
+			if( type == 'manufacturer'){
+				var ven = val.toUpperCase(); 
+				for (var i = 0; i < vendor.mapping.length; i++) {
+				    if (vendor.mapping[i].mac_prefix == ven){
+				        s1.innerHTML = vendor.mapping[i].vendor_name;
+				    }
+				}
+			}
+			else if( type == 'network'){
+				s1.innerHTML = val;	
+			}
 		var s2 = document.createElement('span');
 			s2.className = "filt-x";
 			s2.innerHTML = "ⓧ";
@@ -257,7 +269,8 @@ var filt = {
 				filter.networks.splice(n,1); // update filter data
 			}
 			else if(type=='manufacturer'){
-				var n = filter.manufacturer.indexOf(val);
+				var nval = val.substring(0,8);
+				var n = filter.manufacturer.indexOf(nval);
 				filter.manufacturer.splice(n,1); // update filter data
 			}
 			this.display();	// update menu display in DOM
@@ -269,8 +282,9 @@ var filt = {
 				this.mktag('network',val);// add filter tag to DOM
 			}
 			else if(type=='manufacturer'){
-				filter.manufacturer.push( val ); // update filter data
-				this.mktag('manufacturer',val);// add filter tag to DOM
+				var nval = val.substring(0,8);
+				filter.manufacturer.push( nval ); // update filter data
+				this.mktag('manufacturer',nval);  // add filter tag to DOM
 			}
 			applyFilter();	// apply filter data
 			this.display(); // update menu display in DOM
