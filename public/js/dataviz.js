@@ -183,7 +183,6 @@ function getInfo( id ){
 			mac.innerHTML = id.toUpperCase();
 			mac.className = "nfo-mac";
 			mac.name = id;
-			// mac.onclick = function(){ filt.update('manufacturer', this.name); }
 		nfoL.appendChild(mac);
 
 		var ven = id.substr(0, 8).toUpperCase(); 
@@ -191,10 +190,11 @@ function getInfo( id ){
 			for (var i = 0; i < vendor.mapping.length; i++) {
 			    if (vendor.mapping[i].mac_prefix == ven){
 			        maker.innerHTML = "made by "+ vendor.mapping[i].vendor_name;
+			        maker.name = vendor.mapping[i].vendor_name;
 			    }
 			}
 			maker.className = "nfo-mkr";
-			maker.onclick = function(){ filt.update('manufacturer', id ); }
+			maker.onclick = function(){ filt.update('manufacturer', maker.name ); }
 		nfoL.appendChild(maker);
 
 		var time = document.createElement('div');
@@ -230,17 +230,7 @@ var filt = {
 		var s1 = document.createElement('span');
 			s1.className = "filt-ntwrk";
 			s1.id = "f_"+val;
-			if( type == 'manufacturer'){
-				var ven = val.toUpperCase(); 
-				for (var i = 0; i < vendor.mapping.length; i++) {
-				    if (vendor.mapping[i].mac_prefix == ven){
-				        s1.innerHTML = vendor.mapping[i].vendor_name;
-				    }
-				}
-			}
-			else if( type == 'network'){
-				s1.innerHTML = val;	
-			}
+			s1.innerHTML = val;	
 		var s2 = document.createElement('span');
 			s2.className = "filt-x";
 			s2.innerHTML = "ⓧ";
@@ -270,9 +260,7 @@ var filt = {
 				filter.networks.splice(n,1); // update filter data
 			}
 			else if(type=='manufacturer'){
-				var nval = val.substring(0,8);
-				var n = filter.manufacturer.indexOf(nval);
-				filter.manufacturer.splice(n,1); // update filter data
+				filter.manufacturer="";
 			}
 			this.display();	// update menu display in DOM
 			applyFilter();	// apply filter
@@ -283,9 +271,8 @@ var filt = {
 				this.mktag('network',val);// add filter tag to DOM
 			}
 			else if(type=='manufacturer'){
-				var nval = val.substring(0,8);
-				filter.manufacturer.push( nval ); // update filter data
-				this.mktag('manufacturer',nval);  // add filter tag to DOM
+				filter.manufacturer = val;  // update filter data
+				this.mktag('manufacturer',val );  // add filter tag to DOM
 			}
 			applyFilter();	// apply filter data
 			this.display(); // update menu display in DOM
