@@ -72,10 +72,9 @@ function addProbe(mac, ssid, timestamp, fromCSV) {
 
 function onBeforeProbeAdded(mac, ssid, timestamp, fromCSV) {
 	if(probeData.macs.hasOwnProperty(mac)) {
-		flapButterfly('_'+mac);
+		flapButterfly(mac, ssid);					
 	} else {
-		updatePositions();
-		makeButterfly(mac);					
+		makeButterfly(mac, ssid);								
 	}
 }
 
@@ -89,7 +88,7 @@ function onProbeAdded(mac, ssid, timestamp, fromCSV) {
 
 // update the DOM with butterflies that pass filter
 function applyFilter() {
-	
+
 	var macs = getFilteredMacs();
 	
 	// clear #net
@@ -97,8 +96,7 @@ function applyFilter() {
 	
 	if (macs.length > 0) {
 		for (var i = 0; i < macs.length; i++) {
-			updatePositions();
-			makeButterfly(macs[i].mac);
+			makeButterfly( macs[i].mac, macs[i].knownNetworks );
 		}
 	} else {
 		// no results...

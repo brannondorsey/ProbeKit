@@ -26,7 +26,8 @@ a:hover { text-decoration:underline; }
 ::selection { background:#cc3399; color:#fff; text-shadow:none; }
 
 
-/* ~'~._.~'~._.~'~._.~'~._.~'~._.~'~ NFO POP UP ~'~._.~'~._.~'~._.~'~._. */
+
+/* ~'~._.~'~._.~'~._.~'~._.~'~ NFO POP UP MODAL ~'~._.~'~._.~'~._.~'~._. */
 /* ~'~._.~'~._.~'~._.~'~._.~'~._.~'~._.~'~._.~'~._.~'~._.~'~._.~'~._.~'~.*/
 
 #screen {
@@ -81,9 +82,11 @@ a:hover { text-decoration:underline; }
 }
 .nfo-mac {
 	border-top: 2px solid rgb(204, 204, 204);
-	padding-top: 15px;
-	margin-top: -40px;
+	padding-top: 15px; margin-top: -40px;
+	text-decoration: underline; cursor: pointer;
 }
+.nfo-mac:hover { color:#cc3399; }
+
 .nfo-mkr {
 	padding-top: 2px;
 }
@@ -91,6 +94,9 @@ a:hover { text-decoration:underline; }
 	padding-top: 2px;
 }
 #nfo-right div { overflow: hidden; text-overflow: ellipsis; }
+
+.knownNetwork{ text-decoration: underline; cursor: pointer; }
+.knownNetwork:hover { color:#cc3399; }
 
 
 /* ~'~._.~'~._.~'~._.~'~._.~'~._.~'~. BUTTERFLY ~'~._.~'~._.~'~._.~'~._. */
@@ -170,3 +176,27 @@ a:hover { text-decoration:underline; }
 @keyframes flap-rb {
   100% { transform  : rotateY(60deg); left:16%; }
 }
+
+
+/* ~'~._.~'~._.~'~._.~'~._.~'~._.~' FILTER MENU ~'~._.~'~._.~'~._.~'~._. */
+/* ~'~._.~'~._.~'~._.~'~._.~'~._.~'~._.~'~._.~'~._.~'~._.~'~._.~'~._.~'~.*/
+
+
+#filtermenu {
+	padding:20px;
+	border:3px solid #ccc;
+	-moz-border-radius: 5px;
+	border-radius: 5px;	
+	position: relative; z-index: 10;
+	background: rgba(255,255,255,0.8);
+	display: none;
+}
+.filt-ntwrk {
+	padding:5px;
+	border:1px solid #ccc;
+	-moz-border-radius: 5px;
+	border-radius: 5px;	
+	margin:5px;
+}
+.filt-x {color:#cc3399; font-size:15px; padding:5px; cursor:pointer; }
+
