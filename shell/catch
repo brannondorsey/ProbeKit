@@ -1,4 +1,11 @@
 #!/bin/bash
 
+INTERFACE=wlan0
+
+if [[ $# -eq 1 ]] ; then
+
+    INTERFACE=$1
+fi
+
 cd ProbeRequestCollectorsKit/node
-sudo node server --interface=wlan0 --launch-browser
+sudo node server --interface=$INTERFACE --launch-browser

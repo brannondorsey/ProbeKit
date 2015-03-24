@@ -67,9 +67,9 @@ if (!dryRun) {
 if (tsharkProcess) {
 
 	tsharkProcess.stdout.on('data', function (data) {
-	
+
 		var lines = data.toString('utf8').split('\n');
-		
+
 		for (var i = 0; i < lines.length; i++) {
 			// this will fire the probeParser.on('probeReceived') event
 			// if the packet is parsed successfully
@@ -91,7 +91,7 @@ if (tsharkProcess) {
 
 // register event first
 probeParser.on('probeReceived', function(packet){
-	
+
 	if (writeStream) {
 		var csvLine = packet.mac + ',' + packet.ssid + ',' + packet.timestamp + '\n'
 		writeStream.write(csvLine);
@@ -125,12 +125,20 @@ if (!dontServe) {
 	  var port = server.address().port
 
 	  console.log('[ server ] Server listening at http://%s:%s', host, port)
-	  
+
 	  if (launchBrowser) {
-	  	var url = 'http://localhost:' + port;
-	  	console.log('[ server ] Launching default system browser to url: ' + url)
-	  	var browserProc = spawn('xdg-open', [url]);
-	  	browserProc.stderr.pipe(process.stderr);
+
+			var proc = spawnSync('which', ['firefox'], { encoding: 'utf8' });
+			if (proc.status == 0) {
+
+				var url = 'http://localhost:' + port;
+		  	console.log('[ server ] Launching default system browser to url: ' + url)
+		  	var browserProc = spawn('firefox', ['--new-window', url]);
+		  	browserProc.stderr.pipe(process.stderr);
+
+			} else {
+				console.log('[ server ] Warning: Could not launch browser window as firefox is not installed');
+			}
 	  }
 
 	});
