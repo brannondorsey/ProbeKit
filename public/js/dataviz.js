@@ -183,7 +183,7 @@ function getInfo( id ){
 			mac.innerHTML = id.toUpperCase();
 			mac.className = "nfo-mac";
 			mac.name = id;
-			mac.onclick = function(){ filt.update('manufacturer', this.name); }
+			// mac.onclick = function(){ filt.update('manufacturer', this.name); }
 		nfoL.appendChild(mac);
 
 		var ven = id.substr(0, 8).toUpperCase(); 
@@ -194,6 +194,7 @@ function getInfo( id ){
 			    }
 			}
 			maker.className = "nfo-mkr";
+			maker.onclick = function(){ filt.update('manufacturer', id ); }
 		nfoL.appendChild(maker);
 
 		var time = document.createElement('div');

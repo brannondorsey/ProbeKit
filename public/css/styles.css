@@ -83,13 +83,10 @@ a:hover { text-decoration:underline; }
 .nfo-mac {
 	border-top: 2px solid rgb(204, 204, 204);
 	padding-top: 15px; margin-top: -40px;
-	text-decoration: underline; cursor: pointer;
 }
-.nfo-mac:hover { color:#cc3399; }
+.nfo-mkr { padding-top: 2px; text-decoration: underline; cursor: pointer; }
+.nfo-mkr:hover { color:#cc3399; }
 
-.nfo-mkr {
-	padding-top: 2px;
-}
 .nfo-time {
 	padding-top: 2px;
 }
