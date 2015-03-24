@@ -10,13 +10,16 @@ var probeData = {
 };
 
 var filter = {
-    manufacturer: [],
+    manufacturer: "",
     networks: [],
     time: {}
 };
 
 var rawCSV = undefined;
-	
+
+var vendorDictionary = {};
+createVendorDictionary();
+
 $.ajax({
   	url: "data/probes.csv",
   	success: function(data) {
@@ -34,6 +37,17 @@ socket.on('probeReceived', function (probe) {
     // add the probe to our master probeData object
     addProbe(probe.mac, probe.ssid, probe.timestamp, false);
 });
+
+function createVendorDictionary() {
+	
+	if (vendor) {
+		for (var i = 0; i < vendor.mapping.length; i++) {
+			if (!vendorDictionary.hasOwnProperty(vendor.mapping[i].mac_prefix)) {
+				vendorDictionary[vendor.mapping[i].mac_prefix] = vendor.mapping[i].vendor_name;
+			}
+		}
+	}
+}
 
 function parseCSVToProbeData() {
 
@@ -107,7 +121,7 @@ function applyFilter() {
 function clearFilter() {
 
 	filter = {
-	    manufacturer: [],
+	    manufacturer: "",
 	    networks: [],
 	    time: {}
 	};
@@ -126,10 +140,8 @@ function getFilteredMacs() {
 		};
 
 		// filter manufacturer
-		if (filter.manufacturer.length > 0 && 
-			!_.some(filter.manufacturer, function(manufacturerMac){ 
-				return manufacturerMac == mac.substring(0, 8) 
-			})) {
+		if (filter.manufacturer != "" && 
+			(!vendorDictionary.hasOwnProperty(mac.substring(0, 8)) || vendorDictionary[mac.substring(0, 8)] != filter.manufacturer)) {
 			return false;
 		}
 
