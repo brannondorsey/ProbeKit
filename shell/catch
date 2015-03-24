@@ -1,0 +1,4 @@
+#!/bin/bash
+
+cd ProbeRequestCollectorsKit/node
+sudo node server --interface=wlan0 --launch-browser
