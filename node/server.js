@@ -78,7 +78,13 @@ if (tsharkProcess) {
 	});
 
 	tsharkProcess.stderr.on('data', function (data) {
-	  	console.log('stderr: ' + data);
+
+		var buff = data.toString('utf8');
+
+		// tshark v1.10.6 emits stderr integers at regular intervals. Ignore them.
+		if (!buff.match(/\d/)) {
+			console.log('Tshark stderr: ' + buff);
+		}
 	});
 
 	tsharkProcess.on('close', function (code) {
