@@ -11,7 +11,7 @@ TsharkProbeParser.prototype.parseLine = function(TsharkLine) {
 	
 	var packet = this.parse(TsharkLine);
 
-	if (packet) {
+	if (packet != null) {
 	 	emitter.emit('probeReceived', packet);
 	 	return true;
 	}
@@ -60,7 +60,6 @@ TsharkProbeParser.prototype.parseFile = function(path, callback) {
 TsharkProbeParser.prototype.parse = function(TsharkLine) {
 	
 	var output = {};
-	// console.log(TsharkLine);
 	var ssidRE = /SSID=.+$/;
 	var macRE = /[\da-f]{2}:[\da-f]{2}:[\da-f]{2}:[\da-f]{2}:[\da-f]{2}:[\da-f]{2}/;
 
