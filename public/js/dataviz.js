@@ -25,7 +25,7 @@ function makeButterfly( data, ssid ){
 		ssidMatch = filter.networks.indexOf(ssid) > -1;
 	}
 
-	if(!filt.stat || ssidMatch || filter.manufacturer.indexOf(ndata) > -1){
+	// if(!filt.stat || ssidMatch || filter.manufacturer == ndata){
 
 		updatePositions(); // update responsive grid 
 
@@ -78,14 +78,14 @@ function makeButterfly( data, ssid ){
 		bottom.appendChild(bleft); bottom.appendChild(bright);
 		butterfly.appendChild(top); butterfly.appendChild(bottom);
 		parent.insertBefore(butterfly,parent.childNodes[0]);
-	}
+	// }
 }
 
 
 // flap butterfly after it's already been created ( ie. when another proberequest from pre-existing MAC shows up ) ------------
 function flapButterfly( id, ssid ){
 	var nid = id.substring(0,8);
-	if( !filt.stat || filter.networks.indexOf(ssid) > -1 || filter.manufacturer.indexOf(nid) > -1 ){
+	// if( !filt.stat || filter.networks.indexOf(ssid) > -1 || filter.manufacturer.indexOf(nid) > -1 ){
 		var b = document.getElementById( '_'+id );
 		var t = Math.floor( (Math.random()*300) + 500);
 		b.childNodes[0].childNodes[0].style.animation = "flap-lt 180ms ease-in infinite alternate";
@@ -98,7 +98,7 @@ function flapButterfly( id, ssid ){
 			b.childNodes[1].childNodes[0].style.animation = "flap-lb 180ms ease-in 4 alternate";
 			b.childNodes[1].childNodes[1].style.animation = "flap-rb 180ms ease-in 4 alternate";		
 		},t);
-	}
+	// }
 }
 
 // responsive layout animation -------------------------------------------------
@@ -252,9 +252,12 @@ var filt = {
 		}
 	},
 	update: function( type, val, remove){
+		
 		if(remove){
+			
 			var ele = document.getElementById("f_"+val);
 			ele.parentNode.removeChild(ele); // remove filter tag from DOM
+			
 			if(type=='network'){
 				var n = filter.networks.indexOf(val);
 				filter.networks.splice(n,1); // update filter data
@@ -262,20 +265,33 @@ var filt = {
 			else if(type=='manufacturer'){
 				filter.manufacturer="";
 			}
+			
 			this.display();	// update menu display in DOM
 			applyFilter();	// apply filter
 
 		} else {
+
+			var success = false;
+
 			if(type=='network'){
-				filter.networks.push( val ); // update filter data
-				this.mktag('network',val);// add filter tag to DOM
+				if (filter.networks.indexOf(val) == -1) {
+					filter.networks.push( val ); // update filter data
+					this.mktag('network',val);// add filter tag to DOM
+					success = true;
+				}
 			}
 			else if(type=='manufacturer'){
-				filter.manufacturer = val;  // update filter data
-				this.mktag('manufacturer',val );  // add filter tag to DOM
+				if (val != filter.manufacturer) {
+					filter.manufacturer = val;  // update filter data
+					this.mktag('manufacturer',val );  // add filter tag to DOM
+					success = true;
+				}
 			}
-			applyFilter();	// apply filter data
-			this.display(); // update menu display in DOM
+			
+			if (success) {
+				applyFilter();	// apply filter data
+				this.display(); // update menu display in DOM
+			}
 		}
 	}
 }
