@@ -189,7 +189,7 @@ function getInfo( id ){
 		var maker = document.createElement('div');
 			for (var i = 0; i < vendor.mapping.length; i++) {
 			    if (vendor.mapping[i].mac_prefix == ven){
-			        maker.innerHTML = "made by "+ vendor.mapping[i].vendor_name;
+			        maker.innerHTML = "Made by "+ vendor.mapping[i].vendor_name;
 			        maker.name = vendor.mapping[i].vendor_name;
 			    }
 			}
@@ -198,7 +198,7 @@ function getInfo( id ){
 		nfoL.appendChild(maker);
 
 		var time = document.createElement('div');
-			time.innerHTML = "last seen on " +moment( parseInt(probeData.macs[id].lastSeen) ).format('MM/DD/YY  HH:mm');
+			time.innerHTML = "Last seen at " +moment( parseInt(probeData.macs[id].lastSeen) ).format('h:mm A M/D/YY');
 			time.className = "nfo-time";
 		nfoL.appendChild(time);
 
@@ -226,7 +226,7 @@ var filt = {
 	stat: false,
 	mktag: function(type, val){
 		var f = document.getElementById('filtermenu');
-		if(!this.stat){ f.innerHTML = "filtering by "; } 
+		if(!this.stat){ f.innerHTML = "Filtering by "; } 
 		var s1 = document.createElement('span');
 			s1.className = "filt-ntwrk";
 			s1.id = "f_"+val;
