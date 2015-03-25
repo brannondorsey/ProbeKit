@@ -1,8 +1,8 @@
-//  ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ 
-//  ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ 
-// ../n!ck's data-viz   ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ 
-//  ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ 
-//  ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ 
+//  ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~
+//  ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~
+// ../n!ck's data-viz   ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~
+//  ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~
+//  ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~
 
 Math.norm = function(value, min, max) { return (value - min) / (max - min); };
 Math.lerp = function(norm, min, max) { return (max - min) * norm + min; };
@@ -27,7 +27,7 @@ function makeButterfly( data, ssid ){
 
 	// if(!filt.stat || ssidMatch || filter.manufacturer == ndata){
 
-		updatePositions(); // update responsive grid 
+		updatePositions(); // update responsive grid
 
 		var parent = document.getElementById('net');
 		var butterfly = document.createElement('div')
@@ -55,8 +55,8 @@ function makeButterfly( data, ssid ){
 		var col = "rgb("+r+","+g+","+b+")";
 		tleft.style.background = tright.style.background = bleft.style.background = bright.style.background = col;
 
-		var w = Math.floor(Math.map( parseInt( d[3], 16 ), 0,255, (cellWidth-50)/1.25,(cellWidth-50) )); 	
-		var h = Math.floor(Math.map( parseInt( d[4], 16 ), 0,255, (cellHeight-50)/1.5,(cellHeight-50) ));	
+		var w = Math.floor(Math.map( parseInt( d[3], 16 ), 0,255, (cellWidth-50)/1.25,(cellWidth-50) ));
+		var h = Math.floor(Math.map( parseInt( d[4], 16 ), 0,255, (cellHeight-50)/1.5,(cellHeight-50) ));
 		butterfly.style.width = w+"px";
 		butterfly.style.height = h+"px";
 		butterfly.style.margin = (cellHeight-h)/2+"px "+(cellWidth-w)/2+"px";
@@ -87,29 +87,31 @@ function flapButterfly( id, ssid ){
 	var nid = id.substring(0,8);
 	// if( !filt.stat || filter.networks.indexOf(ssid) > -1 || filter.manufacturer.indexOf(nid) > -1 ){
 		var b = document.getElementById( '_'+id );
-		var t = Math.floor( (Math.random()*300) + 500);
-		b.childNodes[0].childNodes[0].style.animation = "flap-lt 180ms ease-in infinite alternate";
-		b.childNodes[0].childNodes[1].style.animation = "flap-rt 180ms ease-in infinite alternate";
-		b.childNodes[1].childNodes[0].style.animation = "flap-lb 180ms ease-in infinite alternate";
-		b.childNodes[1].childNodes[1].style.animation = "flap-rb 180ms ease-in infinite alternate";				
-		setTimeout(function(){
-			b.childNodes[0].childNodes[0].style.animation = "flap-lt 180ms ease-in 4 alternate";
-			b.childNodes[0].childNodes[1].style.animation = "flap-rt 180ms ease-in 4 alternate";
-			b.childNodes[1].childNodes[0].style.animation = "flap-lb 180ms ease-in 4 alternate";
-			b.childNodes[1].childNodes[1].style.animation = "flap-rb 180ms ease-in 4 alternate";		
-		},t);
-	// }
+		if (b) {
+			var t = Math.floor( (Math.random()*300) + 500);
+			b.childNodes[0].childNodes[0].style.animation = "flap-lt 180ms ease-in infinite alternate";
+			b.childNodes[0].childNodes[1].style.animation = "flap-rt 180ms ease-in infinite alternate";
+			b.childNodes[1].childNodes[0].style.animation = "flap-lb 180ms ease-in infinite alternate";
+			b.childNodes[1].childNodes[1].style.animation = "flap-rb 180ms ease-in infinite alternate";
+			setTimeout(function(){
+				b.childNodes[0].childNodes[0].style.animation = "flap-lt 180ms ease-in 4 alternate";
+				b.childNodes[0].childNodes[1].style.animation = "flap-rt 180ms ease-in 4 alternate";
+				b.childNodes[1].childNodes[0].style.animation = "flap-lb 180ms ease-in 4 alternate";
+				b.childNodes[1].childNodes[1].style.animation = "flap-rb 180ms ease-in 4 alternate";
+			},t);
+		}
+	//}
 }
 
 // responsive layout animation -------------------------------------------------
 // to-do: update the layout on window resize
 function updatePositions(){
-	var cols = Math.floor(window.innerWidth/cellWidth); 
+	var cols = Math.floor(window.innerWidth/cellWidth);
 	var pad = (window.innerWidth-(Math.floor(window.innerWidth/cellWidth)*cellWidth))/2;
 	for (var i = 0; i < net.childNodes.length; i++) {
 		net.childNodes[i].style.transition = "all "+(Math.random()*2)+0.5+"s ease"; // wtf, not working?
 		var lStr = net.childNodes[i].style.left;
-		var l = parseInt( lStr.substring(0,lStr.length-2) );					
+		var l = parseInt( lStr.substring(0,lStr.length-2) );
 		if( (l+cellWidth) > pad + cellWidth*(cols-1) ){
 			var tStr = net.childNodes[i].style.top;
 			var t = parseInt( tStr.substring(0,tStr.length-2) );
@@ -118,7 +120,7 @@ function updatePositions(){
 		} else {
 			net.childNodes[i].style.left = l + cellWidth + "px";
 		}
-		
+
 	};
 }
 
@@ -148,8 +150,8 @@ function makeNfoButterfly( data, time ){
 	var col = "rgb("+r+","+g+","+b+")";
 	tleft.style.background = tright.style.background = bleft.style.background = bright.style.background = col;
 
-	var w = Math.floor(Math.map( parseInt( d[3], 16 ), 0,255, (cellWidth-50)/1.25,(cellWidth-50) )); 	
-	var h = Math.floor(Math.map( parseInt( d[4], 16 ), 0,255, (cellHeight-50)/1.5,(cellHeight-50) ));	
+	var w = Math.floor(Math.map( parseInt( d[3], 16 ), 0,255, (cellWidth-50)/1.25,(cellWidth-50) ));
+	var h = Math.floor(Math.map( parseInt( d[4], 16 ), 0,255, (cellHeight-50)/1.5,(cellHeight-50) ));
 	butterfly.style.width = w+"px";
 	butterfly.style.height = h+"px";
 
@@ -185,7 +187,7 @@ function getInfo( id ){
 			mac.name = id;
 		nfoL.appendChild(mac);
 
-		var ven = id.substr(0, 8).toUpperCase(); 
+		var ven = id.substr(0, 8).toUpperCase();
 		var maker = document.createElement('div');
 			for (var i = 0; i < vendor.mapping.length; i++) {
 			    if (vendor.mapping[i].mac_prefix == ven){
@@ -215,7 +217,7 @@ function getInfo( id ){
 
 
 		// close
-		document.getElementById('screen').onclick = function(){ $('#screen').fadeOut(500) };		
+		document.getElementById('screen').onclick = function(){ $('#screen').fadeOut(500) };
 	});
 }
 
@@ -226,11 +228,11 @@ var filt = {
 	stat: false,
 	mktag: function(type, val){
 		var f = document.getElementById('filtermenu');
-		if(!this.stat){ f.innerHTML = "Filtering by "; } 
+		if(!this.stat){ f.innerHTML = "Filtering by "; }
 		var s1 = document.createElement('span');
 			s1.className = "filt-ntwrk";
 			s1.id = "f_"+val;
-			s1.innerHTML = val;	
+			s1.innerHTML = val;
 		var s2 = document.createElement('span');
 			s2.className = "filt-x";
 			s2.innerHTML = "ⓧ";
@@ -252,12 +254,12 @@ var filt = {
 		}
 	},
 	update: function( type, val, remove){
-		
+
 		if(remove){
-			
+
 			var ele = document.getElementById("f_"+val);
 			ele.parentNode.removeChild(ele); // remove filter tag from DOM
-			
+
 			if(type=='network'){
 				var n = filter.networks.indexOf(val);
 				filter.networks.splice(n,1); // update filter data
@@ -265,7 +267,7 @@ var filt = {
 			else if(type=='manufacturer'){
 				filter.manufacturer="";
 			}
-			
+
 			this.display();	// update menu display in DOM
 			applyFilter();	// apply filter
 
@@ -287,7 +289,7 @@ var filt = {
 					success = true;
 				}
 			}
-			
+
 			if (success) {
 				applyFilter();	// apply filter data
 				this.display(); // update menu display in DOM

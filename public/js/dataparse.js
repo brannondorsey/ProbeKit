@@ -1,8 +1,8 @@
-//  ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ 
-//  ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ 
-// Brannon's sockets magix ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ 
-//  ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ 
-//  ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ 
+//  ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~
+//  ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~
+// Brannon's sockets magix ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~
+//  ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~
+//  ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~
 
 var probeData = {
 	numMacs: 0,
@@ -39,7 +39,7 @@ socket.on('probeReceived', function (probe) {
 });
 
 function createVendorDictionary() {
-	
+
 	if (vendor) {
 		for (var i = 0; i < vendor.mapping.length; i++) {
 			if (!vendorDictionary.hasOwnProperty(vendor.mapping[i].mac_prefix)) {
@@ -63,7 +63,7 @@ function parseCSVToProbeData() {
 }
 
 function addProbe(mac, ssid, timestamp, fromCSV) {
-	
+
 	onBeforeProbeAdded(mac, ssid, timestamp, fromCSV);
 
 	if (!probeData.macs.hasOwnProperty(mac)) {
@@ -85,10 +85,10 @@ function addProbe(mac, ssid, timestamp, fromCSV) {
 }
 
 function onBeforeProbeAdded(mac, ssid, timestamp, fromCSV) {
-	if(probeData.macs.hasOwnProperty(mac)) {
-		flapButterfly(mac, ssid);					
-	} else {
-		makeButterfly(mac, ssid);								
+	if (probeData.macs.hasOwnProperty(mac)) {
+		flapButterfly(mac, ssid);
+	} else if (passesFilter(mac)){
+		makeButterfly(mac, ssid);
 	}
 }
 
@@ -104,10 +104,10 @@ function onProbeAdded(mac, ssid, timestamp, fromCSV) {
 function applyFilter() {
 
 	var macs = getFilteredMacs();
-	
+
 	// clear #net
 	$('#net').empty();
-	
+
 	if (macs.length > 0) {
 		for (var i = 0; i < macs.length; i++) {
 			makeButterfly( macs[i].mac, macs[i].knownNetworks );
@@ -123,35 +123,46 @@ function clearFilter() {
 	filter = {
 	    manufacturer: "",
 	    networks: [],
-	    time: {}
+	    time: {},
 	};
 }
 
 // returns an array of macs that pass all filters
 function getFilteredMacs() {
-	
+
 	// get an array of filtered mac addresses
 	return _.filter(probeData.macs, function(macObj, mac){
+		return passesFilter(mac);
+	});
+}
 
+function passesFilter(mac) {
+
+	if (probeData.macs.hasOwnProperty(mac)) {
+
+		var macObj = probeData.macs[mac];
+		
 		// filter networks
-		if (filter.networks.length > 0 && 
+		if (filter.networks.length > 0 &&
 			!_.every(filter.networks, function(network){ return _.contains(macObj.knownNetworks, network) })){
 			return false;
 		};
 
 		// filter manufacturer
-		if (filter.manufacturer != "" && 
+		if (filter.manufacturer != "" &&
 			(!vendorDictionary.hasOwnProperty(mac.substring(0, 8).toUpperCase()) || vendorDictionary[mac.substring(0, 8).toUpperCase()] != filter.manufacturer)) {
 			return false;
 		}
 
 		// TODO: filter using all collected timestamps
-		if (filter.time.from != undefined && 
+		if (filter.time.from != undefined &&
 			filter.time.to != undefined &&
 			!(macObj.lastSeen >= filter.time.from && macObj.lastSeen <= filter.time.to)) {
 			return false;
 		}
 
 		return true;
-	});
+	}
+
+	return false;
 }
