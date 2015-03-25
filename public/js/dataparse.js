@@ -132,7 +132,7 @@ function getFilteredMacs() {
 	
 	// get an array of filtered mac addresses
 	return _.filter(probeData.macs, function(macObj, mac){
-		
+
 		// filter networks
 		if (filter.networks.length > 0 && 
 			!_.some(macObj.knownNetworks, function(network){ return _.contains(filter.networks, network) })){
@@ -141,7 +141,7 @@ function getFilteredMacs() {
 
 		// filter manufacturer
 		if (filter.manufacturer != "" && 
-			(!vendorDictionary.hasOwnProperty(mac.substring(0, 8)) || vendorDictionary[mac.substring(0, 8)] != filter.manufacturer)) {
+			(!vendorDictionary.hasOwnProperty(mac.substring(0, 8).toUpperCase()) || vendorDictionary[mac.substring(0, 8).toUpperCase()] != filter.manufacturer)) {
 			return false;
 		}
 
