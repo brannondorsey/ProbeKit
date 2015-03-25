@@ -135,7 +135,7 @@ function getFilteredMacs() {
 
 		// filter networks
 		if (filter.networks.length > 0 && 
-			!_.some(macObj.knownNetworks, function(network){ return _.contains(filter.networks, network) })){
+			!_.every(filter.networks, function(network){ return _.contains(macObj.knownNetworks, network) })){
 			return false;
 		};
 
