@@ -6,7 +6,8 @@
 
 var probeData = {
 	numMacs: 0,
-	macs: {}
+	macs: {},
+	networks: []
 };
 
 var filter = {
@@ -77,24 +78,46 @@ function addProbe(mac, ssid, timestamp, fromCSV) {
 
 	probeData.macs[mac].lastSeen = timestamp;
 	probeData.macs[mac].timesSeen++;
+
 	if (probeData.macs[mac].knownNetworks.indexOf(ssid) == -1) {
 		probeData.macs[mac].knownNetworks.push(ssid);
+	}
+
+	if (probeData.networks.indexOf(ssid) == -1) {
+		probeData.networks.push(ssid);
 	}
 
 	onProbeAdded(mac, ssid, timestamp, fromCSV);
 }
 
 function onBeforeProbeAdded(mac, ssid, timestamp, fromCSV) {
+
 	if (probeData.macs.hasOwnProperty(mac)) {
+		
 		flapButterfly(mac, ssid);
-	} else if (passesFilter(mac)){
-		makeButterfly(mac, ssid);
+	
+	} else {
+
+		console.log(probeData.numMacs + ' Devices');
+		console.log(probeData.networks.length + ' Networks\n');
+		
+		// relocate this DOM manipulation stuff eventually
+		$('#device-count').html(probeData.numMacs);
+		$('#network-count').html(probeData.networks.length);
+
+        // this doesn't work correctly now as it will ALWAYS
+        // ignore the very first probe from any device.
+        // This is because mac must be in probeData.macs
+        // before it can pass passesFilter(mac). Fix this. 
+		if (passesFilter(mac)) {
+			makeButterfly(mac, ssid);
+		}
 	}
 }
 
 function onProbeAdded(mac, ssid, timestamp, fromCSV) {
 	var time = moment(parseInt(timestamp)).format('YYYY-MM-DD HH:mm:ss');
-	//$('#dump').prepend(time + '    MAC: ' + mac + '    SSID: ' + ssid + '\n');
+	
 }
 
 // Filtering

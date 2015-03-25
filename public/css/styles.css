@@ -181,7 +181,7 @@ a:hover { text-decoration:underline; }
 
 #filtermenu {
 	padding:20px;
-	border:3px solid #ccc;
+	border: 3px solid #ccc;
 	-moz-border-radius: 5px;
 	border-radius: 5px;	
 	position: relative; z-index: 10;
@@ -196,4 +196,19 @@ a:hover { text-decoration:underline; }
 	margin:5px;
 }
 .filt-x {color:#cc3399; font-size:15px; padding:5px; cursor:pointer; }
+
+
+/* ~'~._.~'~._.~'~._.~'~._.~'~._.~' STATISTICS ~'~._.~'~._.~'~._.~'~._. */
+/* ~'~._.~'~._.~'~._.~'~._.~'~._.~'~._.~'~._.~'~._.~'~._.~'~._.~'~._.~'~.*/
+
+#statistics {
+	position: fixed;
+	left: 20px;
+	bottom: 20px;
+	padding: 5px 10px;
+	background-color: rgba(255, 255, 255, 0.8);
+	border: 2px solid #ccc;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+}
 
