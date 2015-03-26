@@ -142,60 +142,63 @@ if [[ $OS == "Linux" ]] || [[ $OS == "Darwin" ]]; then
     echo "	$DEPENDENCIES"
     echo -n "[install.sh] Would you like to install them now? (Y/n):"
     read PKG_SURE
-    if [[ $PKG_SURE != "Y" || $PKG_SURE != "y" || $PKG_SURE != "" ]] ; then
+    if [[ $PKG_SURE == "Y" || $PKG_SURE == "y" || $PKG_SURE == "" ]] ; then
+
+        if [[ $OS == "Darwin" ]]; then
+          if xcode-select -v &> /dev/null; then
+            # if xcode command line tools are not installed
+            if ! xcode-select -p &> /dev/null; then
+              echo "[install.sh] Installing xcode command line tools..."
+              xcode-select --install
+            fi
+          else
+            echo "[install.sh] \"xcode-select\" is not installed. Please install Xcode from the App store."
+            exit 1
+          fi
+        fi
+
+        if node -v &> /dev/null ; then
+
+        	CURRENT_NODE_VERSION=$(node --version | cut -c1-5);
+        	if [[ "$CURRENT_NODE_VERSION" == "v0.12" ]]; then
+        		echo "[install.sh] Current Nodejs version $CURRENT_NODE_VERSION supported. Not installing Nodejs."
+        	else
+        		echo "[install.sh] $PROJECT_NAME requires Nodejs version v0.12"
+        		echo "[install.sh] You currently have Nodejs version $CURRENT_NODE_VERSION installed."
+        		echo "[install.sh] Would you like to uprade to Nodejs version v0.12 now? (Y/n):"
+        		read NODE_SURE;
+        		if [[ "$NODE_SURE" == "Y" || "$NODE_SURE" == "y" || "$NODE_SURE" == "" ]]; then
+                    install_node
+        		else
+                    echo "[install.sh] Aborting install process. Please install Nodejs v0.12 and other dependencies yourself."
+                    exit 0;
+                fi
+
+        	fi
+        else
+
+          if [[ $OS == "Darwin" ]]; then
+              if ! brew -v &> /dev/null; then
+                  install_homebrew
+              fi
+          fi
+
+          echo "[install.sh] Nodejs is not installed, installing Nodejs..."
+          install_node
+        fi
+
+        # install the rest of the dependencies now that
+        # package managers and nodejs v0.12 are definately installed
+        install_package "tshark git"
+
+        echo "[install.sh] $PROJECT_NAME was installed successfully!"
+        echo "[install.sh] Run the following command(s) to get started:"
+        echo "    $POST_INSTALL_EXAMPLE_CMD"
+        exit 0
+    else
         echo "[install.sh] Not installing dependencies '$DEPENDENCIES', exiting install process."
         exit 0;
     fi
-
-    if [[ $OS == "Darwin" ]]; then
-      if xcode-select -v &> /dev/null; then
-        # if xcode command line tools are not installed
-        if ! xcode-select -p &> /dev/null; then
-          echo "[install.sh] Installing xcode command line tools..."
-          xcode-select --install
-        fi
-      else
-        echo "[install.sh] \"xcode-select\" is not installed. Please install Xcode from the App store."
-        exit 1
-      fi
-    fi
-
-    if node -v &> /dev/null ; then
-
-    	CURRENT_NODE_VERSION=$(node --version | cut -c1-5);
-    	if [[ "$CURRENT_NODE_VERSION" == "v0.12" ]]; then
-    		echo "[install.sh] Current Nodejs version $CURRENT_NODE_VERSION supported. Not installing Nodejs."
-    	else
-    		echo "[install.sh] $PROJECT_NAME requires Nodejs version v0.12"
-    		echo "[install.sh] You currently have Nodejs version $CURRENT_NODE_VERSION installed."
-    		echo "[install.sh] Would you like to uprade to Nodejs version v0.12 now? (Y/n):"
-    		read NODE_SURE;
-    		if [[ "$NODE_SURE" != "Y" || "$NODE_SURE" != "y" || "$NODE_SURE" != "" ]]; then
-    			echo "[install.sh] Aborting install process. Please install Nodejs v0.12 and other dependencies yourself."
-    			exit 0;
-    		fi
-            install_node
-    	fi
-    else
-
-      if [[ $OS == "Darwin" ]]; then
-          if ! brew -v &> /dev/null; then
-              install_homebrew
-          fi
-      fi
-
-      echo "[install.sh] Nodejs is not installed, installing Nodejs..."
-      install_node
-    fi
-
-    # install the rest of the dependencies now that
-    # package managers and nodejs v0.12 are definately installed
-    install_package "tshark git"
-
-    echo "[install.sh] $PROJECT_NAME was installed successfully!"
-    echo "[install.sh] Run the following command(s) to get started:"
-    echo "    $POST_INSTALL_EXAMPLE_CMD"
-    exit 0
 
 else
     echo "[install.sh] $PROJECT_NAME is only supported on GNU/Linux and OSX systems."
