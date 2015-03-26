@@ -142,7 +142,7 @@ if [[ $OS == "Linux" ]] || [[ $OS == "Darwin" ]]; then
     echo "	$DEPENDENCIES"
     echo -n "[install.sh] Would you like to install them now? (Y/n):"
     read PKG_SURE
-    if [[ $PKG_SURE != "Y" ]] || [[ $PKG_SURE != "y" ]] || [[ $PKG_SURE != "" ]] ; then
+    if [[ $PKG_SURE != "Y" || $PKG_SURE != "y" || $PKG_SURE != "" ]] ; then
         echo "[install.sh] Not installing dependencies '$DEPENDENCIES', exiting install process."
         exit 0;
     fi
@@ -170,7 +170,7 @@ if [[ $OS == "Linux" ]] || [[ $OS == "Darwin" ]]; then
     		echo "[install.sh] You currently have Nodejs version $CURRENT_NODE_VERSION installed."
     		echo "[install.sh] Would you like to uprade to Nodejs version v0.12 now? (Y/n):"
     		read NODE_SURE;
-    		if [[ "$NODE_SURE" != "Y" ]] || [[ "$NODE_SURE" != "y" ]] || [[ "$NODE_SURE" != "" ]]; then
+    		if [[ "$NODE_SURE" != "Y" || "$NODE_SURE" != "y" || "$NODE_SURE" != "" ]]; then
     			echo "[install.sh] Aborting install process. Please install Nodejs v0.12 and other dependencies yourself."
     			exit 0;
     		fi
