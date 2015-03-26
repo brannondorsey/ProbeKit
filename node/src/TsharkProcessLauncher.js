@@ -1,8 +1,9 @@
+var os = require('os');
 var spawn = require('child_process').spawn;
 var spawnSync = require('child_process').spawnSync;
 
 function TsharkProcessLauncher(interface, hopChannels) {
-	
+
 	this.channelHopProcess = undefined;
 	this.tsharkProcess = undefined;
 
@@ -18,11 +19,13 @@ function TsharkProcessLauncher(interface, hopChannels) {
 		process.exit(1);
 	}
 
-	// check for iwconfig
-	proc = spawnSync('which', ['iwconfig'], { encoding: 'utf8' });
-	if (proc.status != 0) {
-		console.log('iwconfig not found, please install iwconfig');
-		process.exit(1);
+	if (os.type() == 'Linux') {
+		// check for iwconfig
+		proc = spawnSync('which', ['iwconfig'], { encoding: 'utf8' });
+		if (proc.status != 0) {
+			console.log('iwconfig not found, please install iwconfig');
+			process.exit(1);
+		}
 	}
 
 	// check for tshark
@@ -40,12 +43,14 @@ function TsharkProcessLauncher(interface, hopChannels) {
 		process.exit(1);
 	}
 
-	// put the device into monitor mode
-	proc = spawnSync('iwconfig',  [interface, 'mode', 'monitor'], { encoding: 'utf8' });
-	if (proc.status != 0) {
-		console.log(proc.stderr);
-		console.log('iwconfig could set ' + interface + ' to monitor mode, make sure that it is not already in use.');
-		process.exit(1);
+	if (os.type() == 'Linux') {
+		// put the device into monitor mode
+		proc = spawnSync('iwconfig',  [interface, 'mode', 'monitor'], { encoding: 'utf8' });
+		if (proc.status != 0) {
+			console.log(proc.stderr);
+			console.log('iwconfig could set ' + interface + ' to monitor mode, make sure that it is not already in use.');
+			process.exit(1);
+		}
 	}
 
 	// set device up

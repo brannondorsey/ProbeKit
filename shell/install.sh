@@ -17,7 +17,7 @@
 PROJECT_NAME="Probe Request Collector's Kit"
 POST_INSTALL_EXAMPLE_CMD="cd ../node
     sudo node server.js --interface=<device_name>"
-DEPENDENCIES="nodejs@v0.12 tshark git" # this var is only printed to screen, not used for install
+DEPENDENCIES="nodejs@v0.12 wireshark git" # this var is only printed to screen, not used for install
 
 # https://learn.bevry.me/node/install
 function install_node() {
@@ -189,8 +189,13 @@ if [[ $OS == "Linux" ]] || [[ $OS == "Darwin" ]]; then
 
         # install the rest of the dependencies now that
         # package managers and nodejs v0.12 are definately installed
-        install_package "tshark git"
+        if [[ $OS == "Linux"]]; then
+            install_package "tshark git"
+        elif [[ $OS == "Darwin" ]]; then
+            install_package "wireshark git"
+        fi
 
+        echo ""
         echo "[install.sh] $PROJECT_NAME was installed successfully!"
         echo "[install.sh] Run the following command(s) to get started:"
         echo "    $POST_INSTALL_EXAMPLE_CMD"
