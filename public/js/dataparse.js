@@ -109,9 +109,9 @@ function onBeforeProbeAdded(mac, ssid, timestamp, fromCSV) {
         // ignore the very first probe from any device.
         // This is because mac must be in probeData.macs
         // before it can pass passesFilter(mac). Fix this. 
-		if (passesFilter(mac)) {
+		//if (passesFilter(mac)) {
 			makeButterfly(mac, ssid);
-		}
+		//}
 	}
 }
 

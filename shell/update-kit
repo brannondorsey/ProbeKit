@@ -1,4 +1,4 @@
 #!/bin/bash
 
 cd ProbeRequestCollectorsKit
-git pull
+git pull origin master
