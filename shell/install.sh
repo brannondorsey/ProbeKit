@@ -136,7 +136,7 @@ fi
 
 #Must be linux
 OS=$(uname);
-if [[ $OS != "Linux" ]] || [[ $OS != "Darwin" ]]; then
+if ! (($OS == "Linux")) || (($OS == "Darwin" )); then
 	 echo "[install.sh] $PROJECT_NAME is only supported on GNU/Linux and OSX systems."
 	 exit 1
 fi
