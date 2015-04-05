@@ -55,9 +55,18 @@ WigleBatchDownloader.prototype.download = function(options, requestCallback, cal
 	var afterCallback = _.after(numRequests, callback);
 	var allNetworks = [];
 
-	// Make only one query at a time so as not to bog down server.
-	// recursively calls onQueryChunkReceived() until requestCounter == numRequests
-	self._queryChunk(options, chunkObjs[requestCounter], onQueryChunkReceived);
+	if (numRequests > 0) {
+		
+		if (numRequests > 500) {
+			console.log('[warning] WigleBatchDownloader.download: ' + numRequests + ' requests prepaired exceeds the Wigle.net query limit of 500 requests per day.');
+		}
+
+		// Make only one query at a time so as not to bog down server.
+		// recursively calls onQueryChunkReceived() until requestCounter == numRequests
+		self._queryChunk(options, chunkObjs[requestCounter], onQueryChunkReceived);
+	} else {
+		console.log('[error] WigleBatchDownloader.download: The number of download requests is 0, make sure that your query parameters are correct.');
+	}
 
 	function onQueryChunkReceived(err, result) {
 
@@ -65,6 +74,10 @@ WigleBatchDownloader.prototype.download = function(options, requestCallback, cal
 
 		if (verbose) {
 			console.log('\n[verbose] WigleBatchDownloader.onQueryChunkReceived: request finished.');
+		}
+
+		if (result.networks.length == 10000) {
+			console.log('[warning] WigleBatchDownloader.onQueryChunkReceived: Result limit of 10000 reached for this request. Increase your chunkSize to download all networks.');
 		}
 
 		requestCounter++;
