@@ -34,8 +34,10 @@ function WigleBatchDownloader(username, password, callback) {
 WigleBatchDownloader.prototype.download = function(options, requestCallback, callback){
 	
 	var self = this;
+	var verbose = options.verbose || false;
 
 	self.downloading = true;
+
 	if (options.requestTimeout) self.requestTimeout = options.requestTimeout;
 
 	var chunkObjs = self.getChunkObjects(parseFloat(options.fence.latrange1),
@@ -43,7 +45,12 @@ WigleBatchDownloader.prototype.download = function(options, requestCallback, cal
 										 parseFloat(options.fence.longrange1),
 										 parseFloat(options.fence.longrange2),
 										 parseFloat(options.chunkSize));
-	var numRequests = 3; // chunkObjs.length;
+
+	if (verbose) {
+		console.log('[verbose] WigleBatchDownloader.download: ' + chunkObjs.length + ' requests prepaired.');
+	}
+
+	var numRequests = chunkObjs.length;
 	var requestCounter = 0;
 	var afterCallback = _.after(numRequests, callback);
 	var allNetworks = [];
@@ -56,7 +63,9 @@ WigleBatchDownloader.prototype.download = function(options, requestCallback, cal
 
 		if (err) throw err;
 
-		console.log('onQueryChunkReceived: request finished.');
+		if (verbose) {
+			console.log('\n[verbose] WigleBatchDownloader.onQueryChunkReceived: request finished.');
+		}
 
 		requestCounter++;
 		allNetworks = allNetworks.concat(result.networks);
@@ -65,11 +74,20 @@ WigleBatchDownloader.prototype.download = function(options, requestCallback, cal
 
 		// if there are more requests left
 		if (requestCounter < numRequests) {
-			console.log('onQueryChunkReceived: More requests left. Waiting ' + self.requestTimeout + 'ms before making another request.');
+			if (verbose) {
+				console.log('[verbose] WigleBatchDownloader.onQueryChunkReceived: More requests left. Waiting ' + self.requestTimeout + 'ms before making another request.');
+			}
 			setTimeout(function(){
-				console.log('onQueryChunkReceived: timeout finished. Making request.');
-				console.log(chunkObjs[requestCounter]);
-				self._queryChunk(options, chunkObjs[requestCounter], onQueryChunkReceived);
+				if (verbose) {
+					console.log('[verbose] WigleBatchDownloader.onQueryChunkReceived: timeout finished. Making request.');
+				}
+				var chunk = chunkObjs[requestCounter];
+				if (verbose) {
+					var message = '[verbose] WigleBatchDownloader.onQueryChunkReceived: latrange1: ' + chunk.latrange1 + ' latrange2: ' + 
+					chunk.latrange2 + ' longrange1: ' + chunk.longrange1 + ' longrange2: ' + chunk.longrange2;
+					console.log(message);
+				}
+				self._queryChunk(options, chunk, onQueryChunkReceived);
 			}, self.requestTimeout);
 		}
 	}
