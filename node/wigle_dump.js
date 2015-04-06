@@ -93,8 +93,11 @@ var batchDownloader = new WigleBatchDownloader(username, password, function(err)
 
 		allNetworks = _.uniq(allNetworks);
 		console.log('[info] ' + allNetworks.length + ' unique networks downloaded.');
-		saveNetworksToFile(allNetworks);
-		process.exit(0);
+		
+		if (allNetworks.length > 0) {
+			saveNetworksToFile(allNetworks);
+			process.exit(0);
+		}
 	}
 });
 

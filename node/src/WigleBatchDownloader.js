@@ -71,11 +71,6 @@ WigleBatchDownloader.prototype.download = function(options, requestCallback, cal
 
 	function onQueryChunkReceived(err, result) {
 
-		if (err) {
-			// var err = new Error('Batch download interrupted. ' + numRequests + ' networks expected but only ' + allNetworks.length + ' networks downloaded.');
-			callback(err, allNetworks);
-			return false;
-		}
 
 		if (verbose) {
 			console.log('[verbose] WigleBatchDownloader.onQueryChunkReceived: request finished.');
@@ -86,14 +81,23 @@ WigleBatchDownloader.prototype.download = function(options, requestCallback, cal
 		}
 
 		requestCounter++;
-		
-		result.networks = _.map(result.networks, function(network, i){
-			return _.pick(network, 'netid', 'ssid', 'trilat', 'trilong', 'lastupdt');
-		});
 
-		allNetworks = allNetworks.concat(result.networks);
-		// console.log(util.inspect(result.networks, {colors: true}));
-		// process.exit(1);
+		if (result && result.networks) {
+
+			result.networks = _.map(result.networks, function(network, i){
+				return _.pick(network, 'netid', 'ssid', 'trilat', 'trilong', 'lastupdt');
+			});
+
+			allNetworks = allNetworks.concat(result.networks);
+			// console.log(util.inspect(result.networks, {colors: true}));
+			// process.exit(1);
+		}
+
+		if (err) {
+			// var err = new Error('Batch download interrupted. ' + numRequests + ' networks expected but only ' + allNetworks.length + ' networks downloaded.');
+			callback(err, allNetworks);
+			return false;
+		}
 		
 		// continue making requests
 		if (requestCallback(err, result) == true) { 
