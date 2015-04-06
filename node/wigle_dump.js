@@ -46,24 +46,24 @@ if (lastupdt) {
 	};
 }
 
+var options = {
+	verbose: true,
+	chunkSize: chunkSize || 0.005,
+	requestTimeout: 1000 * 10, // 1 minute between requests to not bog down server
+	fence: {
+		latrange1: latrange1, // must be less than latrange2
+		latrange2: latrange2,
+		longrange1: longrange1, // must be less than longrange2
+		longrange2: longrange2
+	}
+}
+
 var batchDownloader = new WigleBatchDownloader(username, password, function(err){
 	
 	// fires on wigle.net login or (err on login failed
 	if (err) {
 		console.log('Login failed using username: ' + username + ' password: ' + password);
 		process.exit(1);
-	}
-
-	var options = {
-		verbose: true,
-		chunkSize: chunkSize || 0.005,
-		requestTimeout: 1000 * 10, // 1 minute between requests to not bog down server
-		fence: {
-			latrange1: latrange1, // must be less than latrange2
-			latrange2: latrange2,
-			longrange1: longrange1, // must be less than longrange2
-			longrange2: longrange2
-		}
 	}
 
 	if (filter) {
@@ -91,19 +91,22 @@ var batchDownloader = new WigleBatchDownloader(username, password, function(err)
 			console.log('[info] All queries have returned. ' + allNetworks.length + ' downloaded.');
 		}
 
-		var filename = __dirname + '/../data/wigle_data/' + options.fence.latrange1 
-			+ '_' + options.fence.latrange2 + '_' + options.fence.longrange1 + '_' 
-			+ options.fence.longrange2 + '.json';
-
 		allNetworks = _.uniq(allNetworks);
 		console.log('[info] ' + allNetworks.length + ' unique networks downloaded.');
-
-		fs.writeFile(filename, JSON.stringify(allNetworks), function(err){
-
-			if (err) throw err;
-			console.log('[info] ' + allNetworks.length + ' networks saved to ' + filename);
-			process.exit(0);
-		});
+		saveNetworksToFile(allNetworks);
+		process.exit(0);
 	}
-
 });
+
+function saveNetworksToFile(networks) {
+
+	var filename = __dirname + '/../data/wigle_data/' + options.fence.latrange1 
+	+ '_' + options.fence.latrange2 + '_' + options.fence.longrange1 + '_' 
+	+ options.fence.longrange2 + '.json';
+
+	fs.writeFile(filename, JSON.stringify(networks), function(err){
+
+		if (err) throw err;
+		console.log('[info] ' + networks.length + ' networks saved to ' + filename);
+	});
+}
