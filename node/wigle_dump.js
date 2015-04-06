@@ -86,7 +86,7 @@ var batchDownloader = new WigleBatchDownloader(username, password, function(err)
 	function onAllNetworksDownloaded(err, allNetworks) {
 
 		if (err) {
-			console.log('[error] network download was ended abruptly ' + err);
+			console.log('[error] network download was ended abruptly with: ' + err);
 		} else {
 			console.log('[info] All queries have returned. ' + allNetworks.length + ' downloaded.');
 		}
@@ -96,12 +96,12 @@ var batchDownloader = new WigleBatchDownloader(username, password, function(err)
 			+ options.fence.longrange2 + '.json';
 
 		allNetworks = _.uniq(allNetworks);
-		console.log('[info]' + allNetworks.length + ' unique networks downloaded.');
+		console.log('[info] ' + allNetworks.length + ' unique networks downloaded.');
 
 		fs.writeFile(filename, JSON.stringify(allNetworks), function(err){
 
 			if (err) throw err;
-			console.log('[info]' + allNetworks.length + ' networks saved to ' + filename);
+			console.log('[info] ' + allNetworks.length + ' networks saved to ' + filename);
 			process.exit(0);
 		});
 	}

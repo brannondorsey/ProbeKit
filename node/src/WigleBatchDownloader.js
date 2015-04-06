@@ -1,3 +1,4 @@
+var util = require('util');
 var wigle = require('./wigle-api');
 var _ = require('underscore');
 
@@ -70,6 +71,12 @@ WigleBatchDownloader.prototype.download = function(options, requestCallback, cal
 
 	function onQueryChunkReceived(err, result) {
 
+		if (err) {
+			// var err = new Error('Batch download interrupted. ' + numRequests + ' networks expected but only ' + allNetworks.length + ' networks downloaded.');
+			callback(err, allNetworks);
+			return false;
+		}
+
 		if (verbose) {
 			console.log('[verbose] WigleBatchDownloader.onQueryChunkReceived: request finished.');
 		}
@@ -79,7 +86,14 @@ WigleBatchDownloader.prototype.download = function(options, requestCallback, cal
 		}
 
 		requestCounter++;
+		
+		result.networks = _.map(result.networks, function(network, i){
+			return _.pick(network, 'netid', 'ssid', 'trilat', 'trilong', 'lastupdt');
+		});
+
 		allNetworks = allNetworks.concat(result.networks);
+		// console.log(util.inspect(result.networks, {colors: true}));
+		// process.exit(1);
 		
 		// continue making requests
 		if (requestCallback(err, result) == true) { 
@@ -104,9 +118,6 @@ WigleBatchDownloader.prototype.download = function(options, requestCallback, cal
 					self._queryChunk(options, chunk, onQueryChunkReceived);
 				}, self.requestTimeout);
 			}
-		} else {
-			var err = new Error('Batch download interrupted. ' + numRequests + ' networks expected but only ' + allNetworks.length + ' networks downloaded.');
-			callback(err, allNetworks);
 		}
 	}
 }
