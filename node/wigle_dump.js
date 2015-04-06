@@ -46,8 +46,13 @@ if (lastupdt) {
 	};
 }
 
-var batchDownloader = new WigleBatchDownloader(username, password, function(){
-	// fires on wigle.net login
+var batchDownloader = new WigleBatchDownloader(username, password, function(err){
+	
+	// fires on wigle.net login or (err on login failed
+	if (err) {
+		console.log('Login failed using username: ' + username + ' password: ' + password);
+		process.exit(1);
+	}
 
 	var options = {
 		verbose: true,
@@ -67,13 +72,25 @@ var batchDownloader = new WigleBatchDownloader(username, password, function(){
 
 	batchDownloader.download(options, onRequestFinished, onAllNetworksDownloaded);
 
-	function onRequestFinished(result) {
+	function onRequestFinished(err, result) {
 		// result.timestamp, result.networks
+		if (err) {
+			console.log('[error] request error received, terminating future network downloads: ' + error);
+			return false;
+		}
+
 		console.log('[info] Query returned ' + result.networks.length + ' at ' + result.timestamp);
+		return true; // must return true to continue downloading		
 	}
 
-	function onAllNetworksDownloaded(allNetworks) {
-		console.log('[info] All queries have returned. ' + allNetworks.length + ' downloaded.');
+	function onAllNetworksDownloaded(err, allNetworks) {
+
+		if (err) {
+			console.log('[error] network download was ended abruptly ' + err);
+		} else {
+			console.log('[info] All queries have returned. ' + allNetworks.length + ' downloaded.');
+		}
+
 		var filename = __dirname + '/../data/wigle_data/' + options.fence.latrange1 
 			+ '_' + options.fence.latrange2 + '_' + options.fence.longrange1 + '_' 
 			+ options.fence.longrange2 + '.json';
