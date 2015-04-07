@@ -1,3 +1,4 @@
+var util = require('util');
 var wigle = require('./wigle-api');
 var _ = require('underscore');
 
@@ -70,38 +71,57 @@ WigleBatchDownloader.prototype.download = function(options, requestCallback, cal
 
 	function onQueryChunkReceived(err, result) {
 
-		if (err) throw err;
 
 		if (verbose) {
-			console.log('\n[verbose] WigleBatchDownloader.onQueryChunkReceived: request finished.');
-		}
-
-		if (result.networks.length == 10000) {
-			console.log('[warning] WigleBatchDownloader.onQueryChunkReceived: Result limit of 10000 reached for this request. Increase your chunkSize to download all networks.');
+			console.log('[verbose] WigleBatchDownloader.onQueryChunkReceived: request finished.');
 		}
 
 		requestCounter++;
-		allNetworks = allNetworks.concat(result.networks);
-		requestCallback(result);
-		afterCallback(allNetworks);
 
-		// if there are more requests left
-		if (requestCounter < numRequests) {
-			if (verbose) {
-				console.log('[verbose] WigleBatchDownloader.onQueryChunkReceived: More requests left. Waiting ' + self.requestTimeout + 'ms before making another request.');
+		if (result && result.networks) {
+
+			if (result.networks.length == 10000) {
+				console.log('[warning] WigleBatchDownloader.onQueryChunkReceived: Result limit of 10000 reached for this request. Increase your chunkSize to download all networks.');
 			}
-			setTimeout(function(){
+
+			result.networks = _.map(result.networks, function(network, i){
+				return _.pick(network, 'netid', 'ssid', 'trilat', 'trilong', 'lastupdt');
+			});
+
+			allNetworks = allNetworks.concat(result.networks);
+			// console.log(util.inspect(result.networks, {colors: true}));
+			// process.exit(1);
+		}
+
+		if (err) {
+			// var err = new Error('Batch download interrupted. ' + numRequests + ' networks expected but only ' + allNetworks.length + ' networks downloaded.');
+			callback(err, allNetworks);
+			return false;
+		}
+		
+		// continue making requests
+		if (requestCallback(err, result) == true) { 
+
+			afterCallback(null, allNetworks);
+
+			// if there are more requests left
+			if (requestCounter < numRequests) {
 				if (verbose) {
-					console.log('[verbose] WigleBatchDownloader.onQueryChunkReceived: timeout finished. Making request.');
+					console.log('\n[verbose] WigleBatchDownloader.onQueryChunkReceived: More requests left. Waiting ' + self.requestTimeout + 'ms before making another request.');
 				}
-				var chunk = chunkObjs[requestCounter];
-				if (verbose) {
-					var message = '[verbose] WigleBatchDownloader.onQueryChunkReceived: latrange1: ' + chunk.latrange1 + ' latrange2: ' + 
-					chunk.latrange2 + ' longrange1: ' + chunk.longrange1 + ' longrange2: ' + chunk.longrange2;
-					console.log(message);
-				}
-				self._queryChunk(options, chunk, onQueryChunkReceived);
-			}, self.requestTimeout);
+				setTimeout(function(){
+					if (verbose) {
+						console.log('[verbose] WigleBatchDownloader.onQueryChunkReceived: timeout finished. Making request.');
+					}
+					var chunk = chunkObjs[requestCounter];
+					if (verbose) {
+						var message = '[verbose] WigleBatchDownloader.onQueryChunkReceived: latrange1: ' + chunk.latrange1 + ' latrange2: ' + 
+						chunk.latrange2 + ' longrange1: ' + chunk.longrange1 + ' longrange2: ' + chunk.longrange2;
+						console.log(message);
+					}
+					self._queryChunk(options, chunk, onQueryChunkReceived);
+				}, self.requestTimeout);
+			}
 		}
 	}
 }
