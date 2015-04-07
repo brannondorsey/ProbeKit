@@ -96,8 +96,9 @@ var batchDownloader = new WigleBatchDownloader(username, password, function(err)
 		
 		if (allNetworks.length > 0) {
 			saveNetworksToFile(allNetworks);
-			process.exit(0);
 		}
+
+		process.exit(0);
 	}
 });
 
