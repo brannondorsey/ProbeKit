@@ -6,10 +6,10 @@ var WigleBatchDownloader = require('./src/WigleBatchDownloader');
 var username = argv.username || argv.u || '46ea0d5b2';
 var password = argv.password || argv.p || '46ea0d5b2';
 var lastupdt = argv.lastupdt || argv.l;
-var latrange1 = argv.latrange1 || argv.w;
-var latrange2 = argv.latrange2 || argv.e;
-var longrange1 = argv.longrange1 || argv.n;
-var longrange2 = argv.longrange2 || argv.s;
+var latrange1 = argv.north || argv.latrange1;
+var latrange2 = argv.south || argv.latrange2;
+var longrange1 = argv.west || argv.longrange1;
+var longrange2 = argv.east || argv.longrange2;
 var chunkSize = argv.chunkSize || argv.c;
 var dryRun = argv.dryRun || argv.d;
 
@@ -18,17 +18,17 @@ var filter = null;
 if (!(latrange1 && latrange2 && longrange1 && longrange2)) {
 	console.log('Usage: node wigle_dump.js' + ' <required> [options]');
 	console.log('Required:');
-	console.log('    --latrange1=<latrange1>, -w <latrange1>');
-	console.log('    --latrange2=<latrange2>, -e <latrange2>');
-	console.log('    --longrange1=<longrange1>, -n <longrange1>');
-	console.log('    --longrange2=<longrange2>, -s <longrange2>');
+	console.log('    --north=<max_lat>, latrange1=<max_lat>');
+	console.log('    --south=<min_lat>, latrange2=<min_lat>');
+	console.log('    --west=<min_long>, longrange1=<min_long>');
+	console.log('    --east=<max_long>, longrange2=<max_long>');
 	console.log();
 	console.log('Options:');
-	console.log('    --username=[username], -u [username]     Wigle.net username.');
-	console.log('    --password=[password], -c [password]     Wigle.net password.');
+	console.log('    --username=[username],   -u [username]   Wigle.net username.');
+	console.log('    --password=[password],   -c [password]   Wigle.net password.');
 	console.log('    --chunkSize=[chunkSize], -c [chunkSize]  Set the chunkSize. i.e. 0.005');
-	console.log('    --lastupdt=[lastupdt], -l [lastupdt]     Search only networks found since YYYYMMDDHHMMSS. i.e. 20100101000000');
-	console.log('    --dryRun, -d                             Calculate number of prepaired requests only. Does not actually execute reqests.');
+	console.log('    --lastupdt=[lastupdt],   -l [lastupdt]   Search only networks found since YYYYMMDDHHMMSS. i.e. 20100101000000');
+	console.log('    --dryRun,                -d              Calculate number of prepaired requests only. Does not actually execute reqests.');
 	process.exit(1);
 }
 
@@ -63,10 +63,10 @@ var options = {
 if (dryRun) {
 
 	var chunks = (new WigleBatchDownloader()).getChunkObjects(options.fence.latrange1,
-						 			  options.fence.latrange2,
-						 			  options.fence.longrange1,
-						 			  options.fence.longrange2,
-						 			  options.chunkSize);
+												 			  options.fence.latrange2,
+												 			  options.fence.longrange1,
+												 			  options.fence.longrange2,
+												 			  options.chunkSize);
 
 	console.log('[info] ' + chunks.length + ' requests prepaired.');
 	process.exit(0);

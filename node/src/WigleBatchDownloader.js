@@ -133,11 +133,11 @@ WigleBatchDownloader.prototype.getChunkObjects = function(latrange1, latrange2, 
 	var chunkObjs = [];
 	// latrange1 must always be less than latrange2 and
 	// longrange1 must always be less than longrange2
-	for (var x = latrange1; x < latrange2; x += chunkSize) {
+	for (var x = latrange1; x > latrange2; x -= chunkSize) {
 		for (var y = longrange1; y < longrange2; y += chunkSize) {
 			chunkObjs.push({
 				latrange1: parseFloat(x.toFixed(4)),
-				latrange2: parseFloat((x + chunkSize).toFixed(4)),
+				latrange2: parseFloat((x - chunkSize).toFixed(4)),
 				longrange1: parseFloat(y.toFixed(4)),
 				longrange2: parseFloat((y + chunkSize).toFixed(4))
 			});
