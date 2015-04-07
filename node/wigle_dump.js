@@ -11,6 +11,7 @@ var latrange2 = argv.latrange2 || argv.e;
 var longrange1 = argv.longrange1 || argv.n;
 var longrange2 = argv.longrange2 || argv.s;
 var chunkSize = argv.chunkSize || argv.c;
+var dryRun = argv.dryRun || argv.d;
 
 var filter = null;
 
@@ -27,6 +28,7 @@ if (!(latrange1 && latrange2 && longrange1 && longrange2)) {
 	console.log('    --password=[password], -c [password]     Wigle.net password.');
 	console.log('    --chunkSize=[chunkSize], -c [chunkSize]  Set the chunkSize. i.e. 0.005');
 	console.log('    --lastupdt=[lastupdt], -l [lastupdt]     Search only networks found since YYYYMMDDHHMMSS. i.e. 20100101000000');
+	console.log('    --dryRun, -d                             Calculate number of prepaired requests only. Does not actually execute reqests.');
 	process.exit(1);
 }
 
@@ -56,6 +58,18 @@ var options = {
 		longrange1: longrange1, // must be less than longrange2
 		longrange2: longrange2
 	}
+}
+
+if (dryRun) {
+
+	var chunks = (new WigleBatchDownloader()).getChunkObjects(options.fence.latrange1,
+						 			  options.fence.latrange2,
+						 			  options.fence.longrange1,
+						 			  options.fence.longrange2,
+						 			  options.chunkSize);
+
+	console.log('[info] ' + chunks.length + ' requests prepaired.');
+	process.exit(0);
 }
 
 var batchDownloader = new WigleBatchDownloader(username, password, function(err){
@@ -98,6 +112,7 @@ var batchDownloader = new WigleBatchDownloader(username, password, function(err)
 			saveNetworksToFile(allNetworks, function(err){
 				
 				if (err) throw err;
+				console.log('[info] ' + networks.length + ' networks saved to ' + filename);
 				process.exit(0);
 			});
 		} else {
@@ -106,15 +121,11 @@ var batchDownloader = new WigleBatchDownloader(username, password, function(err)
 	}
 });
 
-function saveNetworksToFile(networks) {
+function saveNetworksToFile(networks, callback) {
 
 	var filename = __dirname + '/../data/wigle_data/' + options.fence.latrange1 
 	+ '_' + options.fence.latrange2 + '_' + options.fence.longrange1 + '_' 
 	+ options.fence.longrange2 + '.json';
 
-	fs.writeFile(filename, JSON.stringify(networks), function(err){
-
-		if (err) throw err;
-		console.log('[info] ' + networks.length + ' networks saved to ' + filename);
-	});
+	fs.writeFile(filename, JSON.stringify(networks), callback);
 }

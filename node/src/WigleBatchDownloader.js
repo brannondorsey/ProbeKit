@@ -9,7 +9,9 @@ function WigleBatchDownloader(username, password, callback) {
 	// self.maxConcurrentRequests = 1;
 	self.downloading = false;
 
-	self.wigleClient = wigle.createClient(username, password, callback);
+	if (username && password && callback) {
+		self.wigleClient = wigle.createClient(username, password, callback);
+	}
 }
 
 // EXAMPLE OPTIONS
