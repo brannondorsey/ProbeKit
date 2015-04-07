@@ -76,13 +76,13 @@ WigleBatchDownloader.prototype.download = function(options, requestCallback, cal
 			console.log('[verbose] WigleBatchDownloader.onQueryChunkReceived: request finished.');
 		}
 
-		if (result.networks.length == 10000) {
-			console.log('[warning] WigleBatchDownloader.onQueryChunkReceived: Result limit of 10000 reached for this request. Increase your chunkSize to download all networks.');
-		}
-
 		requestCounter++;
 
 		if (result && result.networks) {
+
+			if (result.networks.length == 10000) {
+				console.log('[warning] WigleBatchDownloader.onQueryChunkReceived: Result limit of 10000 reached for this request. Increase your chunkSize to download all networks.');
+			}
 
 			result.networks = _.map(result.networks, function(network, i){
 				return _.pick(network, 'netid', 'ssid', 'trilat', 'trilong', 'lastupdt');
