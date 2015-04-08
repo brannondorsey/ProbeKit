@@ -5,6 +5,8 @@ var MongoClient = require('mongodb').MongoClient;
 
 var inputFile = argv.input || argv.i;
 
+var oldDBCount = null;
+
 if (!inputFile) {
 	console.log('Usage: wigle_to_mongo.js -i <input>');
 	process.exit(1);
@@ -53,10 +55,19 @@ function updateDatabase(json) {
 			return network.ssid != "<no ssid>" && ! network.ssid.match(/^\s+$/);
 		});
 
+		console.log('[verbose] Proposing ' + json.length + ' networks to be added to databas.');
 		insertNetworks(json, db, function() {
-		  	
-		  	db.close();
-		  	process.exit(0);
+
+			var collection = db.collection('wigle');
+			collection.count(function(err, count){
+
+				if (oldDBCount && count) {
+					console.log('[verbose] ' + (count - oldDBCount) + ' networks added to database.');
+				}
+
+				db.close();
+		  		process.exit(0);
+			});
 		});
 	});
 }
@@ -72,27 +83,46 @@ function insertNetworks(networks, db, callback) {
   	// Get the documents collection
   	var collection = db.collection('wigle');
 
-  	networks.forEach(function(network, i){
-  	
-  		var knownNetwork = collection.findOne({
-  			ssid: network.ssid,
-  			trilat: network.trilat,
-  			trilong: network.trilong
-  		}, function(err, result){
-  			
-  			if (err) throw err;
-  			if (!result) {
+	collection.count(function(err, count){
 
-	  			// // Insert some documents
-		  		collection.insert(network, { w: 1 }, function(err, result){
-		  			
-		  			if (err) throw err;
-		  			console.log(network.ssid);
-		  		 	afterCallback();
-		  	 	});
-	  		} else {
-	  			afterCallback();
-	  		}
-  		});
-  	});
+		console.log('[verbose] ' + count + ' networks already in database.');
+		oldDBCount = count;
+
+		networks.forEach(function(network, i){
+  				   	
+	  		collection.insert(network, { w: 1 }, function(err, result){
+				
+	 			// if (err) throw err;
+	 			if (result && result.result.ok == 1) {
+	 				console.log(network.ssid);
+	 		 	}
+
+	 		 	afterCallback();
+	 	 	});
+		  	// 	} else {
+		  	// 		afterCallback();
+		  	// 	}
+	  		// var knownNetwork = collection.findOne({
+	  		// 	ssid: network.ssid,
+	  		// 	trilat: network.trilat,
+	  		// 	trilong: network.trilong
+	  		// }, function(err, result){
+	  			
+	  		// 	if (err) throw err;
+	  		// 	if (!result) {
+
+		  	// 		// // Insert some documents
+			  // 		collection.insert(network, { w: 1 }, function(err, result){
+			  			
+			  // 			if (err) throw err;
+			  // 			console.log(network.ssid);
+			  // 		 	afterCallback();
+			  // 	 	});
+		  	// 	} else {
+		  	// 		afterCallback();
+		  	// 	}
+	  		// });
+	  		
+	  	});
+	});
 }
