@@ -112,7 +112,6 @@ var batchDownloader = new WigleBatchDownloader(username, password, function(err)
 			saveNetworksToFile(allNetworks, function(err){
 				
 				if (err) throw err;
-				console.log('[info] ' + allNetworks.length + ' networks saved to ' + filename);
 				process.exit(0);
 			});
 		} else {
@@ -127,5 +126,10 @@ function saveNetworksToFile(networks, callback) {
 	+ '_' + options.fence.latrange2 + '_' + options.fence.longrange1 + '_' 
 	+ options.fence.longrange2 + '.json';
 
-	fs.writeFile(filename, JSON.stringify(networks), callback);
+	fs.writeFile(filename, JSON.stringify(networks), function(err){
+		if (!err) {
+			console.log('[info] ' + networks.length + ' networks saved to ' + filename);
+		}
+		callback(err);
+	});
 }
