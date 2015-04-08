@@ -33,31 +33,30 @@ function updateDatabase(json) {
 	// Use connect method to connect to the Server 
 	MongoClient.connect(url, function(err, db) {
 	  
-	if (err) {
-		console.log('[error] Cannot connect to MongoDB. Are you sure that there is a MongoDB server running?');
-	  	process.exit(1);
-	}
+		if (err) {
+			console.log('[error] Cannot connect to MongoDB. Are you sure that there is a MongoDB server running?');
+		  	process.exit(1);
+		}
 
-	console.log('[verbose] MongoDB connection established.');
+		console.log('[verbose] MongoDB connection established.');
 
-	json = _.map(json, function(network) {
-	  		
-	  	network = _.pick(network, 'ssid', 'netid', 'trilat', 'trilong', 'lastupdt');
-	  	network.trilat = parseFloat(network.trilat);
-	  	network.trilong = parseFloat(network.trilong);
-	  	network.lastupdt = parseInt(network.lastupdt);
-	  	return network;
-	});
+		json = _.map(json, function(network) {
+		  		
+		  	network = _.pick(network, 'ssid', 'netid', 'trilat', 'trilong', 'lastupdt');
+		  	network.trilat = parseFloat(network.trilat);
+		  	network.trilong = parseFloat(network.trilong);
+		  	network.lastupdt = parseInt(network.lastupdt);
+		  	return network;
+		});
 
-	json = _.filter(json, function(network){
-		return network.ssid != "<no ssid>" && ! network.ssid.match(/^\s+$/);
-	});
+		json = _.filter(json, function(network){
+			return network.ssid != "<no ssid>" && ! network.ssid.match(/^\s+$/);
+		});
 
-	insertNetworks(json, db, function() {
-	  	
-	  	db.close();
-	  	process.exit(0);
-
+		insertNetworks(json, db, function() {
+		  	
+		  	db.close();
+		  	process.exit(0);
 		});
 	});
 }
@@ -65,7 +64,7 @@ function updateDatabase(json) {
 function insertNetworks(networks, db, callback) {
 
 	if (! networks instanceof Array) {
-  		networks = [networks];
+  		networks = [ networks ];
 	}
 
 	afterCallback = _.after(networks.length, callback);
@@ -82,16 +81,7 @@ function insertNetworks(networks, db, callback) {
   		}, function(err, result){
   			
   			if (err) throw err;
-  			if (result) {
-  				// console.log('Updating an older network');
-	  			// collection.update({ _id: result._id, lastupdt: { "$lt" : network.lastupdt }}, { "$set": { lastupdt : network.lastupdt }}, 
-	  			// 	function(err, result){
-	  			// 		if (err) throw err;
-	  			// 		console.log('update successful');
-	  			// 		afterCallback();
-	  			// 	});
-
-	  		} else {
+  			if (!result) {
 
 	  			// // Insert some documents
 		  		collection.insert(network, { w: 1 }, function(err, result){
@@ -100,6 +90,8 @@ function insertNetworks(networks, db, callback) {
 		  			console.log(network.ssid);
 		  		 	afterCallback();
 		  	 	});
+	  		} else {
+	  			afterCallback();
 	  		}
   		});
   	});
