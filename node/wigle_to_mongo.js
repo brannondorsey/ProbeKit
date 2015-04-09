@@ -4,11 +4,12 @@ var argv = require('minimist')(process.argv.slice(2));
 var MongoClient = require('mongodb').MongoClient;
 
 var inputFile = argv.input || argv.i;
+var collectionName = argv.collection || argv.c;
 
 var oldDBCount = null;
 
-if (!inputFile) {
-	console.log('Usage: wigle_to_mongo.js -i <input>');
+if (!inputFile || !collectionName) {
+	console.log('Usage: wigle_to_mongo.js -i <input> -c <collection>');
 	process.exit(1);
 }
 
@@ -42,31 +43,57 @@ function updateDatabase(json) {
 
 		console.log('[verbose] MongoDB connection established.');
 
-		json = _.map(json, function(network) {
-		  		
-		  	network = _.pick(network, 'ssid', 'netid', 'trilat', 'trilong', 'lastupdt');
-		  	network.trilat = parseFloat(network.trilat);
-		  	network.trilong = parseFloat(network.trilong);
-		  	network.lastupdt = parseInt(network.lastupdt);
-		  	return network;
-		});
+		db.collections(function(err, collections){
 
-		json = _.filter(json, function(network){
-			return network.ssid != "<no ssid>" && ! network.ssid.match(/^\s+$/);
-		});
-
-		console.log('[verbose] Proposing ' + json.length + ' networks to be added to databas.');
-		insertNetworks(json, db, function() {
-
-			var collection = db.collection('wigle');
-			collection.count(function(err, count){
-
-				if (oldDBCount && count) {
-					console.log('[verbose] ' + (count - oldDBCount) + ' networks added to database.');
-				}
-
+			if (err) {
+				console.log('[error] Could not fetch database collection names.');
 				db.close();
-		  		process.exit(0);
+  				process.exit(1);
+			}
+
+			var nameFound = false;
+			collections.forEach(function(collection, i){
+				if (collection.s && collection.s.name && collection.s.name == collectionName) {
+					nameFound = true;
+				}
+			});
+
+			if (!nameFound) {
+				console.log('[error] Collection \'' + collectionName + '\' does not exist.');
+				db.close();
+  				process.exit(1);
+			}
+
+			json = _.map(json, function(network) {	
+				return {
+					ssid: network.ssid,
+					netid: network.netid,
+					geo: {
+				  		lat: parseFloat(network.trilat),
+				  		lon: parseFloat(network.trilong)
+				  	},
+				  	lastupdt: network.lastupdt
+				}
+			});
+
+			json = _.filter(json, function(network){
+				return network.ssid != "<no ssid>" && ! network.ssid.match(/^\s+$/);
+			});
+
+			console.log('[verbose] Proposing ' + json.length + ' networks to be added to database.');
+
+			insertNetworks(json, db, function() {
+
+				var collection = db.collection(collectionName);
+				collection.count(function(err, count){
+
+					if (oldDBCount && count) {
+						console.log('[verbose] ' + (count - oldDBCount) + ' networks added to database.');
+					}
+
+					db.close();
+			  		process.exit(0);
+				});
 			});
 		});
 	});
@@ -81,7 +108,7 @@ function insertNetworks(networks, db, callback) {
 	afterCallback = _.after(networks.length, callback);
 
   	// Get the documents collection
-  	var collection = db.collection('wigle');
+  	var collection = db.collection(collectionName);
 
 	collection.count(function(err, count){
 
