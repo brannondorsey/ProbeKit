@@ -30,10 +30,10 @@ function makeButterfly( data, ssid ){
 		updatePositions(); // update responsive grid
 
 		var parent = document.getElementById('net');
-		var butterfly = document.createElement('div')
-;			butterfly.className = "butterfly";
+		var butterfly = document.createElement('div');			
+			butterfly.className = "butterfly";
 			butterfly.id = "_"+data;
-			butterfly.onclick = function() { getInfo(data) };
+			butterfly.onclick = function() { getInfo(data,ssid) };
 
 		var top = document.createElement('div');
 			top.className = "top";
@@ -55,24 +55,25 @@ function makeButterfly( data, ssid ){
 		var col = "rgb("+r+","+g+","+b+")";
 		tleft.style.background = tright.style.background = bleft.style.background = bright.style.background = col;
 
-		var w = Math.floor(Math.map( parseInt( d[3], 16 ), 0,255, (cellWidth-50)/1.25,(cellWidth-50) ));
-		var h = Math.floor(Math.map( parseInt( d[4], 16 ), 0,255, (cellHeight-50)/1.5,(cellHeight-50) ));
+		var numNets = (ssid.length<=10) ? ssid.length : 10;
+		var w = Math.floor(Math.map( numNets, 0,10, (cellWidth-50)/1.25,(cellWidth-50) ));
+		var h = Math.floor(Math.map( numNets, 0,10, (cellHeight-50)/1.5,(cellHeight-50) ));
 		butterfly.style.width = w+"px";
 		butterfly.style.height = h+"px";
 		butterfly.style.margin = (cellHeight-h)/2+"px "+(cellWidth-w)/2+"px";
 		butterfly.style.left = (window.innerWidth-(Math.floor(window.innerWidth/cellWidth)*cellWidth))/2 +"px";
 		butterfly.style.top = "0px";
 
-		var rad3 = Math.map( parseInt( d[4], 16 ), 0,255, 64,113 );
-		var rad4 = Math.map( parseInt( d[5], 16 ), 0,255, 3,18 );
+		var rad3 = Math.map( parseInt( d[3], 16 ), 0,255, 64,113 );
+		var rad4 = Math.map( parseInt( d[4], 16 ), 0,255, 3,18 );
 		tleft.style.borderRadius = "0% "+Math.floor(rad3)+"% "+Math.floor(rad4)+"% 150%";
 		tright.style.borderRadius = "150% "+Math.floor(rad4)+"% "+Math.floor(rad3)+"% 0%";
 
-		var ran = Math.floor( (Math.random()*100) + 130);
-		tleft.style.animation = 'flap-lt '+ran+'ms ease-in 4 alternate';
-		tright.style.animation = 'flap-rt '+ran+'ms ease-in 4 alternate';
-		bleft.style.animation = 'flap-lb '+ran+'ms ease-in 4 alternate';
-		bright.style.animation = 'flap-rb '+ran+'ms ease-in 4 alternate';
+		var flapSpeed = Math.map( parseInt( d[5], 16 ), 0,255, 130,230 )
+		tleft.style.animation = 'flap-lt '+flapSpeed+'ms ease-in 4 alternate';
+		tright.style.animation = 'flap-rt '+flapSpeed+'ms ease-in 4 alternate';
+		bleft.style.animation = 'flap-lb '+flapSpeed+'ms ease-in 4 alternate';
+		bright.style.animation = 'flap-rb '+flapSpeed+'ms ease-in 4 alternate';
 
 		top.appendChild(tleft); top.appendChild(tright);
 		bottom.appendChild(bleft); bottom.appendChild(bright);
@@ -123,10 +124,19 @@ function updatePositions(){
 
 	};
 }
+window.onresize = function(e) {
+    var macs = getFilteredMacs();
+    $('#net').empty();
+    if (macs.length > 0) {
+		for (var i = 0; i < macs.length; i++) {
+			makeButterfly( macs[i].mac, macs[i].knownNetworks );
+		}
+	}
+};
 
 
 // Butter fly that shows up inside the modal -------------------------
-function makeNfoButterfly( data, time ){
+function makeNfoButterfly( data, ssid ){
 	var parent = document.getElementById('nfo-left');
 	var butterfly = document.createElement('div');
 		butterfly.className = "nfo-butterfly";
@@ -150,20 +160,25 @@ function makeNfoButterfly( data, time ){
 	var col = "rgb("+r+","+g+","+b+")";
 	tleft.style.background = tright.style.background = bleft.style.background = bright.style.background = col;
 
-	var w = Math.floor(Math.map( parseInt( d[3], 16 ), 0,255, (cellWidth-50)/1.25,(cellWidth-50) ));
-	var h = Math.floor(Math.map( parseInt( d[4], 16 ), 0,255, (cellHeight-50)/1.5,(cellHeight-50) ));
+	var numNets = (ssid.length<=10) ? ssid.length : 10;
+	var w = Math.floor(Math.map( numNets, 0,10, (cellWidth-50)/1.25,(cellWidth-50) ));
+	var h = Math.floor(Math.map( numNets, 0,10, (cellHeight-50)/1.5,(cellHeight-50) ));
 	butterfly.style.width = w+"px";
 	butterfly.style.height = h+"px";
+	butterfly.style.margin = (cellHeight-h)/2+"px "+(cellWidth-w)/2+"px";
+	butterfly.style.left = (window.innerWidth-(Math.floor(window.innerWidth/cellWidth)*cellWidth))/2 +"px";
+	butterfly.style.top = "0px";
 
-	var rad3 = Math.map( parseInt( d[4], 16 ), 0,255, 64,113 );
-	var rad4 = Math.map( parseInt( d[5], 16 ), 0,255, 3,18 );
+	var rad3 = Math.map( parseInt( d[3], 16 ), 0,255, 64,113 );
+	var rad4 = Math.map( parseInt( d[4], 16 ), 0,255, 3,18 );
 	tleft.style.borderRadius = "0% "+Math.floor(rad3)+"% "+Math.floor(rad4)+"% 150%";
 	tright.style.borderRadius = "150% "+Math.floor(rad4)+"% "+Math.floor(rad3)+"% 0%";
 
-	tleft.style.animation = 'flap-lt 1000ms ease-in infinite alternate';
-	tright.style.animation = 'flap-rt 1000ms ease-in infinite alternate';
-	bleft.style.animation = 'flap-lb 1000ms ease-in infinite alternate';
-	bright.style.animation = 'flap-rb 1000ms ease-in infinite alternate';
+	var flapSpeed = Math.map( parseInt( d[5], 16 ), 0,255, 800,1200 );
+	tleft.style.animation = 'flap-lt '+flapSpeed+'ms ease-in 4 alternate';
+	tright.style.animation = 'flap-rt '+flapSpeed+'ms ease-in 4 alternate';
+	bleft.style.animation = 'flap-lb '+flapSpeed+'ms ease-in 4 alternate';
+	bright.style.animation = 'flap-rb '+flapSpeed+'ms ease-in 4 alternate';
 
 	top.appendChild(tleft); top.appendChild(tright);
 	bottom.appendChild(bleft); bottom.appendChild(bright);
@@ -172,14 +187,14 @@ function makeNfoButterfly( data, time ){
 }
 
 // creates the modal, runs on click of a butterfly -------------------------------------------------------------------------
-function getInfo( id ){
+function getInfo( id, ssid ){
 	var nfoR = document.getElementById('nfo-right');
 	var nfoL = document.getElementById('nfo-left');
 		nfoR.innerHTML = "";
 		nfoL.innerHTML = "";
 	$('#screen').fadeIn(500,function(){
 		// left column
-		makeNfoButterfly( id );
+		makeNfoButterfly( id, ssid );
 
 		var mac = document.createElement('div');
 			mac.innerHTML = id.toUpperCase();
@@ -227,6 +242,8 @@ function getInfo( id ){
 var filt = {
 	stat: false,
 	mktag: function(type, val){
+		var input = document.getElementById('filterInput');
+		if(input) $('#filterInput').remove();
 		var f = document.getElementById('filtermenu');
 		if(!this.stat){ f.innerHTML = "Filtering by "; }
 		var s1 = document.createElement('span');
@@ -239,6 +256,13 @@ var filt = {
 			s2.onclick = function(){ filt.update( type, val, true ) };
 		s1.appendChild(s2);
 		f.appendChild(s1);
+	},
+	mkinput: function(){
+		var input = document.createElement('input');
+			input.setAttribute('id','filterInput');
+			input.setAttribute('placeholder','add tag');
+		var f = document.getElementById('filtermenu');
+			f.appendChild(input);
 	},
 	display:function(){
 		var nl = filter.networks.length;
@@ -291,9 +315,37 @@ var filt = {
 			}
 
 			if (success) {
+				this.mkinput(); 
 				applyFilter();	// apply filter data
 				this.display(); // update menu display in DOM
 			}
 		}
+	}
+}
+
+var inputFilt = {
+	data: ['3451', 'Starbucks Google','Links Taproom','cme wifi','Crocodile Radek','HP7B64AF','himasali','HOME-8512'],
+	cfade: function(r,g,b){
+		var f = document.getElementById('filterInput');
+		var col = { r:r, g:g, b:b };
+		if(col.r>204) { col.r-=128 } else { col.r = 204 }
+		if(col.g<204) { col.g+=128 } else { col.g = 204 }
+		if(col.b<204) { col.b+=128 } else { col.b = 204 }
+		f.style.borderColor = "rgb("+col.r+","+col.g+","+col.b+")";
+		if(col.r!=204 || col.g!=204 || col.b!=204){
+			console.log(col.r,col.g,col.b)
+			setTimeout(function(){ inputFilt.cfade( col.r,col.b,col.g ); },100);
+		} 
+	},
+	nodata: function(){
+		var f = document.getElementById('filterInput');
+		f.style.borderColor = "rgb(255,0,0)";
+		setTimeout(function(){
+			inputFilt.cfade(255,0,0);
+		},100);
+		
+	},
+	check: function(val){
+
 	}
 }

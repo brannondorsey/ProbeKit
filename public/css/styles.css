@@ -184,7 +184,8 @@ a:hover { text-decoration:underline; }
 	border: 3px solid #ccc;
 	-moz-border-radius: 5px;
 	border-radius: 5px;	
-	position: relative; z-index: 10;
+	position: fixed; z-index: 10;
+	width:98.5%;
 	background: rgba(255,255,255,0.8);
 	display: none;
 }
@@ -212,3 +213,13 @@ a:hover { text-decoration:underline; }
 	border-radius: 5px;
 }
 
+#filterInput {
+	font: 400 100%/1.5 "HelveticaNeue-Light","Helvetica Neue Light","Helvetica Neue",Helvetica,Arial,"Lucida Grande",sans-serif;
+	text-rendering: optimizelegibility;
+	color: #555;
+	padding:5px;
+	border:1px solid #ccc;
+	-moz-border-radius: 5px;
+	border-radius: 5px;	
+	margin:5px;
+}
