@@ -203,13 +203,11 @@ function getInfo( id, ssid ){
 		nfoL.appendChild(mac);
 
 		var ven = id.substr(0, 8).toUpperCase();
-		var maker = document.createElement('div');
-			for (var i = 0; i < vendor.mapping.length; i++) {
-			    if (vendor.mapping[i].mac_prefix == ven){
-			        maker.innerHTML = "Made by "+ vendor.mapping[i].vendor_name;
-			        maker.name = vendor.mapping[i].vendor_name;
-			    }
-			}
+		var maker = document.createElement('div');	
+		    if (vendorDictionary && vendorDictionary.hasOwnProperty(ven)){
+		        maker.innerHTML = "Made by "+ vendorDictionary[ven];
+		        maker.name = vendorDictionary[ven];
+		    }
 			maker.className = "nfo-mkr";
 			maker.onclick = function(){ filt.update('manufacturer', maker.name ); }
 		nfoL.appendChild(maker);

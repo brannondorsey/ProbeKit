@@ -1,0 +1,3 @@
+[submodule "node/src/wigle-api"]
+	path = node/src/wigle-api
+	url = https://github.com/brannondorsey/wigle-api.git

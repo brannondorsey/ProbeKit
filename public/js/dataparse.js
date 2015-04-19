@@ -17,16 +17,24 @@ var filter = {
 };
 
 var rawCSV = undefined;
-
-var vendorDictionary = {};
-createVendorDictionary();
+var vendorDictionary = undefined;
 
 $.ajax({
   	url: "data/probes.csv",
   	success: function(data) {
 	  rawCSV = data;
-	  parseCSVToProbeData();
-	  applyFilter();
+	  loadVendorMacs(function(err, result){
+	  	  
+	  	  if (err) {
+	      		console.log("Error loading vendorMacs.json:");
+	      		console.log(err);
+	      }
+
+	      vendorDictionary = result;
+
+	      parseCSVToProbeData();
+	  	  applyFilter();
+	  });
   	},
   	error: function(err){
   		throw err;
@@ -39,15 +47,17 @@ socket.on('probeReceived', function (probe) {
     addProbe(probe.mac, probe.ssid, probe.timestamp, false);
 });
 
-function createVendorDictionary() {
-
-	if (vendor) {
-		for (var i = 0; i < vendor.mapping.length; i++) {
-			if (!vendorDictionary.hasOwnProperty(vendor.mapping[i].mac_prefix)) {
-				vendorDictionary[vendor.mapping[i].mac_prefix] = vendor.mapping[i].vendor_name;
-			}
-		}
-	}
+function loadVendorMacs(callback) {
+	$.ajax({
+  		url: "data/vendorMacs.json",
+  		dataType: "json",
+  		success: function(data) {
+	 	 	callback(null, data);
+  		},
+  		error: function(err){
+  			callback(err, null);
+  		}
+	});
 }
 
 function parseCSVToProbeData() {
@@ -97,9 +107,6 @@ function onBeforeProbeAdded(mac, ssid, timestamp, fromCSV) {
 		flapButterfly(mac, ssid);
 	
 	} else {
-
-		console.log(probeData.numMacs + ' Devices');
-		console.log(probeData.networks.length + ' Networks\n');
 		
 		// relocate this DOM manipulation stuff eventually
 		$('#device-count').html(probeData.numMacs);
@@ -173,6 +180,7 @@ function passesFilter(mac) {
 
 		// filter manufacturer
 		if (filter.manufacturer != "" &&
+			vendorDictionary != undefined && 
 			(!vendorDictionary.hasOwnProperty(mac.substring(0, 8).toUpperCase()) || vendorDictionary[mac.substring(0, 8).toUpperCase()] != filter.manufacturer)) {
 			return false;
 		}
