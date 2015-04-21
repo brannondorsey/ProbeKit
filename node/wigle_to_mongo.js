@@ -72,7 +72,7 @@ function updateDatabase(json) {
 				  		lat: parseFloat(network.trilat),
 				  		lon: parseFloat(network.trilong)
 				  	},
-				  	lastupdt: network.lastupdt
+				  	lastupdt: parseInt(network.lastupdt)
 				}
 			});
 
@@ -87,7 +87,7 @@ function updateDatabase(json) {
 				var collection = db.collection(collectionName);
 				collection.count(function(err, count){
 
-					if (oldDBCount && count) {
+					if (oldDBCount !== null && count) {
 						console.log('[verbose] ' + (count - oldDBCount) + ' networks added to database.');
 					}
 
@@ -121,7 +121,7 @@ function insertNetworks(networks, db, callback) {
 				
 	 			// if (err) throw err;
 	 			if (result && result.result.ok == 1) {
-	 				console.log(network.ssid);
+	 				// console.log(network.ssid);
 	 		 	}
 
 	 		 	afterCallback();

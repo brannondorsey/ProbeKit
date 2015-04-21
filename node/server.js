@@ -10,6 +10,7 @@ var argv = require('minimist')(process.argv.slice(2));
 var moment = require('moment');
 var TsharkProbeParser = require('./src/TsharkProbeParser');
 var TsharkProcessLauncher = require('./src/TsharkProcessLauncher');
+var WigleAPI = require('./src/WigleAPI');
 
 var help = argv.help || argv.h;
 var iface = argv.interface || argv.i;
@@ -53,6 +54,15 @@ var channelHopProcess = undefined;
 var writeStream = undefined;
 
 var probeParser = new TsharkProbeParser();
+var wigleAPI = new WigleAPI('mongodb://localhost:27017/probe', function(err, db){
+	
+	// note any /api requests will fail until this callback is run
+	if (err) {
+		console.log('[ server ] Error connecting to MongoDB: ' + err);
+	} else {
+		console.log('[ server ] MongoDB connection established.');
+	}
+});
 
 if (!csvOnly) {
 	procLauncher = new TsharkProcessLauncher(iface, true);
@@ -112,6 +122,7 @@ if (liveOnly) {
 	});
 }
 
+app.use('/api', function(req, res, next){ wigleAPI.handleRequest(req, res, next) });
 app.use('/data', express.static(path.resolve(__dirname + '/../data')));
 app.use(express.static(path.resolve(__dirname + '/../public')));
 

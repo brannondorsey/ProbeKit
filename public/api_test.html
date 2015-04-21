@@ -1,0 +1,41 @@
+<html>
+<head>
+	<title>API Test</title>
+	<script type="text/javascript" src="js/jquery-1.11.2.min.js"></script>
+	<script type="text/javascript">
+		
+		// more data properties include: limit (i.e. 10) and sort (i.e. { ssid: -1 })
+		var data = {
+			ssid: ['xfinitywifi', 'ATT000'],
+			collection: "wigleChicago"
+		}
+
+		// in accurately use the limit option (see above)
+		// a seperate ajax request must be made for each ssid
+		$.ajax({
+			url: 'http://localhost:3000/api',
+			method: 'GET',
+			data: data,
+			success: onDatabaseResponse,
+			error: function(err){
+				console.log(err);
+			}
+		});
+
+		function onDatabaseResponse(data){
+
+			if (!data.error) {
+				var results = data.results;
+				for (var i = 0; i < results.length; i++) {
+					var network = results[i];
+					$('#networks').append(network.ssid + ' ' + network.geo.lat + ' ' + network.geo.lon + '\n');
+				}
+			}
+		}
+
+	</script>
+</head>
+<body>
+	<pre id="networks"></pre>
+</body>
+</html>
