@@ -106,22 +106,21 @@ function addProbe(mac, ssid, timestamp, fromCSV) {
 function onBeforeProbeAdded(mac, ssid, timestamp, fromCSV) {
 
 	if (probeData.macs.hasOwnProperty(mac) && !fromCSV) {
-		
 		flapButterfly(mac, ssid);
-	
-	} else {
-		
-		// relocate this DOM manipulation stuff eventually
-		$('#device-count').html(probeData.numMacs);
-		$('#network-count').html(probeData.networks.length);
 	}
 }
 
 function onProbeAdded(mac, ssid, timestamp, fromCSV, isNewDevice) {
+
 	var time = moment(parseInt(timestamp)).format('YYYY-MM-DD HH:mm:ss');
+	
 	if (isNewDevice && passesFilter(mac)) {
 		makeButterfly(mac, probeData.macs[mac].knownNetworks);
 	}
+
+	// relocate this DOM manipulation stuff eventually
+	$('#device-count').html(probeData.numMacs);
+	$('#network-count').html(probeData.networks.length);
 }
 
 // Filtering
