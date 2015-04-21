@@ -114,21 +114,13 @@ function onBeforeProbeAdded(mac, ssid, timestamp, fromCSV) {
 		// relocate this DOM manipulation stuff eventually
 		$('#device-count').html(probeData.numMacs);
 		$('#network-count').html(probeData.networks.length);
-
-        // this doesn't work correctly now as it will ALWAYS
-        // ignore the very first probe from any device.
-        // This is because mac must be in probeData.macs
-        // before it can pass passesFilter(mac). Fix this. 
-		// if (passesFilter(mac)) {
-		// 	makeButterfly(mac, ssid);
-		// }
 	}
 }
 
 function onProbeAdded(mac, ssid, timestamp, fromCSV, isNewDevice) {
 	var time = moment(parseInt(timestamp)).format('YYYY-MM-DD HH:mm:ss');
 	if (isNewDevice && passesFilter(mac)) {
-		makeButterfly(mac, ssid);
+		makeButterfly(mac, probeData.macs[mac].knownNetworks);
 	}
 }
 
@@ -145,7 +137,7 @@ function applyFilter() {
 
 	if (macs.length > 0) {
 		for (var i = 0; i < macs.length; i++) {
-			makeButterfly( macs[i].mac, macs[i].knownNetworks );
+			makeButterfly(macs[i].mac, macs[i].knownNetworks);
 		}
 	} else {
 		// no results...

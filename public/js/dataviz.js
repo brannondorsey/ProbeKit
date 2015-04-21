@@ -13,16 +13,16 @@ Math.map = function(value, sourceMin, sourceMax, destMin, destMax) {
 var cellWidth = 300;
 var cellHeight = 350;
 
-function makeButterfly( data, ssid ){
+function makeButterfly( data, networks ){
 	var ssidMatch = false;
 	var ndata = data.substring(0,8);
-	if (ssid.constructor == Array) {
-		for (var i = 0; i < ssid.length; i++) {
-			var check = filter.networks.indexOf(ssid[i]) > -1
+	if (networks.constructor == Array) {
+		for (var i = 0; i < networks.length; i++) {
+			var check = filter.networks.indexOf(networks[i]) > -1
 			if(check) ssidMatch = true;
 		};
 	} else {
-		ssidMatch = filter.networks.indexOf(ssid) > -1;
+		ssidMatch = filter.networks.indexOf(networks) > -1;
 	}
 
 	// if(!filt.stat || ssidMatch || filter.manufacturer == ndata){
@@ -33,7 +33,7 @@ function makeButterfly( data, ssid ){
 		var butterfly = document.createElement('div');			
 			butterfly.className = "butterfly";
 			butterfly.id = "_"+data;
-			butterfly.onclick = function() { getInfo(data,ssid) };
+			butterfly.onclick = function() { getInfo(data, networks) };
 
 		var top = document.createElement('div');
 			top.className = "top";
@@ -55,7 +55,7 @@ function makeButterfly( data, ssid ){
 		var col = "rgb("+r+","+g+","+b+")";
 		tleft.style.background = tright.style.background = bleft.style.background = bright.style.background = col;
 
-		var numNets = (ssid.length<=10) ? ssid.length : 10;
+		var numNets = (networks.length<=10) ? networks.length : 10;
 		var w = Math.floor(Math.map( numNets, 0,10, (cellWidth-50)/1.25,(cellWidth-50) ));
 		var h = Math.floor(Math.map( numNets, 0,10, (cellHeight-50)/1.5,(cellHeight-50) ));
 		butterfly.style.width = w+"px";
@@ -136,7 +136,7 @@ window.onresize = function(e) {
 
 
 // Butter fly that shows up inside the modal -------------------------
-function makeNfoButterfly( data, ssid ){
+function makeNfoButterfly( data, networks ){
 	var parent = document.getElementById('nfo-left');
 	var butterfly = document.createElement('div');
 		butterfly.className = "nfo-butterfly";
@@ -160,7 +160,7 @@ function makeNfoButterfly( data, ssid ){
 	var col = "rgb("+r+","+g+","+b+")";
 	tleft.style.background = tright.style.background = bleft.style.background = bright.style.background = col;
 
-	var numNets = (ssid.length<=10) ? ssid.length : 10;
+	var numNets = (networks.length<=10) ? networks.length : 10;
 	var w = Math.floor(Math.map( numNets, 0,10, (cellWidth-50)/1.25,(cellWidth-50) ));
 	var h = Math.floor(Math.map( numNets, 0,10, (cellHeight-50)/1.5,(cellHeight-50) ));
 	butterfly.style.width = w+"px";
@@ -187,14 +187,14 @@ function makeNfoButterfly( data, ssid ){
 }
 
 // creates the modal, runs on click of a butterfly -------------------------------------------------------------------------
-function getInfo( id, ssid ){
+function getInfo( id, networks ){
 	var nfoR = document.getElementById('nfo-right');
 	var nfoL = document.getElementById('nfo-left');
 		nfoR.innerHTML = "";
 		nfoL.innerHTML = "";
 	$('#screen').fadeIn(500,function(){
 		// left column
-		makeNfoButterfly( id, ssid );
+		makeNfoButterfly( id, networks );
 
 		var mac = document.createElement('div');
 			mac.innerHTML = id.toUpperCase();
