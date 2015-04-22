@@ -1,0 +1,21 @@
+<html>
+<head>
+	<title>API Test</title>
+	<script type="text/javascript" src="js/jquery-1.11.2.min.js"></script>
+	<script src="/socket.io/socket.io.js"></script>
+	<script type="text/javascript">
+
+	var devices = [];
+
+	var socket = io.connect("http://" + window.location.host);
+	
+	socket.on('newDeviceReceived', function (mac) {
+	    devices.push(mac);
+	});
+
+	</script>
+</head>
+<body>
+	<pre id="networks"></pre>
+</body>
+</html>

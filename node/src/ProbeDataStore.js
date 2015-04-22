@@ -5,7 +5,7 @@
 
 var fs = require('fs');
 
-function ProbeDataStore(csvFilePath, callback) {
+function ProbeDataStore() {
 
 	var self = this;
 	
@@ -14,29 +14,29 @@ function ProbeDataStore(csvFilePath, callback) {
 		macs: {},
 		networks: []
 	};
+}
 
-	// if loading from data from CSV file
-	if (csvFilePath && typeof csvFilePath === "string") {
+ProbeDataStore.prototype.loadFromCSV = function(csvFilePath, callback) {
+
+	var self = this;
+
+	fs.readFile(csvFilePath, { encoding: 'utf8'}, function(err, data) {
+
+		if (err) {
+			callback(err);
+		}
 		
-		fs.readFile(csvFilePath, { encoding: 'utf8'}, function(err, data) {
-
-			if (err) {
-				callback(err);
+		var lines = data.split('\n');
+		
+		for (var i = 0; i < lines.length; i++) {
+			var probe = lines[i].split(',');
+			if (probe.length == 3) {
+				addProbe(self._probeData, probe[0], probe[1], probe[2], true);
 			}
-			
-			var lines = data.split('\n');
-			for (var i = 0; i < lines.length; i++) {
-				var probe = lines[i].split(',');
-				if (probe.length == 3) {
-					addProbe(self._probeData, probe[0], probe[1], probe[2], true);
-				}
-			}
-			callback(null);
-		});
+		}
 
-	} else {
 		callback(null);
-	}
+	});	
 }
 
 ProbeDataStore.prototype.isNewDevice = function(MAC, callback) {
@@ -58,6 +58,10 @@ ProbeDataStore.prototype.addPacket = function(packet, callback) {
 	}
 }
 
+ProbeDataStore.prototype.getAllNetworks = function(callback) {
+	callback(this._probeData.networks);
+}
+
 ProbeDataStore.prototype.getNetworks = function(MAC, callback) {
 	
 	var self = this;
@@ -65,7 +69,7 @@ ProbeDataStore.prototype.getNetworks = function(MAC, callback) {
 	if (self._probeData.macs.hasOwnProperty(MAC)) {
 
 		callback(self._probeData.macs[MAC].knownNetworks);
-		
+
 	} else {
 		callback(null);
 	}

@@ -1,7 +1,9 @@
 var ProbeDataStore = require(__dirname + '/../src/ProbeDataStore');
 var _ = require('underscore');
 
-var probeDataStore = new ProbeDataStore(__dirname + '/../../data/probes.csv', function(err){
+var probeDataStore = new ProbeDataStore();
+
+probeDataStore.loadFromCSV(__dirname + '/../../data/probes.csv', function(err){
 
 	if (err) throw err;
 

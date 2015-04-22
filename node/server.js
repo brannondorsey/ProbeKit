@@ -11,6 +11,7 @@ var moment = require('moment');
 var TsharkProbeParser = require('./src/TsharkProbeParser');
 var TsharkProcessLauncher = require('./src/TsharkProcessLauncher');
 var WigleAPI = require('./src/WigleAPI');
+var ProbeDataStore = require('./src/ProbeDataStore');
 
 var help = argv.help || argv.h;
 var iface = argv.interface || argv.i;
@@ -64,6 +65,22 @@ var wigleAPI = new WigleAPI('mongodb://localhost:27017/probe', function(err, db)
 	}
 });
 
+var probeDataStore = new ProbeDataStore();
+
+if (!liveOnly) {
+
+	probeDataStore.loadFromCSV(outputFile, function(err){
+
+		// note that any query made to probeDataStore before
+		// this callback returns will not have access to the
+		// CSV data
+		
+		if (err) {
+			console.log('[ server ] error loading probe CSV file');
+		}
+	});
+}
+
 if (!csvOnly) {
 	procLauncher = new TsharkProcessLauncher(iface, true);
 	tsharkProcess = procLauncher.tsharkProcess;
@@ -113,6 +130,8 @@ probeParser.on('probeReceived', function(packet){
 		writeStream.write(csvLine);
 	}
 
+	probeDataStore.addPacket(packet);
+
 	console.log(moment(packet.timestamp).format('YYYY-MM-DD HH:mm:ss') + '    MAC: ' + packet.mac + '    SSID: ' + packet.ssid);
 });
 
@@ -122,15 +141,52 @@ if (liveOnly) {
 	});
 }
 
-app.use('/api', function(req, res, next){ wigleAPI.handleRequest(req, res, next) });
+app.use('/api/devices', function(req, res, next){ 
+	probeDataStore.getDevicesAsArray(function(devices){
+		res.json(devices);
+	});
+});
+
+app.use('/api/networks', function(req, res, next){
+	
+	if (req.query && req.query.device) {
+
+		probeDataStore.getNetworks(req.query.device, function(networks) {
+			
+			var result = networks || { "error": "device not found." };
+			res.json(result);
+		});
+
+	} else {
+
+		probeDataStore.getAllNetworks(function(networks) {
+			res.json(networks);
+		});
+	}
+});
+
+app.use('/api/wigle', function(req, res, next){ wigleAPI.handleRequest(req, res, next) });
 app.use('/data', express.static(path.resolve(__dirname + '/../data')));
 app.use(express.static(path.resolve(__dirname + '/../public')));
 
 io.on('connection', function (socket) {
+
     probeParser.on('probeReceived', function(probe){
+    	
+    	// don't send if csvOnly because client loads
+    	// csv file from AJAX
     	if (!csvOnly) {
     		socket.emit('probeReceived', probe);
     	}
+    	
+    	// right now this method is only being used by the 
+    	// installation
+    	probeDataStore.isNewDevice(probe.mac, function(isNew){
+    		
+    		if (isNew) {
+    			socket.emit('newDeviceReceived', probe.mac);
+    		}
+    	});
     });
 });
 
