@@ -7,3 +7,5 @@ data/wigle_data/*
 data/mongodb/*
 !data/mongodb/.gitkeep
 data/wigle_users.csv
+data/maps/tiles/*
+!data/maps/tiles/.gitkeep
