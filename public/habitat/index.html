@@ -30,6 +30,7 @@
 
 			var camera, scene, renderer, stats;
 			var butterfly, butterflies, boid, boids;
+			var flycam, fly = false;
 
 			init();
 			animate();
@@ -38,6 +39,7 @@
 
 				camera = new THREE.PerspectiveCamera( 75, SCREEN_WIDTH / SCREEN_HEIGHT, 1, 10000 );
 				camera.position.z = 450;
+				flycam = new THREE.PerspectiveCamera( 75, SCREEN_WIDTH / SCREEN_HEIGHT, 1, 10000 );
 				scene = new THREE.Scene();
 
 				butterflies = [];
@@ -116,7 +118,6 @@
 			// setInterval(animate,1000/30);
 			// animate();
 
-
 			function render() {
 
 				for ( var i = 0, il = butterflies.length; i < il; i++ ) {
@@ -131,9 +132,20 @@
 
 					o = butterfly.original; // custom object to keep track of original color
 					color = butterfly.material.color;
-					color.r = (1-o.r) * ((400-butterfly.position.z)/1000) + o.r; 
-					color.g = (1-o.g) * ((400-butterfly.position.z)/1000) + o.g;
-					color.b = (1-o.b) * ((400-butterfly.position.z)/1000) + o.b;
+					if(!fly){
+						color.r = (1-o.r) * ((400-butterfly.position.z)/1000) + o.r; 
+						color.g = (1-o.g) * ((400-butterfly.position.z)/1000) + o.g;
+						color.b = (1-o.b) * ((400-butterfly.position.z)/1000) + o.b;
+					} else {
+						dx = flycam.position.x - butterfly.position.x;
+						dy = flycam.position.y - butterfly.position.y;
+						dz = flycam.position.z - butterfly.position.z;
+						dist = Math.sqrt(dx*dx + dy*dy + dz*dz);
+						color.r = (1-o.r) * (dist/1624) + o.r; 
+						color.g = (1-o.g) * (dist/1624) + o.g;
+						color.b = (1-o.b) * (dist/1624) + o.b;
+					}
+					
 
 					butterfly.rotation.y = Math.atan2( - boid.velocity.z, boid.velocity.x );
 					butterfly.rotation.z = Math.asin( boid.velocity.y / boid.velocity.length() );
@@ -145,7 +157,14 @@
 					butterfly.geometry.vertices[ 5 ].z = butterfly.geometry.vertices[ 4 ].z = 6 * Math.cos( butterfly.phase );
 				
 				}
-				renderer.render( scene, camera );
+				if(!fly){ renderer.render( scene, camera ); }
+				else {
+					flycam.position.x = butterflies[0].position.x + 10;
+					flycam.position.y = butterflies[0].position.y + 8;
+					flycam.position.z = butterflies[0].position.z;
+					flycam.lookAt(butterflies[0].position);
+					renderer.render( scene, flycam );
+				}
 			}
 
 			// click S to toggle frame rate stats on/off
@@ -159,6 +178,9 @@
 			    	} else {
 			    		stats.domElement.style.display = "none";
 			    	}
+			    }
+			    if(key == 102){
+			    	fly = (fly) ? false : true;
 			    }
 			}
 
