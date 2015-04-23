@@ -3,7 +3,6 @@
 // ../n!ck's data-viz   ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~
 //  ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~
 //  ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~ * ~
-
 Math.norm = function(value, min, max) { return (value - min) / (max - min); };
 Math.lerp = function(norm, min, max) { return (max - min) * norm + min; };
 Math.map = function(value, sourceMin, sourceMax, destMin, destMax) {
@@ -216,6 +215,11 @@ function getInfo( id, networks ){
 			time.innerHTML = "Last seen at " +moment( parseInt(probeData.macs[id].lastSeen) ).format('h:mm A M/D/YY');
 			time.className = "nfo-time";
 		nfoL.appendChild(time);
+
+		var map = document.createElement('div');
+			map.innerHTML = '<a href="map.html?mac='+id+'">view migration patterns</a>';
+			map.className = "nfo-time";
+		nfoL.appendChild(map);
 
 		// right column
 		for (var i = 0; i < probeData.macs[id].knownNetworks.length; i++) {
