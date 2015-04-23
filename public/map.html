@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 
   <meta charset="utf-8">
@@ -7,15 +7,18 @@
   <link rel="stylesheet" type="text/css" href="css/styles.css">
   <link rel="stylesheet" href="css/ol.css" type="text/css">
 
+
 </head>
 
 <body>
 
+  <pre id="networks"></pre>
   <div id="map" class="map"></div>
 
   <script type="text/javascript" src="js/jquery-1.11.2.min.js"></script>
   <script src="js/ol.js"></script>
-  <script src="http://maps.stamen.com/js/tile.stamen.js?v1.3.0"></script>
+  <!-- // <script src="http://maps.stamen.com/js/tile.stamen.js?v1.3.0"></script> -->
+  <script src="js/tile.stamen.js"></script>
   <script type="text/javascript">
 
     // via http://stackoverflow.com/questions/901115/how-can-i-get-query-string-values-in-javascript
@@ -106,17 +109,20 @@
 
       // style
       var iconStyle = new ol.style.Style({
-        image: new ol.style.Icon(({
+        image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
             anchor: [0.5,0.5],
             anchorXUnits: 'fraction', // or pixels
             anchorYUnits: 'fraction', // or pixels
             opacity: 0.75,
             src: 'images/butterfly.png'
-        }));
+        }))
       });
 
       // add the feature vector to the layer vector, and apply a style to whole layer
-      var vectorLayer = new ol.layer.Vector({ source: vectorSource, style: iconStyle });
+      var vectorLayer = new ol.layer.Vector({
+          source: vectorSource,
+          style: iconStyle
+      });
       return vectorLayer;
     }
       

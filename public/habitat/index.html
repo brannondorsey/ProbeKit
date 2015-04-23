@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+
+		<title> Device Butterfly Habitat </title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+	</head>
+	<body>
+
+		<div id="container"></div>
+
+		<script src="js/three.min.js"></script>
+		<script src="js/stats.min.js"></script>
+		<script src="js/boid.js"></script>
+		<script src="js/butterfly.js"></script>
+		<script>
+
+			// MAD PROPS to Joshua Koo @BlurSpline !!! http://www.joshuakoo.com/
+			// all the s!ck boid math is his ++ there's plenty more on his site
+			// + specifically on webGL + flocking here: 
+			// http://www.lab4games.net/zz85/blog/2013/12/30/webgl-gpgpu-and-flocking-part-1/
+
+
+			var SCREEN_WIDTH = window.innerWidth,
+			SCREEN_HEIGHT = window.innerHeight,
+			SCREEN_WIDTH_HALF = SCREEN_WIDTH  / 2,
+			SCREEN_HEIGHT_HALF = SCREEN_HEIGHT / 2;
+
+			var camera, scene, renderer, stats;
+			var butterfly, butterflies, boid, boids;
+
+			init();
+			animate();
+
+			function init() {
+
+				camera = new THREE.PerspectiveCamera( 75, SCREEN_WIDTH / SCREEN_HEIGHT, 1, 10000 );
+				camera.position.z = 450;
+				scene = new THREE.Scene();
+
+				butterflies = [];
+				boids = [];
+
+				for ( var i = 0; i < 750; i ++ ) {
+					boid = boids[ i ] = new Boid();
+					boid.position.x = Math.random() * 400 - 200;
+					boid.position.y = Math.random() * 400 - 200;
+					boid.position.z = Math.random() * 400 - 200;
+					boid.velocity.x = Math.random() * 2 - 1;
+					boid.velocity.y = Math.random() * 2 - 1;
+					boid.velocity.z = Math.random() * 2 - 1;
+					boid.setAvoidWalls( true );
+					boid.setWorldSize( 500, 500, 400 );
+
+					alpha = THREE.ImageUtils.loadTexture('mask'+Math.floor(Math.random()*4)+'.jpg');
+					mat = new THREE.MeshBasicMaterial({
+						shading: THREE.FlatShading, color: Math.random()*0xffffff, 
+						side: THREE.DoubleSide, alphaMap:alpha, alphaTest: 0.5
+					});
+					butterfly = butterflies[ i ] = new THREE.Mesh(new Butterfly(), mat );
+					butterfly.phase = Math.floor( Math.random() * 62.83 );
+					butterfly.original = {r:butterfly.material.color.r,g:butterfly.material.color.g,b:butterfly.material.color.b}
+					scene.add( butterfly );
+
+
+				}
+
+				renderer = new THREE.WebGLRenderer();
+				renderer.setClearColor( 0xffffff );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( SCREEN_WIDTH, SCREEN_HEIGHT );
+
+				// document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+				document.body.appendChild( renderer.domElement );
+				
+				// press 's' key to show/hide stats
+				stats = new Stats();
+				stats.domElement.style.position = 'absolute';
+				stats.domElement.style.display = "none"
+				stats.domElement.style.left = '0px';
+				stats.domElement.style.top = '0px';
+				document.getElementById( 'container' ).appendChild(stats.domElement);
+
+				//
+
+				window.addEventListener( 'resize', onWindowResize, false );
+
+			}
+
+			function onWindowResize() {
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				renderer.setSize( window.innerWidth, window.innerHeight );
+			}
+
+			// make butterflies react to mouse move
+			// ... if we decide we want this later ...
+			// -----------------------------------------------
+			// function onDocumentMouseMove( event ) {
+			// 	var vector = new THREE.Vector3( event.clientX - SCREEN_WIDTH_HALF, - event.clientY + SCREEN_HEIGHT_HALF, 0 );
+			// 	for ( var i = 0, il = boids.length; i < il; i++ ) {
+			// 		boid = boids[ i ];
+			// 		vector.z = boid.position.z;
+			// 		boid.repulse( vector );
+			// 	}
+			// }
+			// -----------------------------------------------
+
+			function animate() {
+				requestAnimationFrame( animate );
+				render();
+				stats.update();
+			}
+			// setInterval(animate,1000/30);
+			// animate();
+
+
+			function render() {
+
+				for ( var i = 0, il = butterflies.length; i < il; i++ ) {
+
+					boid = boids[ i ];
+					boid.run( boids );
+
+					butterfly = butterflies[ i ];
+					butterfly.position.copy( boids[ i ].position );
+
+					butterfly.geometry.verticesNeedUpdate = true;
+
+					o = butterfly.original; // custom object to keep track of original color
+					color = butterfly.material.color;
+					color.r = (1-o.r) * ((400-butterfly.position.z)/1000) + o.r; 
+					color.g = (1-o.g) * ((400-butterfly.position.z)/1000) + o.g;
+					color.b = (1-o.b) * ((400-butterfly.position.z)/1000) + o.b;
+
+					butterfly.rotation.y = Math.atan2( - boid.velocity.z, boid.velocity.x );
+					butterfly.rotation.z = Math.asin( boid.velocity.y / boid.velocity.length() );
+
+					butterfly.phase = ( butterfly.phase + ( Math.max( 0, butterfly.rotation.z ) + 0.3 )  ) % 62.83;
+					butterfly.geometry.vertices[ 0 ].y = butterfly.geometry.vertices[ 1 ].y = 6 * Math.cos( butterfly.phase );
+					butterfly.geometry.vertices[ 5 ].y = butterfly.geometry.vertices[ 4 ].y = 6 * Math.sin( butterfly.phase );
+					butterfly.geometry.vertices[ 0 ].z = butterfly.geometry.vertices[ 1 ].z = 6 * Math.sin( butterfly.phase );	
+					butterfly.geometry.vertices[ 5 ].z = butterfly.geometry.vertices[ 4 ].z = 6 * Math.cos( butterfly.phase );
+				
+				}
+				renderer.render( scene, camera );
+			}
+
+			// click S to toggle frame rate stats on/off
+			document.onkeypress=function(event){
+			    var key = (event.keyCode ? event.keyCode : event.which);
+			    console.log(key)
+			    if(key == 115) {
+			    	var statDisplay = stats.domElement.style.display;
+			    	if(statDisplay=="none"){
+			    		stats.domElement.style.display = "block"	;
+			    	} else {
+			    		stats.domElement.style.display = "none";
+			    	}
+			    }
+			}
+
+
+		</script>
+
+	</body>
+</html>
