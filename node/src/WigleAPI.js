@@ -125,8 +125,6 @@ WigleAPI.prototype.handleHasGeoRequest = function(req, res, next, probeDataStore
 				}
 
 				collection.findOne(query, function(err, results){
-					
-					console.log(results);
 
 					if (err) {
 						res.json({ "error": err });
