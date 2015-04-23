@@ -76,7 +76,7 @@ WigleAPI.prototype.isConnected = function() {
 	return this._connected;
 }
 
-WigleAPI.prototype.handleRequest = function(req, res, next) {
+WigleAPI.prototype.handleAPIRequest = function(req, res, next) {
 	
 	var self = this;
 
@@ -102,6 +102,43 @@ WigleAPI.prototype.handleRequest = function(req, res, next) {
 
 	} else {
 		res.json({ error: "Improper API parameters passed to Wigle API." });
+	}
+}
+
+WigleAPI.prototype.handleHasGeoRequest = function(req, res, next, probeDataStore) {
+
+	var self = this;
+
+	if (req.query && req.query.device && req.query.collection) {
+		
+		probeDataStore.getNetworks(req.query.device, function(networks){
+			
+			if (networks == null || networks.length < 1) {
+				res.json(false);
+			} else {
+				
+				var collection = self.db.collection(req.query.collection);
+				var query = {
+					"ssid": {
+						"$in": networks
+					}
+				}
+
+				collection.findOne(query, function(err, results){
+					
+					console.log(results);
+
+					if (err) {
+						res.json({ "error": err });
+					} else {
+						res.json(results != null);
+					}
+				});
+			}
+		});
+
+	} else {
+		res.json({ "error": "Improper API parameters passed to Wigle API." });
 	}
 }
 
