@@ -54,12 +54,8 @@ function makeButterfly( data, networks ){
 		var col = "rgb("+r+","+g+","+b+")";
 		tleft.style.background = tright.style.background = bleft.style.background = bright.style.background = col;
 
-		var numNets = (networks.length<=10) ? networks.length : 10;
-		var w = Math.floor(Math.map( numNets, 0,10, (cellWidth-50)/1.25,(cellWidth-50) ));
-		var h = Math.floor(Math.map( numNets, 0,10, (cellHeight-50)/1.5,(cellHeight-50) ));
-		butterfly.style.width = w+"px";
-		butterfly.style.height = h+"px";
-		butterfly.style.margin = (cellHeight-h)/2+"px "+(cellWidth-w)/2+"px";
+		updateButterflySize(butterfly, networks.length);
+		
 		butterfly.style.left = (window.innerWidth-(Math.floor(window.innerWidth/cellWidth)*cellWidth))/2 +"px";
 		butterfly.style.top = "0px";
 
@@ -159,12 +155,8 @@ function makeNfoButterfly( data, networks ){
 	var col = "rgb("+r+","+g+","+b+")";
 	tleft.style.background = tright.style.background = bleft.style.background = bright.style.background = col;
 
-	var numNets = (networks.length<=10) ? networks.length : 10;
-	var w = Math.floor(Math.map( numNets, 0,10, (cellWidth-50)/1.25,(cellWidth-50) ));
-	var h = Math.floor(Math.map( numNets, 0,10, (cellHeight-50)/1.5,(cellHeight-50) ));
-	butterfly.style.width = w+"px";
-	butterfly.style.height = h+"px";
-	butterfly.style.margin = (cellHeight-h)/2+"px "+(cellWidth-w)/2+"px";
+	updateButterflySize(butterfly, networks.length);
+
 	butterfly.style.left = (window.innerWidth-(Math.floor(window.innerWidth/cellWidth)*cellWidth))/2 +"px";
 	butterfly.style.top = "0px";
 
@@ -236,6 +228,16 @@ function getInfo( id, networks ){
 		// close
 		document.getElementById('screen').onclick = function(){ $('#screen').fadeOut(500) };
 	});
+}
+
+function updateButterflySize(butterflyElement, numNetworks) {
+
+	var numNets = (numNetworks <= 10) ? numNetworks : 10;
+	var w = Math.floor(Math.map( numNets, 0,10, (cellWidth - 50) / 1.25, (cellWidth - 50)));
+	var h = Math.floor(Math.map( numNets, 0,10, (cellHeight - 50) / 1.5, (cellHeight - 50)));
+	butterflyElement.style.width = w + "px";
+	butterflyElement.style.height = h + "px";
+	butterflyElement.style.margin = (cellHeight - h) / 2 + "px " + (cellWidth - w) / 2 + "px";
 }
 
 

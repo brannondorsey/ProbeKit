@@ -105,8 +105,17 @@ function addProbe(mac, ssid, timestamp, fromCSV) {
 
 function onBeforeProbeAdded(mac, ssid, timestamp, fromCSV) {
 
-	if (probeData.macs.hasOwnProperty(mac) && !fromCSV) {
+	if (probeData.macs.hasOwnProperty(mac)) {
+		
 		flapButterfly(mac, ssid);
+		
+		if (probeData.macs[mac].knownNetworks.indexOf(ssid) == -1) {
+
+			var butterfly = document.getElementById('_' + mac);
+			if (butterfly !== null) {
+				updateButterflySize(butterfly, probeData.macs[mac].knownNetworks.length + 1);
+			}
+		}
 	}
 }
 
