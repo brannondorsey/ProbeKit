@@ -1,0 +1,7 @@
+{
+  "name": "ProbeRequestCollectorsKit",
+  "version": "0.1.0",
+  "description": "Collect and Visualize SSID Probe Requests",
+  "node-main": "node/nw_start.js",
+  "main": "http://localhost:3000"
+}
