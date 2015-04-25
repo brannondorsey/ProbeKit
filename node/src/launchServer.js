@@ -186,7 +186,7 @@ function launchServer(options) {
 				var proc = spawnSync('which', ['firefox'], { encoding: 'utf8' });
 				if (proc.status == 0) {
 
-					var url = 'http://localhost:' + port;
+				var url = 'http://localhost:' + port;
 			  	console.log('[ server ] Launching default system browser to url: ' + url)
 			  	var browserProc = spawn('firefox', ['--new-window', url]);
 			  	browserProc.stderr.pipe(process.stderr);
