@@ -68,11 +68,16 @@ function makeButterfly( data, networks ){
 		tleft.style.borderRadius = "0% "+Math.floor(rad3)+"% "+Math.floor(rad4)+"% 150%";
 		tright.style.borderRadius = "150% "+Math.floor(rad4)+"% "+Math.floor(rad3)+"% 0%";
 
-		var flapSpeed = Math.map( parseInt( d[5], 16 ), 0,255, 130,230 )
+		var flapSpeed = Math.floor( Math.map( parseInt( d[5], 16 ), 0,255, 130,230 ) )
 		tleft.style.animation = 'flap-lt '+flapSpeed+'ms ease-in 4 alternate';
 		tright.style.animation = 'flap-rt '+flapSpeed+'ms ease-in 4 alternate';
 		bleft.style.animation = 'flap-lb '+flapSpeed+'ms ease-in 4 alternate';
 		bright.style.animation = 'flap-rb '+flapSpeed+'ms ease-in 4 alternate';
+		tleft.style.webkiAnimation = 'flap-lt '+flapSpeed+'ms ease-in 4 alternate';
+		tright.style.webkiAnimation = 'flap-rt '+flapSpeed+'ms ease-in 4 alternate';
+		bleft.style.webkiAnimation = 'flap-lb '+flapSpeed+'ms ease-in 4 alternate';
+		bright.style.webkiAnimation = 'flap-rb '+flapSpeed+'ms ease-in 4 alternate';
+		console.log(bright.style.webkiAnimation)
 
 		top.appendChild(tleft); top.appendChild(tright);
 		bottom.appendChild(bleft); bottom.appendChild(bright);
@@ -93,11 +98,19 @@ function flapButterfly( id, ssid ){
 			b.childNodes[0].childNodes[1].style.animation = "flap-rt 180ms ease-in infinite alternate";
 			b.childNodes[1].childNodes[0].style.animation = "flap-lb 180ms ease-in infinite alternate";
 			b.childNodes[1].childNodes[1].style.animation = "flap-rb 180ms ease-in infinite alternate";
+			b.childNodes[0].childNodes[0].style.webkitAnimation = "flap-lt 180ms ease-in infinite alternate";
+			b.childNodes[0].childNodes[1].style.webkitAnimation = "flap-rt 180ms ease-in infinite alternate";
+			b.childNodes[1].childNodes[0].style.webkitAnimation = "flap-lb 180ms ease-in infinite alternate";
+			b.childNodes[1].childNodes[1].style.webkitAnimation = "flap-rb 180ms ease-in infinite alternate";
 			setTimeout(function(){
 				b.childNodes[0].childNodes[0].style.animation = "flap-lt 180ms ease-in 4 alternate";
 				b.childNodes[0].childNodes[1].style.animation = "flap-rt 180ms ease-in 4 alternate";
 				b.childNodes[1].childNodes[0].style.animation = "flap-lb 180ms ease-in 4 alternate";
 				b.childNodes[1].childNodes[1].style.animation = "flap-rb 180ms ease-in 4 alternate";
+				b.childNodes[0].childNodes[0].style.webkitAnimation = "flap-lt 180ms ease-in 4 alternate";
+				b.childNodes[0].childNodes[1].style.webkitAnimation = "flap-rt 180ms ease-in 4 alternate";
+				b.childNodes[1].childNodes[0].style.webkitAnimation = "flap-lb 180ms ease-in 4 alternate";
+				b.childNodes[1].childNodes[1].style.webkitAnimation = "flap-rb 180ms ease-in 4 alternate";
 			},t);
 		}
 	//}
@@ -174,10 +187,14 @@ function makeNfoButterfly( data, networks ){
 	tright.style.borderRadius = "150% "+Math.floor(rad4)+"% "+Math.floor(rad3)+"% 0%";
 
 	var flapSpeed = Math.map( parseInt( d[5], 16 ), 0,255, 800,1200 );
-	tleft.style.animation = 'flap-lt '+flapSpeed+'ms ease-in 4 alternate';
-	tright.style.animation = 'flap-rt '+flapSpeed+'ms ease-in 4 alternate';
-	bleft.style.animation = 'flap-lb '+flapSpeed+'ms ease-in 4 alternate';
-	bright.style.animation = 'flap-rb '+flapSpeed+'ms ease-in 4 alternate';
+	$(tleft).css('animation','flap-lt '+flapSpeed+'ms ease-in 4 alternate');
+	$(tright).css('animation', 'flap-rt '+flapSpeed+'ms ease-in 4 alternate');
+	$(bleft).css('animation', 'flap-lb '+flapSpeed+'ms ease-in 4 alternate');
+	$(bright).css('animation', 'flap-rb '+flapSpeed+'ms ease-in 4 alternate');
+	// tleft.style.animation = 'flap-lt '+flapSpeed+'ms ease-in 4 alternate';
+	// tright.style.animation = 'flap-rt '+flapSpeed+'ms ease-in 4 alternate';
+	// bleft.style.animation = 'flap-lb '+flapSpeed+'ms ease-in 4 alternate';
+	// bright.style.animation = 'flap-rb '+flapSpeed+'ms ease-in 4 alternate';
 
 	top.appendChild(tleft); top.appendChild(tright);
 	bottom.appendChild(bleft); bottom.appendChild(bright);
