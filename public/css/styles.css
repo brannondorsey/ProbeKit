@@ -12,7 +12,7 @@ html {
 @media (min-width:640px)  { html { font-size:112%; } }
 @media (min-width:1024px) { html { font-size:120%; } }
 
-body {  background: #ffffff;color:#555; }
+body {  background: #ffffff; color:#555; }
 
 section { text-align:center; padding:32px 0; }
 @media (min-width:640px) { section { padding:64px 0; } }
@@ -92,10 +92,11 @@ a:hover { text-decoration:underline; }
 .nfo-time {
 	padding-top: 2px;
 }
+
 #nfo-right div { overflow: hidden; text-overflow: ellipsis; }
 
-.knownNetwork{ text-decoration: underline; cursor: pointer; }
-.knownNetwork:hover { color:#cc3399; }
+.knownNetwork, #network-count-button{ text-decoration: underline; cursor: pointer; }
+.knownNetwork:hover, #network-count-button:hover { color:#cc3399; }
 
 
 /* ~'~._.~'~._.~'~._.~'~._.~'~._.~'~. BUTTERFLY ~'~._.~'~._.~'~._.~'~._. */
@@ -109,6 +110,7 @@ a:hover { text-decoration:underline; }
 	display: inline-block;
  	position: absolute; top:0px; left:0px;
  	transition: all 0.5s ease;
+ 	cursor: pointer;
 }
 
 	.butterfly .top, .nfo-butterfly .top {  	

@@ -11,6 +11,7 @@ Math.map = function(value, sourceMin, sourceMax, destMin, destMax) {
 
 var cellWidth = 300;
 var cellHeight = 350;
+var modalSpeed = 300;
 
 function makeButterfly( data, networks ){
 	var ssidMatch = false;
@@ -54,12 +55,8 @@ function makeButterfly( data, networks ){
 		var col = "rgb("+r+","+g+","+b+")";
 		tleft.style.background = tright.style.background = bleft.style.background = bright.style.background = col;
 
-		var numNets = (networks.length<=10) ? networks.length : 10;
-		var w = Math.floor(Math.map( numNets, 0,10, (cellWidth-50)/1.25,(cellWidth-50) ));
-		var h = Math.floor(Math.map( numNets, 0,10, (cellHeight-50)/1.5,(cellHeight-50) ));
-		butterfly.style.width = w+"px";
-		butterfly.style.height = h+"px";
-		butterfly.style.margin = (cellHeight-h)/2+"px "+(cellWidth-w)/2+"px";
+		updateButterflySize(butterfly, networks.length);
+		
 		butterfly.style.left = (window.innerWidth-(Math.floor(window.innerWidth/cellWidth)*cellWidth))/2 +"px";
 		butterfly.style.top = "0px";
 
@@ -172,12 +169,8 @@ function makeNfoButterfly( data, networks ){
 	var col = "rgb("+r+","+g+","+b+")";
 	tleft.style.background = tright.style.background = bleft.style.background = bright.style.background = col;
 
-	var numNets = (networks.length<=10) ? networks.length : 10;
-	var w = Math.floor(Math.map( numNets, 0,10, (cellWidth-50)/1.25,(cellWidth-50) ));
-	var h = Math.floor(Math.map( numNets, 0,10, (cellHeight-50)/1.5,(cellHeight-50) ));
-	butterfly.style.width = w+"px";
-	butterfly.style.height = h+"px";
-	butterfly.style.margin = (cellHeight-h)/2+"px "+(cellWidth-w)/2+"px";
+	updateButterflySize(butterfly, networks.length);
+
 	butterfly.style.left = (window.innerWidth-(Math.floor(window.innerWidth/cellWidth)*cellWidth))/2 +"px";
 	butterfly.style.top = "0px";
 
@@ -204,58 +197,101 @@ function makeNfoButterfly( data, networks ){
 
 // creates the modal, runs on click of a butterfly -------------------------------------------------------------------------
 function getInfo( id, networks ){
+	
 	var nfoR = document.getElementById('nfo-right');
 	var nfoL = document.getElementById('nfo-left');
 		nfoR.innerHTML = "";
 		nfoL.innerHTML = "";
-	$('#screen').fadeIn(500,function(){
-		// left column
-		makeNfoButterfly( id, networks );
 
-		var mac = document.createElement('div');
-			mac.innerHTML = id.toUpperCase();
-			mac.className = "nfo-mac";
-			mac.name = id;
-		nfoL.appendChild(mac);
+	// left column
+	makeNfoButterfly( id, networks );
 
-		var ven = id.substr(0, 8).toUpperCase();
-		var maker = document.createElement('div');	
-		    if (vendorDictionary && vendorDictionary.hasOwnProperty(ven)){
-		        maker.innerHTML = "Made by "+ vendorDictionary[ven];
-		        maker.name = vendorDictionary[ven];
-		    }
-			maker.className = "nfo-mkr";
-			maker.onclick = function(){ filt.update('manufacturer', maker.name ); }
-		nfoL.appendChild(maker);
+	var mac = document.createElement('div');
+		mac.innerHTML = id.toUpperCase();
+		mac.className = "nfo-mac";
+		mac.name = id;
+	nfoL.appendChild(mac);
 
-		var time = document.createElement('div');
-			time.innerHTML = "Last seen at " +moment( parseInt(probeData.macs[id].lastSeen) ).format('h:mm A M/D/YY');
-			time.className = "nfo-time";
-		nfoL.appendChild(time);
+	var ven = id.substr(0, 8).toUpperCase();
+	var maker = document.createElement('div');	
+	    if (vendorDictionary && vendorDictionary.hasOwnProperty(ven)){
+	        maker.innerHTML = "Made by "+ vendorDictionary[ven];
+	        maker.name = vendorDictionary[ven];
+	    }
+		maker.className = "nfo-mkr";
+		maker.onclick = function(){ filt.update('manufacturer', maker.name ); }
+	nfoL.appendChild(maker);
 
-		var map = document.createElement('div');
-			map.innerHTML = '<a href="map.html?mac='+id+'">view migration patterns</a>';
-			map.className = "nfo-time";
-		nfoL.appendChild(map);
+	var time = document.createElement('div');
+		time.innerHTML = "Last seen at " +moment( parseInt(probeData.macs[id].lastSeen) ).format('h:mm A M/D/YY');
+		time.className = "nfo-time";
+	nfoL.appendChild(time);
 
-		// right column
-		for (var i = 0; i < probeData.macs[id].knownNetworks.length; i++) {
-			var nwrk = probeData.macs[id].knownNetworks[i];
-			var div = document.createElement('div');
-				div.className = "knownNetwork";
-		        div.innerHTML = nwrk;
-		        div.name = nwrk;
-		        div.onclick = function(){ filt.update('network', this.name); }
-			nfoR.appendChild(div);
-		};
+	var map = document.createElement('div');
+		map.innerHTML = '<a href="map.html?mac='+id+'">view migration patterns</a>';
+		map.className = "nfo-time";
+	nfoL.appendChild(map);
 
+	// right column
+	for (var i = 0; i < probeData.macs[id].knownNetworks.length; i++) {
+		var nwrk = probeData.macs[id].knownNetworks[i];
+		var div = document.createElement('div');
+			div.className = "knownNetwork";
+	        div.innerHTML = nwrk;
+	        div.name = nwrk;
+	        div.onclick = function(){ filt.update('network', this.name); }
+		nfoR.appendChild(div);
+	};
 
+	$('#screen').fadeIn(modalSpeed,function(){
 		// close
-		document.getElementById('screen').onclick = function(){ $('#screen').fadeOut(500) };
+		document.getElementById('screen').onclick = function(){ $('#screen').fadeOut(modalSpeed) };
 	});
 }
 
+function updateButterflySize(butterflyElement, numNetworks) {
 
+	var numNets = (numNetworks <= 10) ? numNetworks : 10;
+	var w = Math.floor(Math.map( numNets, 0,10, (cellWidth - 50) / 1.25, (cellWidth - 50)));
+	var h = Math.floor(Math.map( numNets, 0,10, (cellHeight - 50) / 1.5, (cellHeight - 50)));
+	butterflyElement.style.width = w + "px";
+	butterflyElement.style.height = h + "px";
+	butterflyElement.style.margin = (cellHeight - h) / 2 + "px " + (cellWidth - w) / 2 + "px";
+}
+
+
+// device and network modal views --------------------------------------------------------
+$('#network-count-button').on('click', function(e){
+	
+	$('#nfo-left').empty();
+	$('#nfo-right').empty();
+	
+	var html = "";
+	var networks = _.sortBy(probeData.networks, function(n){ return n.toLowerCase() });
+
+	for (var i = 0; i < networks.length; i++) {
+		
+		var network = networks[i];
+
+		var div = document.createElement('div');
+			div.className = "knownNetwork";
+		    div.innerHTML = network;
+		    div.name = network;
+		    div.onclick = function(){ filt.update('network', this.name); }
+			var container = (i % 2 == 0) ? "#nfo-left" : "#nfo-right";
+			$(container).append(div);
+	}
+
+	$('#list-data').css({ "display": "block"});
+
+	$('#screen').fadeIn(modalSpeed,function(){
+		
+		// close
+		document.getElementById('screen').onclick = function(){ 
+			$('#screen').fadeOut(modalSpeed);
+		};
+	});
+});
 
 // update filter menu -----------------------------------------------------------------
 var filt = {
