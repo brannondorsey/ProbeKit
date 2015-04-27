@@ -61,8 +61,11 @@ function linux_capture_privileges() {
         exit 1;
     fi
 
-    dpkg-reconfigure wireshark-common 
+    dpkg-reconfigure wireshark-common
     usermod -a -G wireshark $USER
+    chown root:wireshark /usr/bin/dumpcap
+    setcap cap_net_raw,cap_net_admin=eip /usr/bin/dumpcap
+    getcap /usr/bin/dumpcap
     
     return 0
 }
@@ -92,7 +95,7 @@ if [[ $OS == "Linux" ]] || [[ $OS == "Darwin" ]]; then
             read SURE;
 
             if [[ $SURE == "Y" ]] || [[ $SURE == "y" ]] || [[ $SURE == "" ]]; then
-                gnome-session-quit --logout --no-prompt
+                reboot
             fi
         fi
 
