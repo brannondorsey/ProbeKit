@@ -266,4 +266,5 @@ a:hover { text-decoration:underline; }
 	-webkit-border-radius: 5px;
 	border-radius: 5px;	
 	margin:5px;
+	transition: border 250ms;
 }
