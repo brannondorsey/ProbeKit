@@ -16,6 +16,7 @@
 
 OS=$(uname)
 SCRIPT_NAME=$(basename $0)
+DIR_NAME=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 #Must be root
 if [[ $EUID -ne 0 ]]; then
@@ -38,6 +39,8 @@ fi
 
 function osx_capture_privileges() {
 
+    tar zxf "$DIR/../data/ChmodBPF.tar.gz" --directory "$DIR/../data"
+    open "$DIR/../data/ChmodBPF/Install ChmodBPF.app"
 }
 
 function linux_capture_privileges() {
