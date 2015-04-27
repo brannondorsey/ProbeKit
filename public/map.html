@@ -89,8 +89,7 @@
           }
           // draw butterflies to map!!
           console.log("gps data", gps_vectors)
-          var butterflies = addButterflies();
-          map.addLayer( butterflies );
+          addButterflies();
         } else {
           console.log(data);
           document.getElementById('error').style.display = "block";
@@ -105,25 +104,44 @@
     document.getElementById('map').style.width = window.innerWidth+"px";
 
     var gps_vectors = []; // aray of objects of butterfly vectors
+    var shapePts = []; // points for polygon
+    var ssid_ranks = {};
     
     var LeafIcon = L.Icon.extend({
         options: {
             iconSize:     [50, 31],
-            iconAnchor:   [25,0],
+            iconAnchor:   [25, 15],
             popupAnchor:  [0, 0]
         }
     });
     // a few different colors for when we can detect how common network is
-    var red = new LeafIcon({iconUrl: 'images/butterfly.png'}),    
-        green = new LeafIcon({iconUrl: 'images/butterfly.png'}),
-        blue = new LeafIcon({iconUrl: 'images/butterfly.png'});
+    var red = new LeafIcon({iconUrl: 'images/solid.png'}),    
+        blue = new LeafIcon({iconUrl: 'images/butterfly-blue.png'});
 
     function addButterflies() {
-      for (var i = 0; i < gps_vectors.length-1; i++) {
+      for (var i = 0; i < gps_vectors.length-1; i++) { // rank them
+        if(ssid_ranks[gps_vectors[i].ssid]==undefined){ ssid_ranks[gps_vectors[i].ssid] = 0; } 
+        else { ssid_ranks[gps_vectors[i].ssid]++; }
+      };
+      for (var i = 0; i < gps_vectors.length-1; i++) { // make butterflies
         var x = gps_vectors[i].lat;
         var y = gps_vectors[i].lon;
         var ssid = gps_vectors[i].ssid;
-        L.marker([x, y], {icon: red}).addTo(map).bindPopup(ssid);
+        if(ssid_ranks[gps_vectors[i].ssid] > 10 && ssid_ranks[gps_vectors[i].ssid] < 110 ){
+          L.marker([x, y], {icon: blue}).addTo(map).bindPopup(ssid);
+        } 
+        else if(ssid_ranks[gps_vectors[i].ssid] <= 10) {
+          shapePts.push([x,y]);
+          L.marker([x, y], {icon: red}).addTo(map).bindPopup(ssid);
+        }
+      };
+      for (var i = 0; i < shapePts.length; i++) {
+        var one = shapePts[i];
+        var two = (shapePts[i+1]) ? shapePts[i+1] : shapePts[0];
+        L.polygon([one,two],{color:'red',fillColor:'#f03',fillOpacity:0}).addTo(map);
+        var ran = shapePts[Math.floor(Math.random()*shapePts.length)];
+        L.polygon([one,ran],{color:'red',fillColor:'#f03',fillOpacity:0}).addTo(map);
+
       };
     }
 
