@@ -189,11 +189,8 @@ if [[ $OS == "Linux" ]] || [[ $OS == "Darwin" ]]; then
 
         # install the rest of the dependencies now that
         # package managers and nodejs v0.12 are definately installed
-        if [[ $OS == "Linux" ]]; then
-            install_package "tshark git"
-        elif [[ $OS == "Darwin" ]]; then
-            install_package "wireshark git"
-        fi
+
+        install_package "wireshark git"
 
         echo ""
         echo "[install.sh] $PROJECT_NAME was installed successfully!"
