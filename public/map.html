@@ -5,21 +5,41 @@
   <meta charset="utf-8">
   <title>Probe Request Collector's Kit</title>
   <link rel="stylesheet" type="text/css" href="css/styles.css">
-  <link rel="stylesheet" href="css/ol.css" type="text/css">
+  <link rel="stylesheet" href="css/leaflet.css" />
+  <style>
+    html,body{ padding:0; margin:0; overflow: hidden; }
+    #map{ position: absolute; top:0; left:0;}
+    #error {
+      position: fixed; z-index: 2; top:0; left:0;
+      width:100%; height:100%;
+      background-color: rgba(0,0,0,0.8);
+      display: none;
+
+    }
+    #error div{ 
+      background: #e9eaee;
+      border: 2px solid #ffffff;
+      padding: 20px;
+      width: 460px;
+      margin: 20% auto;
+      text-align: center;
+      -webkit-border-radius: 5px;
+      -moz-border-radius: 5px;
+      border-radius: 5px;
+    }
+  </style>
 
 
 </head>
 
 <body>
 
-  <pre id="networks"></pre>
+  <div id="error"><div> no GPS data available for these networks</div></div>
   <div id="map" class="map"></div>
 
-  <script type="text/javascript" src="js/jquery-1.11.2.min.js"></script>
-  <script src="js/ol.js"></script>
-  <!-- // <script src="http://maps.stamen.com/js/tile.stamen.js?v1.3.0"></script> -->
-  <script src="js/tile.stamen.js"></script>
-  <script type="text/javascript">
+  <script src="js/jquery-1.11.2.min.js"></script>
+  <script src="js/leaflet.js"></script>
+  <script>
 
     // via http://stackoverflow.com/questions/901115/how-can-i-get-query-string-values-in-javascript
     function getParameterByName(name) {
@@ -73,6 +93,7 @@
           map.addLayer( butterflies );
         } else {
           console.log(data);
+          document.getElementById('error').style.display = "block";
         }
       } 
     }
@@ -80,54 +101,36 @@
 
 
     // maps -------------------------------------------------------------------------------
-    
-    var chicago = ol.proj.transform([-87.625088,41.879528], 'EPSG:4326', 'EPSG:3857');
-    var vectorSource = new ol.source.Vector({}); // empty vector
-    var gps_vectors = []; // aray of objects of butterfly vectors
-    var markers = []; // empty markers for when i do lines later TO-DO
-    var map = new ol.Map({
-        target: 'map',
-        layers: [
-            new ol.layer.Tile({source: new ol.source.Stamen({layer: 'toner'})})
-        ],
-        view: new ol.View({ center: chicago, zoom: 13 })
-    });
+    document.getElementById('map').style.height = window.innerHeight+"px";
+    document.getElementById('map').style.width = window.innerWidth+"px";
 
+    var gps_vectors = []; // aray of objects of butterfly vectors
+    
+    var LeafIcon = L.Icon.extend({
+        options: {
+            iconSize:     [50, 31],
+            iconAnchor:   [25,0],
+            popupAnchor:  [0, 0]
+        }
+    });
+    // a few different colors for when we can detect how common network is
+    var red = new LeafIcon({iconUrl: 'images/butterfly.png'}),    
+        green = new LeafIcon({iconUrl: 'images/butterfly.png'}),
+        blue = new LeafIcon({iconUrl: 'images/butterfly.png'});
 
     function addButterflies() {
-      // vectors
-      for (var i=0;i<gps_vectors.length-1;i++){
-        var x = gps_vectors[i].lon;
-        var y = gps_vectors[i].lat;
-        var iconFeature = new ol.Feature({
-              geometry: new ol.geom.Point(ol.proj.transform([x,y], 'EPSG:4326','EPSG:3857')),
-              name: gps_vectors[i].ssid
-          });
-        vectorSource.addFeature(iconFeature);
-        markers[i]= ol.proj.transform([x,y], 'EPSG:4326',   'EPSG:3857');
-      }
-
-      // style
-      var iconStyle = new ol.style.Style({
-        image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
-            anchor: [0.5,0.5],
-            anchorXUnits: 'fraction', // or pixels
-            anchorYUnits: 'fraction', // or pixels
-            opacity: 0.75,
-            src: 'images/butterfly.png'
-        }))
-      });
-
-      // add the feature vector to the layer vector, and apply a style to whole layer
-      var vectorLayer = new ol.layer.Vector({
-          source: vectorSource,
-          style: iconStyle
-      });
-      return vectorLayer;
+      for (var i = 0; i < gps_vectors.length-1; i++) {
+        var x = gps_vectors[i].lat;
+        var y = gps_vectors[i].lon;
+        var ssid = gps_vectors[i].ssid;
+        L.marker([x, y], {icon: red}).addTo(map).bindPopup(ssid);
+      };
     }
-      
-  
 
+    var map = L.map('map').setView([41.879528,-87.625088], 13); // chicago 
+    L.tileLayer('http://localhost:3000/maps/tiles/chicago/{z}/{x}/{y}.png', {
+        maxZoom: 17
+    }).addTo(map);
 
 
   </script>
