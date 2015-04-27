@@ -9,3 +9,4 @@ data/mongodb/*
 data/wigle_users.csv
 data/maps/tiles/*
 !data/maps/tiles/.gitkeep
+data/ChmodBPF/*
