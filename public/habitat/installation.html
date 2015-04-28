@@ -14,19 +14,75 @@
 
 		<div id="container"></div>
 
-		<script src="/socket.io/socket.io.js"></script>
 		<script src="js/three.min.js"></script>
 		<script src="js/stats.min.js"></script>
+		<script src="js/Projector.js"></script>
 		<script src="js/boid.js"></script>
 		<script src="js/butterfly.js"></script>
 		<script>
 
-			var devices = [];
-			var socket = io.connect("http://" + window.location.host);
-			socket.on('newDeviceReceived', function (mac) {
-	    		devices.push(mac);
-			});
 
+
+			var hud_canvas = document.createElement('canvas');
+				hud_canvas.width = window.innerWidth;
+				hud_canvas.height = window.innerHeight;
+				hud_canvas.style.position = "absolute";
+				hud_canvas.style.left = "0px";
+				hud_canvas.style.top = "0px";
+				hud_canvas.style.zIndex = 3;
+			document.body.appendChild(hud_canvas);
+
+			var ctx = hud_canvas.getContext('2d');
+			var p, projector, v, percX, percY, tx, ty, tz;
+			var inCircA = inCircB = 0;
+			var outCircA = outCircB = Math.PI;
+			var projector = new THREE.Projector();
+
+			function targetButterfly(pos) {
+				ctx.clearRect(0,0,hud_canvas.width,hud_canvas.height);
+			 	
+			 	p = pos.matrixWorld.getPosition().clone();
+			 	v = projector.projectVector(p, camera);
+			 	percX = (v.x + 1) / 2;
+				percY = (-v.y + 1) / 2;
+			    tx = percX*window.innerWidth;
+			    ty = percY*window.innerHeight;
+			    // tz = 20 * ((400-pos.position.z)/1000);
+
+			    inCircA += 0.1;
+    			inCircB = inCircA+(Math.PI*1.5);
+			    ctx.beginPath();
+      			ctx.arc(tx, ty, 10, inCircA, inCircB, false);
+      			ctx.strokeStyle = "#ff0000";
+      			ctx.stroke();
+      			ctx.closePath();
+				
+				outCircA -= 0.1;
+    			outCircB = outCircA+(Math.PI*1.5);
+      			ctx.beginPath();
+      			ctx.arc(tx, ty, 13, outCircA, outCircB, false);
+      			ctx.strokeStyle = "#ff0000";
+      			ctx.stroke();
+      			ctx.closePath();
+
+      			box = { x:hud_canvas.width-250, y:50 }
+      		 	midpt = {x:(box.x+(tx+13))/2, y:150};
+
+      			ctx.strokeRect(box.x,box.y, 200,200 );
+
+				ctx.beginPath();
+      			ctx.moveTo(tx+13,ty);
+      			ctx.lineTo(midpt.x,midpt.y);
+      			ctx.stroke();
+      			ctx.closePath();
+
+      			ctx.beginPath();
+      			ctx.moveTo(midpt.x,midpt.y);
+      			ctx.lineTo(box.x,midpt.y);
+      			ctx.stroke();
+      			ctx.closePath();
+
+			}
 
 			// MAD PROPS to Joshua Koo @BlurSpline !!! http://www.joshuakoo.com/
 			// all the s!ck boid math is his ++ there's plenty more on his site
@@ -44,7 +100,6 @@
 			var camera, scene, renderer, stats;
 			var renderDetail;
 			var butterfly, butterflies, boid, boids;
-			var flycam, fly = false;
 
 			init();
 			animate();
@@ -53,7 +108,6 @@
 
 				camera = new THREE.PerspectiveCamera( 75, SCREEN_WIDTH / SCREEN_HEIGHT, 1, 10000 );
 				camera.position.z = 450;
-				flycam = new THREE.PerspectiveCamera( 75, SCREEN_WIDTH / SCREEN_HEIGHT, 1, 10000 );
 				scene = new THREE.Scene();
 
 				butterflies = [];
@@ -88,6 +142,7 @@
 				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( SCREEN_WIDTH, SCREEN_HEIGHT );
 				renderer.autoClear = true;
+
 
 
 				// document.addEventListener( 'mousemove', onDocumentMouseMove, false );
@@ -148,20 +203,9 @@
 
 					o = butterfly.original; // custom object to keep track of original color
 					color = butterfly.material.color;
-					if(!fly){
-						color.r = (1-o.r) * ((400-butterfly.position.z)/1000) + o.r; 
-						color.g = (1-o.g) * ((400-butterfly.position.z)/1000) + o.g;
-						color.b = (1-o.b) * ((400-butterfly.position.z)/1000) + o.b;
-					} else {
-						dx = flycam.position.x - butterfly.position.x;
-						dy = flycam.position.y - butterfly.position.y;
-						dz = flycam.position.z - butterfly.position.z;
-						dist = Math.sqrt(dx*dx + dy*dy + dz*dz);
-						color.r = (1-o.r) * (dist/1624) + o.r; 
-						color.g = (1-o.g) * (dist/1624) + o.g;
-						color.b = (1-o.b) * (dist/1624) + o.b;
-					}
-					
+					color.r = (1-o.r) * ((400-butterfly.position.z)/1000) + o.r; 
+					color.g = (1-o.g) * ((400-butterfly.position.z)/1000) + o.g;
+					color.b = (1-o.b) * ((400-butterfly.position.z)/1000) + o.b;
 
 					butterfly.rotation.y = Math.atan2( - boid.velocity.z, boid.velocity.x );
 					butterfly.rotation.z = Math.asin( boid.velocity.y / boid.velocity.length() );
@@ -175,17 +219,9 @@
 				}
 
 				butterflies[0].material.color.r = 1;
-
-				if(!fly){ 
-					renderer.render( scene, camera ); 
-				}
-				else {
-					flycam.position.x = butterflies[0].position.x + 10;
-					flycam.position.y = butterflies[0].position.y + 8;
-					flycam.position.z = butterflies[0].position.z;
-					flycam.lookAt(butterflies[0].position);
-					renderer.render( scene, flycam );
-				}
+				targetButterfly(butterflies[0])
+				renderer.render( scene, camera ); 
+	
 
 			}
 
@@ -200,9 +236,6 @@
 			    	} else {
 			    		stats.domElement.style.display = "none";
 			    	}
-			    }
-			    if(key == 102){
-			    	fly = (fly) ? false : true;
 			    }
 			}
 

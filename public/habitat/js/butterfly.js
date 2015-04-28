@@ -38,8 +38,6 @@ var Butterfly = function () {
     ]);  
 	// this.computeFaceNormals();
 
-	console.log(this.faces)
-
 	function v( x, y, z ) {
 
 		scope.vertices.push( new THREE.Vector3( x, y, z ) );
