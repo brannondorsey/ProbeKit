@@ -34,6 +34,7 @@ WigleAPI.prototype.getResults = function(options, callback) {
 
 	if (!self.isConnected()) {
 		callback(new Error('Database not connect in WigleAPI'), { error: "MongoDB API server is not connected to a MongoDB session."});
+		return false;
 	}
 
 	var collection = self.db.collection(options.collection);
@@ -46,7 +47,7 @@ WigleAPI.prototype.getResults = function(options, callback) {
 		"ssid": { "$in": options.ssid }, 
 	}
 
-	var metaQuery = 'collection.find(query, { _id: 1, ssid: 1, geo: 1})';
+	var metaQuery = 'collection.find(query, { _id: 1, ssid: 1, geo: 1, lastupdt: 1 })';
 
 	if (options.limit) {
 		metaQuery += '.limit(' + parseInt(options.limit) + ')';
