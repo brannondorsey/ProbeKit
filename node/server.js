@@ -178,17 +178,14 @@ io.on('connection', function (socket) {
     	// csv file from AJAX
     	if (!csvOnly) {
     		socket.emit('probeReceived', probe);
-    	}
-    	
-    	// right now this method is only being used by the 
-    	// installation
-    	probeDataStore.isNewDevice(probe.mac, function(isNew){
-    		
-    		if (isNew) {
-    			socket.emit('newDeviceReceived', probe.mac);
-    		}
-    	});
+    	}	
     });
+
+    // right now this method is only being used by the 
+	// installation
+	probeDataStore.on('newDevice', function(probe){
+		socket.emit('newDeviceReceived', probe.mac);
+	});
 });
 
 if (!dontServe) {

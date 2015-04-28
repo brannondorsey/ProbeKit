@@ -4,6 +4,9 @@
 // to use MongoDB internally without having to change its API
 
 var fs = require('fs');
+var EventEmitter = require('events').EventEmitter;
+
+var emitter = new EventEmitter();
 
 function ProbeDataStore() {
 
@@ -39,6 +42,7 @@ ProbeDataStore.prototype.loadFromCSV = function(csvFilePath, callback) {
 	});	
 }
 
+// Must be called before addPacket
 ProbeDataStore.prototype.isNewDevice = function(MAC, callback) {
 	callback(!this._probeData.macs.hasOwnProperty(MAC));
 }
@@ -49,9 +53,22 @@ ProbeDataStore.prototype.addPacket = function(packet, callback) {
 
 	if (packet && packet.ssid && packet.mac && packet.timestamp) {
 		
-		addProbe(self._probeData, packet.mac, packet.ssid, packet.timestamp, false);
-		if (callback) callback(null);
-		return true;
+		// order of operations requires that we check if the
+		// device is new before we add the probe, otherwise
+		// we will never know
+		self.isNewDevice(packet.mac, function(isNew){
+
+			if (isNew) {
+				emitter.emit('newDevice', packet);
+			}
+			
+			// addProbe even if device is not new
+			addProbe(self._probeData, packet.mac, packet.ssid, packet.timestamp, false);
+		
+			if (callback) callback(null);
+			return true;
+		});
+
 	} else {
 		if (callback) callback(new Error('ProbeDataStore.addPacket() was not passed a valid packet object'));
 		return false;
@@ -85,6 +102,15 @@ ProbeDataStore.prototype.getNumNetworks = function(callback) {
 
 ProbeDataStore.prototype.getNumDevices = function(callback) {
 	callback(Object.keys(this._probeData.macs).length);
+}
+
+ProbeDataStore.prototype.on = function(eventName, func) {
+
+	if (eventName == 'newDevice') {
+		emitter.addListener(eventName, func);
+	} else {
+		throw new Error('ProbeDataStore::on ' + eventName + ' is not a valid ProbeDataStore event');
+	}
 }
 
 function addProbe(probeData, mac, ssid, timestamp, fromCSV) {
