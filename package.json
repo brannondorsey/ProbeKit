@@ -7,7 +7,7 @@
   "window": {
   	"title": "Probe Request Collector's Kit",
   	"icon": "media/icon.png",
-  	"toolbar": true,
+  	"toolbar": false,
   	"position": "center",
   	"resizable": true,
     "width": 1024,
