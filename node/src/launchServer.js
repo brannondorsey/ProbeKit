@@ -23,12 +23,12 @@ function launchServer(options) {
 	var launchBrowser = options.launchBrowser;
 	var dontServe = options.dontServe;
 
-	var rootCheckProc = spawnSync('id', ['-u'], { encoding: 'utf8' });
-	if (rootCheckProc.output[1] != '0\n') {
-		console.log('This script must be run as root.');
-		console.log('    sudo node server.js --interface=<device> [options]');
-		process.exit(0);
-	}
+	// var rootCheckProc = spawnSync('id', ['-u'], { encoding: 'utf8' });
+	// if (rootCheckProc.output[1] != '0\n') {
+	// 	console.log('This script must be run as root.');
+	// 	console.log('    sudo node server.js --interface=<device> [options]');
+	// 	process.exit(0);
+	// }
 
 	var procLauncher = undefined;
 	var tsharkProcess = undefined;

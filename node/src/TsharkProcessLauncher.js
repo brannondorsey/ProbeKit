@@ -13,20 +13,20 @@ function TsharkProcessLauncher(interface, hopChannels) {
 	}
 
 	// check for ifconfig
-	var proc = spawnSync('which', ['ifconfig'], { encoding: 'utf8' });
-	if (proc.status != 0) {
-		console.log('ifconfig not found, please install ifconfig');
-		process.exit(1);
-	}
+	// var proc = spawnSync('which', ['ifconfig'], { encoding: 'utf8' });
+	// if (proc.status != 0) {
+	// 	console.log('ifconfig not found, please install ifconfig');
+	// 	process.exit(1);
+	// }
 
-	if (os.type() == 'Linux') {
-		// check for iwconfig
-		proc = spawnSync('which', ['iwconfig'], { encoding: 'utf8' });
-		if (proc.status != 0) {
-			console.log('iwconfig not found, please install iwconfig');
-			process.exit(1);
-		}
-	}
+	// if (os.type() == 'Linux') {
+	// 	// check for iwconfig
+	// 	proc = spawnSync('which', ['iwconfig'], { encoding: 'utf8' });
+	// 	if (proc.status != 0) {
+	// 		console.log('iwconfig not found, please install iwconfig');
+	// 		process.exit(1);
+	// 	}
+	// }
 
 	// check for tshark
 	proc = spawnSync('which', ['tshark'], { encoding: 'utf8' });
@@ -35,31 +35,31 @@ function TsharkProcessLauncher(interface, hopChannels) {
 		process.exit(1);
 	}
 
-	// set device down
-	proc = spawnSync('ifconfig',  [interface, 'down'], { encoding: 'utf8' });
-	if (proc.status != 0) {
-		console.log(proc.stderr);
-		console.log('ifconfig could not take down ' + interface + ', make sure that it is not already in use.');
-		process.exit(1);
-	}
+	// // set device down
+	// proc = spawnSync('ifconfig',  [interface, 'down'], { encoding: 'utf8' });
+	// if (proc.status != 0) {
+	// 	console.log(proc.stderr);
+	// 	console.log('ifconfig could not take down ' + interface + ', make sure that it is not already in use.');
+	// 	process.exit(1);
+	// }
 
-	if (os.type() == 'Linux') {
-		// put the device into monitor mode
-		proc = spawnSync('iwconfig',  [interface, 'mode', 'monitor'], { encoding: 'utf8' });
-		if (proc.status != 0) {
-			console.log(proc.stderr);
-			console.log('iwconfig could set ' + interface + ' to monitor mode, make sure that it is not already in use.');
-			process.exit(1);
-		}
-	}
+	// if (os.type() == 'Linux') {
+	// 	// put the device into monitor mode
+	// 	proc = spawnSync('iwconfig',  [interface, 'mode', 'monitor'], { encoding: 'utf8' });
+	// 	if (proc.status != 0) {
+	// 		console.log(proc.stderr);
+	// 		console.log('iwconfig could set ' + interface + ' to monitor mode, make sure that it is not already in use.');
+	// 		process.exit(1);
+	// 	}
+	// }
 
-	// set device up
-	proc = spawnSync('ifconfig',  [interface, 'up'], { encoding: 'utf8' });
-	if (proc.status != 0) {
-		console.log(proc.stderr);
-		console.log('ifconfig could not bring up ' + interface + ', make sure that it is not already in use.');
-		process.exit(1);
-	}
+	// // set device up
+	// proc = spawnSync('ifconfig',  [interface, 'up'], { encoding: 'utf8' });
+	// if (proc.status != 0) {
+	// 	console.log(proc.stderr);
+	// 	console.log('ifconfig could not bring up ' + interface + ', make sure that it is not already in use.');
+	// 	process.exit(1);
+	// }
 
 	if (hopChannels) this.channelHopProcess = spawn(__dirname + '/../../shell/channel_hop.sh', [interface]);
 	this.tsharkProcess = spawn('tshark', ['-i', interface, '-n', '-I', '-l', 'subtype', 'probereq']);
