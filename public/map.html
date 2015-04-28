@@ -27,6 +27,8 @@
       -moz-border-radius: 5px;
       border-radius: 5px;
     }
+
+    i { font-style: normal; font-size:10px; }
   </style>
 
 
@@ -39,6 +41,8 @@
 
   <script src="js/jquery-1.11.2.min.js"></script>
   <script src="js/leaflet.js"></script>
+  <script src='//api.tiles.mapbox.com/mapbox.js/plugins/turf/v1.4.0/turf.min.js'></script>
+
   <script>
 
     // via http://stackoverflow.com/questions/901115/how-can-i-get-query-string-values-in-javascript
@@ -82,10 +86,11 @@
       
       function onGPSResponse(data){
         if (!data.error) {
+          console.log(data)
           var results = data.results;
           for (var i = 0; i < results.length; i++) {
             var network = results[i];
-            gps_vectors.push({ssid:network.ssid, lat:network.geo.lat, lon:network.geo.lon});
+            gps_vectors.push({ssid:network.ssid, lat:network.geo.lat, lon:network.geo.lon, date:network.lastupdt});
           }
           // draw butterflies to map!!
           console.log("gps data", gps_vectors)
@@ -119,21 +124,35 @@
     var red = new LeafIcon({iconUrl: 'images/solid.png'}),    
         blue = new LeafIcon({iconUrl: 'images/butterfly-blue.png'});
 
+    function parseDate( int ){
+      var str = int.toString();
+      var YY = str.charAt(0) + str.charAt(1) + str.charAt(2) + str.charAt(3);
+      var MM = str.charAt(4) + str.charAt(5);
+      var DD = str.charAt(6) + str.charAt(7);
+      var hh = str.charAt(8) + str.charAt(9);
+      var mm = str.charAt(10) + str.charAt(11);
+      return MM+"/"+DD+"/"+YY+" "+hh+":"+mm;
+    }
+
     function addButterflies() {
-      for (var i = 0; i < gps_vectors.length-1; i++) { // rank them
+      for (var i = 0; i < gps_vectors.length; i++) { // rank them
         if(ssid_ranks[gps_vectors[i].ssid]==undefined){ ssid_ranks[gps_vectors[i].ssid] = 0; } 
         else { ssid_ranks[gps_vectors[i].ssid]++; }
       };
-      for (var i = 0; i < gps_vectors.length-1; i++) { // make butterflies
+      for (var i = 0; i < gps_vectors.length; i++) { // make butterflies
         var x = gps_vectors[i].lat;
         var y = gps_vectors[i].lon;
         var ssid = gps_vectors[i].ssid;
+        var date = parseDate( gps_vectors[i].date );
         if(ssid_ranks[gps_vectors[i].ssid] > 10 && ssid_ranks[gps_vectors[i].ssid] < 110 ){
-          L.marker([x, y], {icon: blue}).addTo(map).bindPopup(ssid); total++;
+          L.marker([x, y], {icon: blue}).addTo(map).bindPopup(ssid+"<br><i>"+date+"</i>*").on("mouseover",function(e){this.openPopup()}); total++;
         } 
         else if(ssid_ranks[gps_vectors[i].ssid] <= 10) {
-          shapePts.push([x,y]);
-          L.marker([x, y], {icon: red}).addTo(map).bindPopup(ssid); total++;
+          shapePts.push([x,y]); total++;
+          L.marker([x, y], {icon: red}).addTo(map).bindPopup(ssid+"<br><i>"+date+"</i>*").on("mouseover",function(e){this.openPopup()}); 
+          // var point1 = 
+          // var p1 = turf.point([x,y]);
+          // console.log(p1)
         }
       };
       for (var i = 0; i < shapePts.length; i++) {
@@ -144,15 +163,17 @@
         L.polygon([one,ran],{color:'red',fillColor:'#f03',fillOpacity:0}).addTo(map);
 
       };
-      if(total==0){
+      if(gps_vectors.length >=0 && total==0){
         document.getElementById('nfo').innerHTML = "GPS data may not be accurate";
         document.getElementById('error').style.display = "block";
       }
+
+
     }
 
     var map = L.map('map').setView([41.879528,-87.625088], 13); // chicago 
     L.tileLayer('http://localhost:3000/data/maps/tiles/chicago/{z}/{x}/{y}.png', {
-        maxZoom: 17
+        maxZoom: 18
     }).addTo(map);
 
 
