@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+  <meta charset="utf-8">
+  <title>Probe Request Collector's Kit</title>
+  <link rel="stylesheet" type="text/css" href="css/styles.css">
+
+</head>
+
+<body>
+  <script src="js/jquery-1.11.2.min.js"></script>
+  <script type="text/javascript">
+  $(document).ready(function(){
+
+    var pollFrequency = 200;
+    var redirectURL = "http://localhost:3000/index.html"
+    
+    poll();
+
+    function poll() {
+      setTimeout(function(){
+        $.ajax({
+          url: redirectURL,
+          method: "GET",
+          success: function(data) {
+            window.location.replace(redirectURL);
+          },
+          error: function(err) {
+            poll();
+          }
+        });
+      }, pollFrequency);
+    }
+  });
+  </script>
+</body>
+</html>
