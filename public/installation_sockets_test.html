@@ -11,6 +11,7 @@
 	
 	socket.on('newDeviceReceived', function (mac) {
 	    devices.push(mac);
+	    console.log('New Device Detected: ' + mac);
 	});
 
 	</script>
