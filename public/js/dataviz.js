@@ -62,6 +62,8 @@ function makeButterfly( data, networks ){
 
 		var rad3 = Math.map( parseInt( d[3], 16 ), 0,255, 64,113 );
 		var rad4 = Math.map( parseInt( d[4], 16 ), 0,255, 3,18 );
+		tleft.style.webkitBorderRadius = "0% "+Math.floor(rad3)+"% "+Math.floor(rad4)+"% 150%";
+		tright.style.webkitBorderRadius = "150% "+Math.floor(rad4)+"% "+Math.floor(rad3)+"% 0%";
 		tleft.style.borderRadius = "0% "+Math.floor(rad3)+"% "+Math.floor(rad4)+"% 150%";
 		tright.style.borderRadius = "150% "+Math.floor(rad4)+"% "+Math.floor(rad3)+"% 0%";
 
