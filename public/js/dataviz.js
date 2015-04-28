@@ -227,8 +227,23 @@ function getInfo( id, networks ){
 	nfoL.appendChild(time);
 
 	var map = document.createElement('div');
-		map.innerHTML = '<a href="map.html?mac='+id+'">view migration patterns</a>';
-		map.className = "nfo-time";
+	$.ajax({
+		url: 'http://localhost:3000/api/wigle/hasgeo?device='+id+'&collection=wigleChicago',
+	  	method: 'GET',
+	  	success: function(data){
+	  		if(data===true){
+				map.innerHTML = '<a href="map.html?mac='+id+'">View migration patterns</a>';
+	  		} else {
+	  			map.style.color = "#aaa";
+	  			map.style.fontStyle = "italic";
+	  			map.innerHTML = 'Migration patterns unavailable';
+	  		}
+	  	},
+	  	error: function(err){
+	    	console.log(err);
+	  	}
+	});
+	map.className = "nfo-time";
 	nfoL.appendChild(map);
 
 	// right column
@@ -247,6 +262,8 @@ function getInfo( id, networks ){
 		document.getElementById('screen').onclick = function(){ $('#screen').fadeOut(modalSpeed) };
 	});
 }
+
+
 
 function updateButterflySize(butterflyElement, numNetworks) {
 
