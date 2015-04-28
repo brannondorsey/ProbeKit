@@ -65,11 +65,15 @@ function makeButterfly( data, networks ){
 		tleft.style.borderRadius = "0% "+Math.floor(rad3)+"% "+Math.floor(rad4)+"% 150%";
 		tright.style.borderRadius = "150% "+Math.floor(rad4)+"% "+Math.floor(rad3)+"% 0%";
 
-		var flapSpeed = Math.map( parseInt( d[5], 16 ), 0,255, 130,230 )
+		var flapSpeed = Math.floor( Math.map( parseInt( d[5], 16 ), 0,255, 130,230 ) )
 		tleft.style.animation = 'flap-lt '+flapSpeed+'ms ease-in 4 alternate';
 		tright.style.animation = 'flap-rt '+flapSpeed+'ms ease-in 4 alternate';
 		bleft.style.animation = 'flap-lb '+flapSpeed+'ms ease-in 4 alternate';
 		bright.style.animation = 'flap-rb '+flapSpeed+'ms ease-in 4 alternate';
+		tleft.style.webkiAnimation = 'flap-lt '+flapSpeed+'ms ease-in 4 alternate';
+		tright.style.webkiAnimation = 'flap-rt '+flapSpeed+'ms ease-in 4 alternate';
+		bleft.style.webkiAnimation = 'flap-lb '+flapSpeed+'ms ease-in 4 alternate';
+		bright.style.webkiAnimation = 'flap-rb '+flapSpeed+'ms ease-in 4 alternate';
 
 		top.appendChild(tleft); top.appendChild(tright);
 		bottom.appendChild(bleft); bottom.appendChild(bright);
@@ -90,11 +94,19 @@ function flapButterfly( id, ssid ){
 			b.childNodes[0].childNodes[1].style.animation = "flap-rt 180ms ease-in infinite alternate";
 			b.childNodes[1].childNodes[0].style.animation = "flap-lb 180ms ease-in infinite alternate";
 			b.childNodes[1].childNodes[1].style.animation = "flap-rb 180ms ease-in infinite alternate";
+			b.childNodes[0].childNodes[0].style.webkitAnimation = "flap-lt 180ms ease-in infinite alternate";
+			b.childNodes[0].childNodes[1].style.webkitAnimation = "flap-rt 180ms ease-in infinite alternate";
+			b.childNodes[1].childNodes[0].style.webkitAnimation = "flap-lb 180ms ease-in infinite alternate";
+			b.childNodes[1].childNodes[1].style.webkitAnimation = "flap-rb 180ms ease-in infinite alternate";
 			setTimeout(function(){
 				b.childNodes[0].childNodes[0].style.animation = "flap-lt 180ms ease-in 4 alternate";
 				b.childNodes[0].childNodes[1].style.animation = "flap-rt 180ms ease-in 4 alternate";
 				b.childNodes[1].childNodes[0].style.animation = "flap-lb 180ms ease-in 4 alternate";
 				b.childNodes[1].childNodes[1].style.animation = "flap-rb 180ms ease-in 4 alternate";
+				b.childNodes[0].childNodes[0].style.webkitAnimation = "flap-lt 180ms ease-in 4 alternate";
+				b.childNodes[0].childNodes[1].style.webkitAnimation = "flap-rt 180ms ease-in 4 alternate";
+				b.childNodes[1].childNodes[0].style.webkitAnimation = "flap-lb 180ms ease-in 4 alternate";
+				b.childNodes[1].childNodes[1].style.webkitAnimation = "flap-rb 180ms ease-in 4 alternate";
 			},t);
 		}
 	//}
@@ -167,10 +179,14 @@ function makeNfoButterfly( data, networks ){
 	tright.style.borderRadius = "150% "+Math.floor(rad4)+"% "+Math.floor(rad3)+"% 0%";
 
 	var flapSpeed = Math.map( parseInt( d[5], 16 ), 0,255, 800,1200 );
-	tleft.style.animation = 'flap-lt '+flapSpeed+'ms ease-in 4 alternate';
-	tright.style.animation = 'flap-rt '+flapSpeed+'ms ease-in 4 alternate';
-	bleft.style.animation = 'flap-lb '+flapSpeed+'ms ease-in 4 alternate';
-	bright.style.animation = 'flap-rb '+flapSpeed+'ms ease-in 4 alternate';
+	$(tleft).css('animation','flap-lt '+flapSpeed+'ms ease-in 4 alternate');
+	$(tright).css('animation', 'flap-rt '+flapSpeed+'ms ease-in 4 alternate');
+	$(bleft).css('animation', 'flap-lb '+flapSpeed+'ms ease-in 4 alternate');
+	$(bright).css('animation', 'flap-rb '+flapSpeed+'ms ease-in 4 alternate');
+	// tleft.style.animation = 'flap-lt '+flapSpeed+'ms ease-in 4 alternate';
+	// tright.style.animation = 'flap-rt '+flapSpeed+'ms ease-in 4 alternate';
+	// bleft.style.animation = 'flap-lb '+flapSpeed+'ms ease-in 4 alternate';
+	// bright.style.animation = 'flap-rb '+flapSpeed+'ms ease-in 4 alternate';
 
 	top.appendChild(tleft); top.appendChild(tright);
 	bottom.appendChild(bleft); bottom.appendChild(bright);
@@ -299,6 +315,7 @@ var filt = {
 		var input = document.createElement('input');
 			input.setAttribute('id','filterInput');
 			input.setAttribute('placeholder','add tag');
+			input.onchange = function(){ console.log('enter') };
 		var f = document.getElementById('filtermenu');
 			f.appendChild(input);
 	},
@@ -361,29 +378,107 @@ var filt = {
 	}
 }
 
+// custom fuilter input + autocomplete ----------------------
 var inputFilt = {
-	data: ['3451', 'Starbucks Google','Links Taproom','cme wifi','Crocodile Radek','HP7B64AF','himasali','HOME-8512'],
-	cfade: function(r,g,b){
+	charCnt: 0,
+	search: "",
+	reset: function(){
 		var f = document.getElementById('filterInput');
-		var col = { r:r, g:g, b:b };
-		if(col.r>204) { col.r-=128 } else { col.r = 204 }
-		if(col.g<204) { col.g+=128 } else { col.g = 204 }
-		if(col.b<204) { col.b+=128 } else { col.b = 204 }
-		f.style.borderColor = "rgb("+col.r+","+col.g+","+col.b+")";
-		if(col.r!=204 || col.g!=204 || col.b!=204){
-			console.log(col.r,col.g,col.b)
-			setTimeout(function(){ inputFilt.cfade( col.r,col.b,col.g ); },100);
-		} 
+		inputFilt.search = f.value = "";
+		inputFilt.charCnt = 0;
 	},
-	nodata: function(){
+	badInput: function(){
 		var f = document.getElementById('filterInput');
-		f.style.borderColor = "rgb(255,0,0)";
+		inputFilt.reset();
+		document.getElementById('filterInput').style.border = "3px solid #c00";
 		setTimeout(function(){
-			inputFilt.cfade(255,0,0);
-		},100);
+			document.getElementById('filterInput').style.border = "1px solid #ccc";
+		},250);
 		
 	},
-	check: function(val){
-
+	setSelectionRange: function(input, selectionStart, selectionEnd) {
+	  if (input.setSelectionRange) {
+	    input.focus();
+	    input.setSelectionRange(selectionStart, selectionEnd);
+	  }
+	  else if (input.createTextRange) {
+	    var range = input.createTextRange();
+	    range.collapse(true);
+	    range.moveEnd('character', selectionEnd);
+	    range.moveStart('character', selectionStart);
+	    range.select();
+	  }
+	},
+	setCaretToPos:function (input, pos) {
+	  this.setSelectionRange(input, pos, pos);
+	},
+	autocomplete: function(data){
+		var f = document.getElementById('filterInput');
+		f.value = inputFilt.search;
+		inputFilt.charCnt++;
+		for (var i = 0; i < data.length; i++) {
+			if(data[i].toLowerCase().lastIndexOf(f.value, 0) === 0){
+				f.value = data[i];
+			}
+		};
+		inputFilt.setCaretToPos(f, inputFilt.charCnt);
+	},
+	submit: function(data){
+		var f = document.getElementById('filterInput');
+		if( 
+			$.inArray(f.value, filter.networks) < 0 &&
+			f.value != null && f.value != undefined && f.value != "" &&
+			$.inArray(f.value, data) >= 0 
+		){
+			filt.update('network', f.value);
+			inputFilt.reset();
+		} else {
+			inputFilt.badInput();
+		}
 	}
 }
+document.onkeypress=function(event){
+    var key = (event.keyCode ? event.keyCode : event.which);
+    if(key == 13 && document.activeElement.id == "filterInput"){
+    	$.ajax({
+	      url: 'http://localhost:3000/api/networks',
+	      method: 'GET',
+	      success: inputFilt.submit,
+	      error: function(err){
+	        console.log(err);
+	      }
+	    });
+    }
+    else if(document.activeElement.id == "filterInput"){
+    	inputFilt.search += String.fromCharCode(key);
+		$.ajax({
+	      url: 'http://localhost:3000/api/networks',
+	      method: 'GET',
+	      success: inputFilt.autocomplete,
+	      error: function(err){
+	        console.log(err);
+	      }
+	    });
+    }
+}
+document.onkeydown=function(event){
+    var key = (event.keyCode ? event.keyCode : event.which);
+    if(key==8){
+    	inputFilt.search = inputFilt.search.substring(0, inputFilt.search.length - 1);
+    	inputFilt.charCnt-=2;
+    	if (inputFilt.charCnt==0){ inputFilt.reset() }
+    	else {
+			$.ajax({
+		      url: 'http://localhost:3000/api/networks',
+		      method: 'GET',
+		      success: inputFilt.autocomplete,
+		      error: function(err){
+		        console.log(err);
+		      }
+		    });    		
+    	}
+
+    }
+}
+
+

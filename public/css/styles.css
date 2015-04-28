@@ -23,6 +23,7 @@ a { color:#cc3399; text-decoration:none; }
 a:hover { text-decoration:underline; }
 
 ::-moz-selection { background:#cc3399; color:#fff; text-shadow:none; }
+-webkit-selection { background:#cc3399; color:#fff; text-shadow:none; }
 ::selection { background:#cc3399; color:#fff; text-shadow:none; }
 
 
@@ -47,6 +48,7 @@ a:hover { text-decoration:underline; }
 	border: 2px solid #fff;
 	box-shadow: 1px 2px 6px rgba(0, 0, 0, 0.5);
 	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
 	border-radius: 5px;
 }
 
@@ -123,8 +125,10 @@ a:hover { text-decoration:underline; }
 			height: 100%; 
 			background-color: green; 
 			border-radius: 0% 83% 10% 150%;
+			-webkit-transform: rotate(160deg) rotateY(20deg);
 			transform: rotate(160deg) rotateY(20deg);
 			position: relative; left:2%;
+			-webkit-animation : flap-lt 180ms ease-in 4 alternate;
 			animation : flap-lt 180ms ease-in 4 alternate;
 		}
 		.butterfly .top .right, .nfo-butterfly .top .right { 
@@ -134,8 +138,10 @@ a:hover { text-decoration:underline; }
 			height: 100%; 
 			background-color: green; 
 			border-radius: 150% 10% 83% 0%; 
+			-webkit-transform: rotate(20deg) rotateY(20deg);
 			transform: rotate(20deg) rotateY(20deg);
 			position: relative; left:-2%;
+			-webkit-animation : flap-rt 180ms ease-in 4 alternate;
 			animation : flap-rt 180ms ease-in 4 alternate;
 		}
 
@@ -151,6 +157,7 @@ a:hover { text-decoration:underline; }
 			background-color: #008000;
 			border-radius: 108% 10% 120% 40%;
 			position: relative; left:24%; top:-21%;
+			-webkit-animation : flap-lb 180ms ease-in 4 alternate;
 			animation : flap-lb 180ms ease-in 4 alternate;
 		}
 		.butterfly .bottom .right, .nfo-butterfly .bottom .right { 
@@ -160,6 +167,7 @@ a:hover { text-decoration:underline; }
 			background-color: #008000;
 			border-radius: 10% 108% 40% 120%;
 			position: relative; left:22%; top:-21%;
+			-webkit-animation : flap-rb 180ms ease-in 4 alternate;
 			animation : flap-rb 180ms ease-in 4 alternate;
 		}
 
@@ -176,6 +184,36 @@ a:hover { text-decoration:underline; }
   100% { transform  : rotateY(60deg); left:16%; }
 }
 
+@-webkit-keyframes flap-lt {
+  100% { 
+  	-webkit-transform  : rotate(160deg) rotateY(60deg);
+  	transform  : rotate(160deg) rotateY(60deg); 
+  	left:12%; 
+  }
+}
+@-webkit-keyframes flap-lb {
+  100% { 
+  	-webkit-transform  : rotateY(60deg);
+  	transform  : rotateY(60deg); 
+  	left:31%; 
+  }
+}
+@-webkit-keyframes flap-rt {
+  100% { 
+  	-webkit-transform  : rotate(20deg) rotateY(60deg); 
+  	transform  : rotate(20deg) rotateY(60deg); 
+  	left:-12%; 
+  }
+}
+@-webkit-keyframes flap-rb {
+  100% { 
+  	-webkit-transform  : rotateY(60deg);
+  	transform  : rotateY(60deg); 
+  	left:16%; 
+  }
+}
+
+
 
 /* ~'~._.~'~._.~'~._.~'~._.~'~._.~' FILTER MENU ~'~._.~'~._.~'~._.~'~._. */
 /* ~'~._.~'~._.~'~._.~'~._.~'~._.~'~._.~'~._.~'~._.~'~._.~'~._.~'~._.~'~.*/
@@ -185,6 +223,7 @@ a:hover { text-decoration:underline; }
 	padding:20px;
 	border: 3px solid #ccc;
 	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
 	border-radius: 5px;	
 	position: fixed; z-index: 10;
 	width:98.5%;
@@ -195,6 +234,7 @@ a:hover { text-decoration:underline; }
 	padding:5px;
 	border:1px solid #ccc;
 	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
 	border-radius: 5px;	
 	margin:5px;
 }
@@ -212,6 +252,7 @@ a:hover { text-decoration:underline; }
 	background-color: rgba(255, 255, 255, 0.8);
 	border: 2px solid #ccc;
 	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
 	border-radius: 5px;
 }
 
@@ -222,6 +263,8 @@ a:hover { text-decoration:underline; }
 	padding:5px;
 	border:1px solid #ccc;
 	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
 	border-radius: 5px;	
 	margin:5px;
+	transition: border 250ms;
 }
