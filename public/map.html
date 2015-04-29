@@ -29,12 +29,33 @@
     }
 
     i { font-style: normal; font-size:10px; }
+
+    #back {
+      position: absolute;
+      z-index: 5;
+      top: 70px;
+      left: 10px;
+      background-color: #fff;
+      border-bottom: 1px solid #ccc;
+      width: 26px;
+      height: 26px;
+      line-height: 26px;
+      display: block;
+      text-align: center;
+      text-decoration: none;
+      color: black;
+      box-shadow: 0 1px 5px rgba(0,0,0,0.65);
+      border-radius: 4px;
+    }
+    #back:hover { cursor: pointer; background-color: #eee;}
   </style>
 
 
 </head>
 
 <body>
+
+  <div id="back">⇠</div>
 
   <div id="error"><div id="nfo"> no GPS data available for these networks</div></div>
   <div id="map" class="map"></div>
@@ -51,6 +72,11 @@
         var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
             results = regex.exec(location.search);
         return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+    }
+
+    // ------------------------------------------------------------------------------- back button
+    document.getElementById('back').onclick = function(){
+      history.go(-1);
     }
     
     // ------------------------------------------------------------------------------- get networks
