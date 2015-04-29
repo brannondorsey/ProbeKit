@@ -276,6 +276,10 @@ function updateButterflySize(butterflyElement, numNetworks) {
 	var numNets = (numNetworks <= 10) ? numNetworks : 10;
 	var w = Math.floor(Math.map( numNets, 0,10, (cellWidth - 50) / 1.25, (cellWidth - 50)));
 	var h = Math.floor(Math.map( numNets, 0,10, (cellHeight - 50) / 1.5, (cellHeight - 50)));
+
+	//  --------------- (ಠ_ಠ)┌∩┐ --------------------------------------------
+	//  ---- fucking node wekit keeps fucking up css at certain widths ------
+	//  ---------------------------------------------- (╯°□°）╯︵ ┻━┻ --------
 	switch(w){
 		case 245: w=246; break;
 		case 244: w=246; break;
