@@ -40,7 +40,7 @@ a:hover { text-decoration:underline; }
 }
 #nfo {
 	margin: 10% auto;
-	width:50%;
+	width:60%;
 	max-height: 75%;
 	overflow-y: scroll;
 	padding:20px;
@@ -104,7 +104,7 @@ a:hover { text-decoration:underline; }
 
 
 .butterfly {
-	width:343px;
+	width:340px;
 	height:300px;
 	margin: 0 auto;
 	display: inline-block;
@@ -114,9 +114,9 @@ a:hover { text-decoration:underline; }
 }
 
 	.butterfly .top, .nfo-butterfly .top {  	
-	 	display:block; 
-	 	width: 100%; 
-	 	height: 50%; 
+	 	/*display:block; */
+	 	width: 90%; 
+	 	height: 46%; 
 	}
 		.butterfly .top .left, .nfo-butterfly .top .left { 
 			display:inline-block;
@@ -124,7 +124,7 @@ a:hover { text-decoration:underline; }
 			width: 44%;
 			height: 100%; 
 			background-color: green; 
-			border-radius: 0% 83% 10% 150%;
+			-webkit-border-radius: 0% 83% 10% 150%;
 			-webkit-transform: rotate(160deg) rotateY(20deg);
 			transform: rotate(160deg) rotateY(20deg);
 			position: relative; left:2%;
@@ -137,7 +137,7 @@ a:hover { text-decoration:underline; }
 			width: 44%;
 			height: 100%; 
 			background-color: green; 
-			border-radius: 150% 10% 83% 0%; 
+			-webkit-border-radius: 150% 10% 83% 0%; 
 			-webkit-transform: rotate(20deg) rotateY(20deg);
 			transform: rotate(20deg) rotateY(20deg);
 			position: relative; left:-2%;
@@ -146,16 +146,16 @@ a:hover { text-decoration:underline; }
 		}
 
 	.butterfly .bottom, .nfo-butterfly .bottom {  	
-	 	display:block; 
-	 	width: 100%; 
-	 	height: 50%; 
+	 	/*display:block; */
+	 	width: 90%; 
+	 	height: 46%; 
 	}
 		.butterfly .bottom .left, .nfo-butterfly .bottom .left { 
 			display: inline-block;
 			width: 26.4%;
 			height: 60%;
 			background-color: #008000;
-			border-radius: 108% 10% 120% 40%;
+			-webkit-border-radius: 108% 10% 120% 40%;
 			position: relative; left:24%; top:-21%;
 			-webkit-animation : flap-lb 180ms ease-in 4 alternate;
 			animation : flap-lb 180ms ease-in 4 alternate;
@@ -165,10 +165,11 @@ a:hover { text-decoration:underline; }
 			width: 26.4%;
 			height: 60%;
 			background-color: #008000;
-			border-radius: 10% 108% 40% 120%;
+			-webkit-border-radius: 10% 108% 40% 120%;
 			position: relative; left:22%; top:-21%;
 			-webkit-animation : flap-rb 180ms ease-in 4 alternate;
 			animation : flap-rb 180ms ease-in 4 alternate;
+			padding: 1px;
 		}
 
 @keyframes flap-lt {

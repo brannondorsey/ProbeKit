@@ -62,16 +62,16 @@ function makeButterfly( data, networks ){
 
 		var rad3 = Math.map( parseInt( d[3], 16 ), 0,255, 64,113 );
 		var rad4 = Math.map( parseInt( d[4], 16 ), 0,255, 3,18 );
-		// tleft.style.webkitBorderRadius = "0% "+Math.floor(rad3)+"% "+Math.floor(rad4)+"% 150%";
-		// tright.style.webkitBorderRadius = "150% "+Math.floor(rad4)+"% "+Math.floor(rad3)+"% 0%";
+		tleft.style.webkitBorderRadius = "0% "+Math.floor(rad3)+"% "+Math.floor(rad4)+"% 150%";
+		tright.style.webkitBorderRadius = "150% "+Math.floor(rad4)+"% "+Math.floor(rad3)+"% 0%";
 		// tleft.style.borderRadius = "0% "+Math.floor(rad3)+"% "+Math.floor(rad4)+"% 150%";
 		// tright.style.borderRadius = "150% "+Math.floor(rad4)+"% "+Math.floor(rad3)+"% 0%";
 
 		var flapSpeed = Math.floor( Math.map( parseInt( d[5], 16 ), 0,255, 130,230 ) )
-		tleft.style.animation = 'flap-lt '+flapSpeed+'ms ease-in 4 alternate';
-		tright.style.animation = 'flap-rt '+flapSpeed+'ms ease-in 4 alternate';
-		bleft.style.animation = 'flap-lb '+flapSpeed+'ms ease-in 4 alternate';
-		bright.style.animation = 'flap-rb '+flapSpeed+'ms ease-in 4 alternate';
+		// tleft.style.animation = 'flap-lt '+flapSpeed+'ms ease-in 4 alternate';
+		// tright.style.animation = 'flap-rt '+flapSpeed+'ms ease-in 4 alternate';
+		// bleft.style.animation = 'flap-lb '+flapSpeed+'ms ease-in 4 alternate';
+		// bright.style.animation = 'flap-rb '+flapSpeed+'ms ease-in 4 alternate';
 		tleft.style.webkiAnimation = 'flap-lt '+flapSpeed+'ms ease-in 4 alternate';
 		tright.style.webkiAnimation = 'flap-rt '+flapSpeed+'ms ease-in 4 alternate';
 		bleft.style.webkiAnimation = 'flap-lb '+flapSpeed+'ms ease-in 4 alternate';
@@ -189,6 +189,10 @@ function makeNfoButterfly( data, networks ){
 	// tright.style.animation = 'flap-rt '+flapSpeed+'ms ease-in 4 alternate';
 	// bleft.style.animation = 'flap-lb '+flapSpeed+'ms ease-in 4 alternate';
 	// bright.style.animation = 'flap-rb '+flapSpeed+'ms ease-in 4 alternate';
+	// tleft.style.webkitAnimation = 'flap-lt '+flapSpeed+'ms ease-in 4 alternate';
+	// tright.style.webkitAnimation = 'flap-rt '+flapSpeed+'ms ease-in 4 alternate';
+	// bleft.style.webkitAnimation = 'flap-lb '+flapSpeed+'ms ease-in 4 alternate';
+	// bright.style.webkitAnimation = 'flap-rb '+flapSpeed+'ms ease-in 4 alternate';
 
 	top.appendChild(tleft); top.appendChild(tright);
 	bottom.appendChild(bleft); bottom.appendChild(bright);
@@ -272,6 +276,19 @@ function updateButterflySize(butterflyElement, numNetworks) {
 	var numNets = (numNetworks <= 10) ? numNetworks : 10;
 	var w = Math.floor(Math.map( numNets, 0,10, (cellWidth - 50) / 1.25, (cellWidth - 50)));
 	var h = Math.floor(Math.map( numNets, 0,10, (cellHeight - 50) / 1.5, (cellHeight - 50)));
+	switch(w){
+		case 245: w=246; break;
+		case 244: w=246; break;
+		case 243: w=242; break;
+		case 238: w=239; break;
+		case 237: w=239; break;
+		case 236: w=235; break;
+		case 230: w=229; break;
+		case 228: w=227; break;
+		case 224: w=223; break;
+		case 208: w=209; break;
+		case 202: w=203; break;
+	}
 	butterflyElement.style.width = w + "px";
 	butterflyElement.style.height = h + "px";
 	butterflyElement.style.margin = (cellHeight - h) / 2 + "px " + (cellWidth - w) / 2 + "px";

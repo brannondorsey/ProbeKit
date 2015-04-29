@@ -4,6 +4,7 @@
   "description": "Collect and Visualize SSID Probe Requests",
   "node-main": "node/nw_start.js",
   "main": "public/loading.html",
+  // "chromium-args":"--enable-threaded-compositing",
   "window": {
   	"title": "Probe Request Collector's Kit",
   	"icon": "media/icon.png",
