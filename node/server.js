@@ -4,7 +4,7 @@ var launchServer = require('./src/launchServer');
 var options = {
 	help: argv.help || argv.h,
 	interface: argv.interface || argv.i,
-	outputFile: argv.output || argv.o || __dirname + '/../data/probes.csv',
+	outputFile: argv.output || argv.o || process.env.HOME + '/.probekit/probes.csv',
 	csvOnly: argv['csv-only'] || argv.n,
 	liveOnly: argv['live-only'] || argv.l,
 	dryRun: argv['dry-run'] || argv.d,
