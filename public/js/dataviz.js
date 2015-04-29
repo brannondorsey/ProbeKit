@@ -54,8 +54,6 @@ function makeButterfly( data, networks ){
 		var b = parseInt( d[2], 16 );
 		var col = "rgb("+r+","+g+","+b+")";
 		tleft.style.background = tright.style.background = bleft.style.background = bright.style.background = col;
-
-		updateButterflySize(butterfly, networks.length);
 		
 		butterfly.style.left = (window.innerWidth-(Math.floor(window.innerWidth/cellWidth)*cellWidth))/2 +"px";
 		butterfly.style.top = "0px";
@@ -81,6 +79,9 @@ function makeButterfly( data, networks ){
 		bottom.appendChild(bleft); bottom.appendChild(bright);
 		butterfly.appendChild(top); butterfly.appendChild(bottom);
 		parent.insertBefore(butterfly,parent.childNodes[0]);
+
+		updateButterflySize(butterfly, networks.length);
+
 	// }
 }
 
@@ -170,8 +171,6 @@ function makeNfoButterfly( data, networks ){
 	var col = "rgb("+r+","+g+","+b+")";
 	tleft.style.background = tright.style.background = bleft.style.background = bright.style.background = col;
 
-	updateButterflySize(butterfly, networks.length);
-
 	butterfly.style.left = (window.innerWidth-(Math.floor(window.innerWidth/cellWidth)*cellWidth))/2 +"px";
 	butterfly.style.top = "0px";
 
@@ -198,6 +197,8 @@ function makeNfoButterfly( data, networks ){
 	bottom.appendChild(bleft); bottom.appendChild(bright);
 	butterfly.appendChild(top); butterfly.appendChild(bottom);
 	parent.insertBefore(butterfly,parent.childNodes[0]);
+
+	updateButterflySize(butterfly, networks.length);
 }
 
 // creates the modal, runs on click of a butterfly -------------------------------------------------------------------------
@@ -293,6 +294,24 @@ function updateButterflySize(butterflyElement, numNetworks) {
 		case 208: w=209; break;
 		case 202: w=203; break;
 	}
+	if(w==225){
+		var br = butterflyElement.children[0].children[0].style;
+		var tr = butterflyElement.children[0].children[1].style;
+		if(br.borderBottomRightRadius == "13%"){ br.borderBottomRightRadius = "14%"; tr.borderTopRightRadius = "14%"}
+		if(br.borderBottomRightRadius == "6%"){ br.borderBottomRightRadius = "7%"; tr.borderTopRightRadius = "7%"}
+	}
+	if(w==246){
+		var tr = butterflyElement.children[0].children[1].style;
+		if(tr.borderTopRightRadius == "8%"){ tr.borderTopRightRadius = "9%"}
+	}
+	if(w==210){
+		var br = butterflyElement.children[0].children[0].style;
+		var tr = butterflyElement.children[0].children[1].style;
+		if(br.borderBottomRightRadius == "16%"){ br.borderBottomRightRadius = "17%"; tr.borderTopRightRadius = "17%"}
+	}
+	//  ---------------------------------------------------------------------
+	//  ---------------------------------------------- (╯°□°）╯︵ ┻━┻ --------
+
 	butterflyElement.style.width = w + "px";
 	butterflyElement.style.height = h + "px";
 	butterflyElement.style.margin = (cellHeight - h) / 2 + "px " + (cellWidth - w) / 2 + "px";
