@@ -15,3 +15,15 @@ var options = {
 }
 
 launchServer(options);
+
+process.on('uncaughtException', function(err) {
+    
+    if(err.errno === 'EADDRINUSE') {
+        console.log('[ server ] Server closing because it received an EADDRINUSE exception.');
+    } else {
+        console.log(err);
+    }
+    
+    process.exit(1);
+    
+});

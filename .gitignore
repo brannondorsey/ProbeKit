@@ -2,11 +2,5 @@
 ._*
 node/node_modules/
 data/probes.csv
-data/wigle_data/*
-!data/wigle_data/.gitkeep
-data/mongodb/*
-!data/mongodb/.gitkeep
-data/wigle_users.csv
 data/maps/tiles/*
-!data/maps/tiles/.gitkeep
 data/ChmodBPF/*

@@ -29,16 +29,23 @@ ProbeDataStore.prototype.loadFromCSV = function(csvFilePath, callback) {
 			callback(err);
 		}
 		
-		var lines = data.split('\n');
+		if (data) {
+
+			var lines = data.split('\n');
 		
-		for (var i = 0; i < lines.length; i++) {
-			var probe = lines[i].split(',');
-			if (probe.length == 3) {
-				addProbe(self._probeData, probe[0], probe[1], probe[2], true);
+			for (var i = 0; i < lines.length; i++) {
+				var probe = lines[i].split(',');
+				if (probe.length == 3) {
+					addProbe(self._probeData, probe[0], probe[1], probe[2], true);
+				}
 			}
+
+			callback(null);
+		} else {
+			callback(new Error('ProbeDataStore::loadFromCSV data not present'));
 		}
 
-		callback(null);
+		
 	});	
 }
 
