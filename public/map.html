@@ -119,7 +119,7 @@
             gps_vectors.push({ssid:network.ssid, lat:network.geo.lat, lon:network.geo.lon, date:network.lastupdt});
           }
           // console.log("gps data", gps_vectors)
-          drawMarkers();
+          drawData();
         } else {
           // console.log(data);
           document.getElementById('error').style.display = "block";
@@ -135,8 +135,12 @@
 
     var gps_vectors = []; // aray of objects vectors
     var redPts = []; 
-    var redSSIDs = [];
     var bluePts = []; 
+    var redSSIDs = []; // for drawLines
+    var rssid = []; // for drawDots
+    var bssid = []; // for drawDots
+    var rdates = []; // for drawDots
+    var bdates = []; // for drawDots
     var ssid_ranks = {};
     var total = 0;
 
@@ -148,7 +152,7 @@
     
 
 
-    function drawMarkers() {
+    function drawData() {
       for (var i = 0; i < gps_vectors.length; i++) { // rank them
         if(ssid_ranks[gps_vectors[i].ssid]==undefined){ ssid_ranks[gps_vectors[i].ssid] = 0; } 
         else { ssid_ranks[gps_vectors[i].ssid]++; }
@@ -159,12 +163,16 @@
         var ssid = gps_vectors[i].ssid;
         var date = parseDate( gps_vectors[i].date );
         if(ssid_ranks[gps_vectors[i].ssid] > 10 && ssid_ranks[gps_vectors[i].ssid] < 110 ){
-          bluePts.push([x,y]); total++;
-          L.circleMarker([x, y],{"color":"#0000ff","fillOpacity":1}).setRadius(7).addTo(map).bindPopup(ssid+"<br><i>"+date+"</i>*").on("mouseover",function(e){this.openPopup()}); 
+          bluePts.push([x,y]); 
+          bssid.push(gps_vectors[i].ssid);
+          bdates.push(date);
+          total++;
         } 
         else if(ssid_ranks[gps_vectors[i].ssid] <= 10) {
-          redPts.push([x,y]); total++;
-          L.circleMarker([x, y],{"color":"#ff0000","fillOpacity":1}).setRadius(7).addTo(map).bindPopup(ssid+"<br><i>"+date+"</i>*").on("mouseover",function(e){this.openPopup()}); 
+          redPts.push([x,y]); 
+          rssid.push(gps_vectors[i].ssid);
+          rdates.push(date);
+          total++;
           if(redSSIDs.indexOf(gps_vectors[i].ssid)==-1){
             redSSIDs.push(gps_vectors[i].ssid);
           }
@@ -174,12 +182,27 @@
         document.getElementById('nfo').innerHTML = "GPS data may not be accurate";
         document.getElementById('error').style.display = "block";
       }
+      // DRAW
       if(redPts.length==0){
-        drawZone(bluePts, "blue");
-      } else { drawZone(redPts, "yellow"); }
+        drawZone(bluePts, "#6E73E0");
+      } else { 
+        drawZone(redPts, "yellow"); 
+        drawLines();
+      }
+      drawDots();
       
     }
 
+
+    function drawDots(){
+      for (var i = 0; i < bluePts.length; i++) {
+        L.circleMarker(bluePts[i],{"color":"#6E73E0","fillOpacity":0.5,"opacity":0}).setRadius(7).addTo(map).bindPopup(bssid[i]+"<br><i>"+bdates[i]+"</i>*").on("mouseover",function(e){this.openPopup()});
+      };
+      for (var i = 0; i < redPts.length; i++) {
+        L.circleMarker(redPts[i],{"color":"#E06667","fillOpacity":1}).setRadius(7).addTo(map).bindPopup(rssid[i]+"<br><i>"+rdates[i]+"</i>*").on("mouseover",function(e){this.openPopup()}); 
+
+      };
+    }
 
 
     function drawZone(points, color){
@@ -199,10 +222,9 @@
       } 
       else if(pts.features.length>2) {
         var convex = turf.convex(pts).geometry.coordinates[0];
-        var polyline = L.polygon(convex, {color: color}).addTo(map);
+        var polyline = L.polygon(convex, {color: color,opacity:0}).addTo(map);
         map.fitBounds(polyline.getBounds());
       }
-      if(color=="yellow"){ drawLines(); }
     }
 
 
@@ -220,7 +242,7 @@
       console.log(sets.length)
       for (var i = 0; i < sets.length; i++) {
         var line = turf.linestring(sets[i]).geometry.coordinates;
-        var polyline = L.polyline(line, {color: "red"}).addTo(map);
+        var polyline = L.polyline(line, {color: "#E06667"}).addTo(map);
       };
     }
 
@@ -238,9 +260,6 @@
 
 
 
-    // reorder layers so dots on top
-    // get rid of stroke on yellow zones
-    // make blue a bit transparent
     // limit pans on leaflet ( to avoid danger zones )
 
   </script>
