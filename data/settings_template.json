@@ -1,0 +1,4 @@
+{
+    "wifiInterface": "INTERFACE",
+    "tsharkPath": "TSHARK_PATH"
+}

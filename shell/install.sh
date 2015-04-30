@@ -193,6 +193,7 @@ if [[ $OS == "Linux" ]] || [[ $OS == "Darwin" ]]; then
 
         install_package "wireshark git"
         
+        bash "$DIR_NAME/generate_settings.sh"
         bash "$DIR_NAME/setup_capture_privileges.sh"
 
         echo ""
