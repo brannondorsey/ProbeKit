@@ -219,7 +219,7 @@
       console.log(sets.length)
       for (var i = 0; i < sets.length; i++) {
         var line = turf.linestring(sets[i]).geometry.coordinates;
-        var polyline = L.polygon(line, {color: "red"}).addTo(map);
+        var polyline = L.polyline(line, {color: "red"}).addTo(map);
       };
     }
 
@@ -235,6 +235,9 @@
     }
 
 
+
+
+    // reorder layers so dots on top
 
   </script>
 
