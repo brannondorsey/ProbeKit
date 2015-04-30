@@ -50,7 +50,6 @@
     #back:hover { cursor: pointer; background-color: #eee;}
   </style>
 
-
 </head>
 
 <body>
@@ -62,7 +61,7 @@
 
   <script src="js/jquery-1.11.2.min.js"></script>
   <script src="js/leaflet.js"></script>
-  <script src='//api.tiles.mapbox.com/mapbox.js/plugins/turf/v1.4.0/turf.min.js'></script>
+  <script src='js/turf.min.js'></script>
 
   <script>
 
@@ -85,11 +84,11 @@
       method: 'GET',
       success: onNetworksResponse,
       error: function(err){
-        console.log(err);
+        // console.log(err);
       }
     });
     function onNetworksResponse(data){
-      console.log( "networks", data );
+      // console.log( "networks", data );
       getGPS( data );
     }
 
@@ -106,23 +105,22 @@
         data: data,
         success: onGPSResponse,
         error: function(err){
-          console.log(err);
+          // console.log(err);
         }
       });
       
       function onGPSResponse(data){
         if (!data.error) {
-          console.log(data)
+          // console.log(data)
           var results = data.results;
           for (var i = 0; i < results.length; i++) {
             var network = results[i];
             gps_vectors.push({ssid:network.ssid, lat:network.geo.lat, lon:network.geo.lon, date:network.lastupdt});
           }
-          // draw butterflies to map!!
-          console.log("gps data", gps_vectors)
-          addButterflies();
+          // console.log("gps data", gps_vectors)
+          drawMarkers();
         } else {
-          console.log(data);
+          // console.log(data);
           document.getElementById('error').style.display = "block";
         }
       } 
@@ -134,21 +132,97 @@
     document.getElementById('map').style.height = window.innerHeight+"px";
     document.getElementById('map').style.width = window.innerWidth+"px";
 
-    var gps_vectors = []; // aray of objects of butterfly vectors
-    var shapePts = []; // points for polygon
+    var gps_vectors = []; // aray of objects vectors
+    var redPts = []; 
+    var redSSIDs = [];
+    var bluePts = []; 
     var ssid_ranks = {};
     var total = 0;
+
+    var map = L.map('map').setView([41.879528,-87.625088], 14); // chicago 
     
-    var LeafIcon = L.Icon.extend({
-        options: {
-            iconSize:     [50, 31],
-            iconAnchor:   [25, 15],
-            popupAnchor:  [0, 0]
+    L.tileLayer('http://localhost:3000/data/maps/tiles/chicago/{z}/{x}/{y}.png', {
+        maxZoom: 18
+    }).addTo(map);
+    
+
+
+    function drawMarkers() {
+      for (var i = 0; i < gps_vectors.length; i++) { // rank them
+        if(ssid_ranks[gps_vectors[i].ssid]==undefined){ ssid_ranks[gps_vectors[i].ssid] = 0; } 
+        else { ssid_ranks[gps_vectors[i].ssid]++; }
+      };
+      for (var i = 0; i < gps_vectors.length; i++) { 
+        var x = gps_vectors[i].lat;
+        var y = gps_vectors[i].lon;
+        var ssid = gps_vectors[i].ssid;
+        var date = parseDate( gps_vectors[i].date );
+        if(ssid_ranks[gps_vectors[i].ssid] > 10 && ssid_ranks[gps_vectors[i].ssid] < 110 ){
+          bluePts.push([x,y]); total++;
+          L.circleMarker([x, y],{"color":"#0000ff","fillOpacity":1}).setRadius(7).addTo(map).bindPopup(ssid+"<br><i>"+date+"</i>*").on("mouseover",function(e){this.openPopup()}); 
+        } 
+        else if(ssid_ranks[gps_vectors[i].ssid] <= 10) {
+          redPts.push([x,y]); total++;
+          L.circleMarker([x, y],{"color":"#ff0000","fillOpacity":1}).setRadius(7).addTo(map).bindPopup(ssid+"<br><i>"+date+"</i>*").on("mouseover",function(e){this.openPopup()}); 
+          if(redSSIDs.indexOf(gps_vectors[i].ssid)==-1){
+            redSSIDs.push(gps_vectors[i].ssid);
+          }
         }
-    });
-    // a few different colors for when we can detect how common network is
-    var red = new LeafIcon({iconUrl: 'images/solid.png'}),    
-        blue = new LeafIcon({iconUrl: 'images/butterfly-blue.png'});
+      };
+      if(gps_vectors.length >=0 && total==0){
+        document.getElementById('nfo').innerHTML = "GPS data may not be accurate";
+        document.getElementById('error').style.display = "block";
+      }
+      if(redPts.length==0){
+        drawZone(bluePts, "blue");
+      } else { drawZone(redPts, "yellow"); }
+      
+    }
+
+
+
+    function drawZone(points, color){
+      
+      var features=[];
+      for (var i = 0; i < points.length; i++) {
+        features.push( turf.point(points[i]) );
+      };   
+      var pts = turf.featurecollection(features);
+      
+      if(pts.features.length==1){
+        map.fitBounds(points); 
+      }
+      else if(pts.features.length==2){
+        var polyline = L.polyline(points, {color: color}).addTo(map);
+        map.fitBounds(polyline.getBounds()); 
+      } 
+      else if(pts.features.length>2) {
+        var convex = turf.convex(pts).geometry.coordinates[0];
+        var polyline = L.polygon(convex, {color: color}).addTo(map);
+        map.fitBounds(polyline.getBounds());
+      }
+      if(color=="yellow"){ drawLines(); }
+    }
+
+
+    function drawLines(){ // for red networks of the same name
+      var sets = [];
+      for (var i = 0; i < redSSIDs.length; i++) {
+        var subset = [];
+        for (var j = 0; j< gps_vectors.length; j++) {
+          if(redSSIDs[i]==gps_vectors[j].ssid){
+            subset.push([gps_vectors[j].lat, gps_vectors[j].lon]);
+          }
+        };
+        sets.push(subset);
+      };
+      console.log(sets.length)
+      for (var i = 0; i < sets.length; i++) {
+        var line = turf.linestring(sets[i]).geometry.coordinates;
+        var polyline = L.polygon(line, {color: "red"}).addTo(map);
+      };
+    }
+
 
     function parseDate( int ){
       var str = int.toString();
@@ -160,47 +234,6 @@
       return MM+"/"+DD+"/"+YY+" "+hh+":"+mm;
     }
 
-    function addButterflies() {
-      for (var i = 0; i < gps_vectors.length; i++) { // rank them
-        if(ssid_ranks[gps_vectors[i].ssid]==undefined){ ssid_ranks[gps_vectors[i].ssid] = 0; } 
-        else { ssid_ranks[gps_vectors[i].ssid]++; }
-      };
-      for (var i = 0; i < gps_vectors.length; i++) { // make butterflies
-        var x = gps_vectors[i].lat;
-        var y = gps_vectors[i].lon;
-        var ssid = gps_vectors[i].ssid;
-        var date = parseDate( gps_vectors[i].date );
-        if(ssid_ranks[gps_vectors[i].ssid] > 10 && ssid_ranks[gps_vectors[i].ssid] < 110 ){
-          L.marker([x, y], {icon: blue}).addTo(map).bindPopup(ssid+"<br><i>"+date+"</i>*").on("mouseover",function(e){this.openPopup()}); total++;
-        } 
-        else if(ssid_ranks[gps_vectors[i].ssid] <= 10) {
-          shapePts.push([x,y]); total++;
-          L.marker([x, y], {icon: red}).addTo(map).bindPopup(ssid+"<br><i>"+date+"</i>*").on("mouseover",function(e){this.openPopup()}); 
-          // var point1 = 
-          // var p1 = turf.point([x,y]);
-          // console.log(p1)
-        }
-      };
-      for (var i = 0; i < shapePts.length; i++) {
-        var one = shapePts[i];
-        var two = (shapePts[i+1]) ? shapePts[i+1] : shapePts[0];
-        L.polygon([one,two],{color:'red',fillColor:'#f03',fillOpacity:0}).addTo(map);
-        var ran = shapePts[Math.floor(Math.random()*shapePts.length)];
-        L.polygon([one,ran],{color:'red',fillColor:'#f03',fillOpacity:0}).addTo(map);
-
-      };
-      if(gps_vectors.length >=0 && total==0){
-        document.getElementById('nfo').innerHTML = "GPS data may not be accurate";
-        document.getElementById('error').style.display = "block";
-      }
-
-
-    }
-
-    var map = L.map('map').setView([41.879528,-87.625088], 13); // chicago 
-    L.tileLayer('http://localhost:3000/data/maps/tiles/chicago/{z}/{x}/{y}.png', {
-        maxZoom: 18
-    }).addTo(map);
 
 
   </script>
