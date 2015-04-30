@@ -75,7 +75,8 @@
 
     // ------------------------------------------------------------------------------- back button
     document.getElementById('back').onclick = function(){
-      history.go(-1);
+      // history.go(-1);
+      window.location = "index.html";
     }
     
     // ------------------------------------------------------------------------------- get networks
@@ -238,6 +239,9 @@
 
 
     // reorder layers so dots on top
+    // get rid of stroke on yellow zones
+    // make blue a bit transparent
+    // limit pans on leaflet ( to avoid danger zones )
 
   </script>
 
