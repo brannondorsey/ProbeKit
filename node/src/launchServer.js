@@ -60,8 +60,6 @@ function launchServer(options) {
 			 outputFile = assetManager.getDataPath() + '/probes.csv';
 		}
 
-		console.log('output file is: ' + outputFile);
-
 		if (!liveOnly) {
 
 			probeDataStore.loadFromCSV(outputFile, function(err){
@@ -163,6 +161,7 @@ function launchServer(options) {
 		app.use('/api/wigle/hasgeo', function(req, res, next){ wigleAPI.handleHasGeoRequest(req, res, next, probeDataStore) });
 		app.use('/api/wigle', function(req, res, next){ wigleAPI.handleAPIRequest(req, res, next) });
 		app.use('/data', express.static(path.resolve(assetManager.getDataPath())));
+		app.use('/data', express.static(path.resolve(__dirname + '/../../data')));
 		app.use(express.static(path.resolve(__dirname + '/../../public')));
 
 		io.on('connection', function (socket) {
