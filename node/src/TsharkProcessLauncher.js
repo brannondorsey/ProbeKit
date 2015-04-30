@@ -29,11 +29,11 @@ function TsharkProcessLauncher(interface, hopChannels) {
 	// }
 
 	// check for tshark
-	proc = spawnSync('which', ['tshark'], { encoding: 'utf8' });
-	if (proc.status != 0) {
-		console.log('tshark not found, please install tshark with:\n\tsudo apt-get install tshark');
-		process.exit(1);
-	}
+	// proc = spawnSync('/usr/bin/which', ['tshark'], { encoding: 'utf8' });
+	// if (proc.status != 0) {
+	// 	console.log('tshark not found, please install tshark with:\n\tsudo apt-get install tshark');
+	// 	process.exit(1);
+	// }
 
 	// // set device down
 	// proc = spawnSync('ifconfig',  [interface, 'down'], { encoding: 'utf8' });
@@ -62,7 +62,7 @@ function TsharkProcessLauncher(interface, hopChannels) {
 	// }
 
 	if (hopChannels) this.channelHopProcess = spawn(__dirname + '/../../shell/channel_hop.sh', [interface]);
-	this.tsharkProcess = spawn('tshark', ['-i', interface, '-n', '-I', '-l', 'subtype', 'probereq']);
+	this.tsharkProcess = spawn('/usr/local/bin/tshark', ['-i', interface, '-n', '-I', '-l', 'subtype', 'probereq']);
 }
 
 module.exports = TsharkProcessLauncher;
