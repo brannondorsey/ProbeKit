@@ -27,7 +27,7 @@ function makeButterfly( data, networks ){
 
 	// if(!filt.stat || ssidMatch || filter.manufacturer == ndata){
 
-		updatePositions(); // update responsive grid
+		// updatePositions(); // update responsive grid
 
 		var parent = document.getElementById('net');
 		var butterfly = document.createElement('div');			
@@ -142,7 +142,9 @@ window.onresize = function(e) {
 		for (var i = 0; i < macs.length; i++) {
 			makeButterfly( macs[i].mac, macs[i].knownNetworks );
 		}
+		updatePositions();
 	}
+
 };
 
 
@@ -235,9 +237,10 @@ function getInfo( id, networks ){
 
 	var map = document.createElement('div');
 	$.ajax({
-		url: 'http://localhost:3000/api/wigle/hasgeo?device='+id+'&collection=wigleChicago',
+		url: 'http://localhost:3000/api/wigle/hasgeo?device='+id+'&collection=wigleMiami',
 	  	method: 'GET',
 	  	success: function(data){
+	  		console.log("succeeded",data)
 	  		if(data===true){
 				map.innerHTML = '<a href="map.html?mac='+id+'">View migration patterns</a>';
 	  		} else {
@@ -247,7 +250,7 @@ function getInfo( id, networks ){
 	  		}
 	  	},
 	  	error: function(err){
-	    	console.log(err);
+	    	console.log("errored",err);
 	  	}
 	});
 	map.className = "nfo-time";
