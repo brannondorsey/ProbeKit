@@ -11,13 +11,13 @@
 #        AUTHOR: Brannon Dorsey, <brannon@brannondorsey.com>
 #       COMPANY:  ---
 #       CREATED: 04.25.2015
-#      REVISION: 0.0.1
+#      REVISION: 0.0.2
 #=======================================================================
 
 OS=$(uname)
 SCRIPT_NAME=$(basename $0)
 DIR_NAME=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-ISSUES_LINK="https://github.com/brannondorsey/ProbeRequestCollectorsKit/issues"
+ISSUES_LINK="https://github.com/brannondorsey/ProbeKit/issues"
 
 function osx_capture_privileges() {
 
@@ -53,7 +53,7 @@ function osx_capture_privileges() {
 function linux_capture_privileges() {
     
     # check if wireshark is installed
-    dpkg -s wireshark 2>/dev/null >/dev/null
+    dpkg -s wireshark &>/dev/null
 
     if [[ $? -ne 0 ]]; then
         echo "[$SCRIPT_NAME] Wireshark is not installed. Try running 'sudo ./install.sh' or install wireshark with:"
