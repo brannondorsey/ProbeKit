@@ -1,4 +1,0 @@
-#!/bin/bash
-
-cd ProbeRequestCollectorsKit
-git pull origin master
