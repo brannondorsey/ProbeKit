@@ -24,7 +24,7 @@ function install_homebrew() {
 
     echo "[install.sh] Installing homebrew..."
     if ruby -v &> /dev/null; then
-        ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+        ( su $(logname) -c "$DIR_NAME/download_homebrew.sh" )
     else
         echo "[install.sh] \"ruby\" is not installed. Please manually install ruby and try again."
         exit 1
