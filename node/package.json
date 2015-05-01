@@ -1,5 +1,5 @@
 {
-  "name": "SSIDButterflyCollection",
+  "name": "ProbeKit",
   "version": "0.1.0",
   "description": "Collect and Visualize SSID Probe Requests",
   "main": "index.js",
