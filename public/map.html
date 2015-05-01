@@ -97,7 +97,8 @@
     function getGPS( networks ){
       var data = {
         ssid: networks,
-        collection: "wigleChicago"
+        // collection: "wigleChicago"
+        collection: "wigleMiami"
       }
 
       $.ajax({
@@ -144,10 +145,11 @@
     var ssid_ranks = {};
     var total = 0;
 
-    var map = L.map('map').setView([41.879528,-87.625088], 14); // chicago 
+    // var map = L.map('map').setView([41.879528,-87.625088], 14); // chicago 
+    var map = L.map('map').setView([25.790130,-80.137371], 14); // miami 
     
-    L.tileLayer('http://localhost:3000/data/maps/tiles/chicago/{z}/{x}/{y}.png', {
-        maxZoom: 18
+    L.tileLayer('http://localhost:3000/data/maps/tiles/miami/{z}/{x}/{y}.png', {
+        maxZoom: 17
     }).addTo(map);
     
 
