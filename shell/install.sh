@@ -17,7 +17,7 @@
 PROJECT_NAME="Probe Request Collector's Kit"
 POST_INSTALL_EXAMPLE_CMD="cd ../node
     sudo node server.js --interface=<device_name>"
-DEPENDENCIES="nodejs@v0.12 wireshark git" # this var is only printed to screen, not used for install
+DEPENDENCIES="nodejs@v0.12 wireshark mongodb git" # this var is only printed to screen, not used for install
 DIR_NAME=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 # https://learn.bevry.me/node/install
@@ -191,7 +191,10 @@ if [[ $OS == "Linux" ]] || [[ $OS == "Darwin" ]]; then
         # install the rest of the dependencies now that
         # package managers and nodejs v0.12 are definately installed
 
-        install_package "wireshark git"
+        install_package "wireshark git mongodb"
+
+        # create mongodb database folder
+        mkdir -p /data/db
         
         bash "$DIR_NAME/generate_settings.sh"
         bash "$DIR_NAME/setup_capture_privileges.sh"
@@ -203,7 +206,7 @@ if [[ $OS == "Linux" ]] || [[ $OS == "Darwin" ]]; then
         exit 0
     else
         echo "[install.sh] Not installing dependencies '$DEPENDENCIES', exiting install process."
-        exit 0;
+        exit 0
     fi
 
 else
