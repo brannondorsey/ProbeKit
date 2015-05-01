@@ -1,18 +1,15 @@
-var argv = require('minimist')(process.argv.slice(2));
 var launchServer = require('./src/launchServer');
 
 var os = require('os');
-// var interfaces = Object.keys(os.networkInterfaces());
 
-var iface = 'en1'; // osx
+// var iface = 'en1'; // osx
 
-if (os.type() == 'Linux') {
-    iface = 'wlan0';
-}
+// if (os.type() == 'Linux') {
+//     iface = 'wlan0';
+// }
 
-var options = {
-	interface: iface
-}
+// check node/server.js for a list of options
+var options = {}
 
 launchServer(options);
 
@@ -24,6 +21,7 @@ process.on('uncaughtException', function(err) {
         process.exit(1);
 
     } else {
+        console.log('[ server ] Server recieved an uncaughtException:');
         console.log(err);
     }
 });

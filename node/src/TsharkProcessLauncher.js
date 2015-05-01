@@ -2,10 +2,12 @@ var os = require('os');
 var spawn = require('child_process').spawn;
 var spawnSync = require('child_process').spawnSync;
 
-function TsharkProcessLauncher(interface, hopChannels) {
+function TsharkProcessLauncher(interface, hopChannels, settings) {
 
 	this.channelHopProcess = undefined;
 	this.tsharkProcess = undefined;
+
+	var tsharkPath = settings.tsharkPath || '/usr/local/bin/tshark';
 
 	if (!interface) {
 		console.log('Usage: node scriptname --interface=<interface_name> [--output=probes.csv]');
@@ -62,7 +64,7 @@ function TsharkProcessLauncher(interface, hopChannels) {
 	// }
 
 	if (hopChannels) this.channelHopProcess = spawn(__dirname + '/../../shell/channel_hop.sh', [interface]);
-	this.tsharkProcess = spawn('/usr/local/bin/tshark', ['-i', interface, '-n', '-I', '-l', 'subtype', 'probereq']);
+	this.tsharkProcess = spawn(tsharkPath, ['-i', interface, '-n', '-I', '-l', 'subtype', 'probereq']);
 }
 
 module.exports = TsharkProcessLauncher;

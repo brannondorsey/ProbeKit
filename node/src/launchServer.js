@@ -16,7 +16,6 @@ var AssetManager = require('./AssetManager');
 function launchServer(options) {
 
 	var help = options.help;
-	var iface = options.interface;
 	var outputFile = options.outputFile;
 	var csvOnly = options.csvOnly;
 	var liveOnly = options.liveOnly;
@@ -56,6 +55,30 @@ function launchServer(options) {
 			console.log('[ server ] AssetManager could not find ' + assetManager.getDataPath());
 		}
 
+		fs.readFile(assetManager.getDataPath() + '/settings.json', { encoding: 'utf8' }, onSettingsFileLoaded);
+		
+	});
+
+	function onSettingsFileLoaded(err, data) {
+
+		var settings = {};
+
+		if (err) {
+			console.log('[ server ] Error loading ~/.probekit/settings.json');
+		} else {
+
+			try {
+				settings = JSON.parse(data);
+			} catch(e) {
+				console.log('[ server ] Error parsing ~/.probekit/settings.json');
+			}
+		}
+
+		var iface = options.interface || settings.wifiInterface;
+
+		console.log(settings);
+		console.log(iface);
+
 		if (!outputFile) {
 			 outputFile = assetManager.getDataPath() + '/probes.csv';
 		}
@@ -75,7 +98,7 @@ function launchServer(options) {
 		}
 
 		if (!csvOnly) {
-			procLauncher = new TsharkProcessLauncher(iface, true);
+			procLauncher = new TsharkProcessLauncher(iface, true, settings);
 			tsharkProcess = procLauncher.tsharkProcess;
 			channelHopProcess = procLauncher.channelHopProcess;
 		}
@@ -208,7 +231,7 @@ function launchServer(options) {
 
 			});
 		}
-	});
+	}
 }
 
 module.exports = launchServer;
