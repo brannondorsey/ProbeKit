@@ -2,7 +2,7 @@ var fs = require('fs');
 var moment = require('moment');
 var argv = require('minimist')(process.argv.slice(2));
 var TsharkProbeParser = require('./src/TsharkProbeParser');
-var TsharkProcessLauncher = require('./src/TsharkProcessLauncher');
+var ProcessLauncher = require('./src/ProcessLauncher');
 
 var outputFile = argv.output || __dirname + '/../data/probes.csv';
 var writeStream = fs.createWriteStream(outputFile, { flags: 'a', encoding: 'utf8' });
@@ -13,7 +13,7 @@ if (argv.interface == undefined) {
 }
 
 var probeParser = new TsharkProbeParser();
-var procLauncher = new TsharkProcessLauncher(argv.interface, true);
+var procLauncher = new ProcessLauncher(argv.interface, true);
 var tsharkProcess = procLauncher.tsharkProcess;
 var channelHopProcess = procLauncher.channelHopProcess;
 

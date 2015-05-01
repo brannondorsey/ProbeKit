@@ -8,7 +8,7 @@ var server = require('http').Server(app);
 var io = require('socket.io')(server);
 var moment = require('moment');
 var TsharkProbeParser = require('./TsharkProbeParser');
-var TsharkProcessLauncher = require('./TsharkProcessLauncher');
+var ProcessLauncher = require('./ProcessLauncher');
 var WigleAPI = require('./WigleAPI');
 var ProbeDataStore = require('./ProbeDataStore');
 var AssetManager = require('./AssetManager');
@@ -39,15 +39,21 @@ function launchServer(options) {
 	var probeParser = new TsharkProbeParser();
 	var probeDataStore = new ProbeDataStore();
 
-	var wigleAPI = new WigleAPI('mongodb://localhost:27017/probe', function(err, db){
+	// wait half a second before connecting to mongodb on the off chance that
+	// mongodb is not running and has to be created by the processLauncher.
+	// this is pretty bad practice and we should probably be using something
+	// like waitpid(2)
+	setTimeout(function(){
+		var wigleAPI = new WigleAPI('mongodb://localhost:27017/probe', function(err, db){
 		
-		// note any /api requests will fail until this callback is run
-		if (err) {
-			console.log('[ server ] Error connecting to MongoDB: ' + err);
-		} else {
-			console.log('[ server ] MongoDB connection established.');
-		}
-	});
+			// note any /api requests will fail until this callback is run
+			if (err) {
+				console.log('[ server ] Error connecting to MongoDB: ' + err);
+			} else {
+				console.log('[ server ] MongoDB connection established.');
+			}
+		});
+	}, 500);
 
 	var assetManager = new AssetManager(function(err){
 
@@ -98,7 +104,7 @@ function launchServer(options) {
 		}
 
 		if (!csvOnly) {
-			procLauncher = new TsharkProcessLauncher(iface, true, settings);
+			procLauncher = new ProcessLauncher(iface, true, settings);
 			tsharkProcess = procLauncher.tsharkProcess;
 			channelHopProcess = procLauncher.channelHopProcess;
 		}
