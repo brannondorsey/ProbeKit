@@ -31,8 +31,10 @@ $.ajax({
 	      }
 
 	      vendorDictionary = result;
-
+	      var then = new Date();
 	      parseCSVToProbeData();
+	      var now = new Date();
+	      // console.log(moment(now) - moment(then));
 	  	  applyFilter();
 	  });
   	},
@@ -123,7 +125,8 @@ function onProbeAdded(mac, ssid, timestamp, fromCSV, isNewDevice) {
 
 	var time = moment(parseInt(timestamp)).format('YYYY-MM-DD HH:mm:ss');
 	
-	if (isNewDevice && passesFilter(mac)) {
+	if (isNewDevice && !fromCSV && passesFilter(mac)) {
+		updatePositions();
 		makeButterfly(mac, probeData.macs[mac].knownNetworks);
 	}
 
