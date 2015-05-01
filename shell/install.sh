@@ -73,7 +73,9 @@ function install_package() {
                 for PKG in $PACKAGE
                 do
                     echo "[install.sh] Installing '$PKG' with homebrew"
-                    brew install "$PKG"
+                    # use subshell because homebrew refuses to `brew install` unless it is
+                    # owned by root: https://github.com/Homebrew/homebrew/issues/9953
+                    ( su $(logname) -c "brew install $PKG" )
                     if [[ ! $?  ]]; then
                         echo "[install.sh] ERROR: could not 'brew install $PKG', install failed."
                         exit 1;
