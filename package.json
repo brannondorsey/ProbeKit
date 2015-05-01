@@ -1,12 +1,12 @@
 {
-  "name": "ProbeRequestCollectorsKit",
+  "name": "Probe Kit",
   "version": "0.1.0",
   "description": "Collect and Visualize SSID Probe Requests",
   "node-main": "node/nw_start.js",
   "main": "public/loading.html",
   "window": {
-  	"title": "Probe Request Collector's Kit",
-  	"icon": "media/icon.icns",
+  	"title": "Probe Kit",
+  	"icon": "media/icon_butterfly.png",
   	"toolbar": false,
   	"position": "center",
   	"resizable": true,
