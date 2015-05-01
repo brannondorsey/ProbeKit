@@ -11,54 +11,14 @@
 #        AUTHOR: Brannon Dorsey, <brannon@brannondorsey.com>
 #       COMPANY:  ---
 #       CREATED: 03.17.2015
-#      REVISION: 0.0.2
+#      REVISION: 0.0.3
 #=======================================================================
 
-PROJECT_NAME="Probe Request Collector's Kit"
+PROJECT_NAME="Probe Kit™"
 POST_INSTALL_EXAMPLE_CMD="cd ../node
     sudo node server.js --interface=<device_name>"
-DEPENDENCIES="nodejs@v0.12 wireshark mongodb git" # this var is only printed to screen, not used for install
+DEPENDENCIES="wireshark mongodb git" # this var is only printed to screen, not used for install
 DIR_NAME=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-
-# https://learn.bevry.me/node/install
-function install_node() {
-
-    if [[ $OS == "Linux" ]]; then
-
-        echo "[install.sh] Updating Nodejs deb source to v0.12.x."
-        curl -sL https://deb.nodesource.com/setup_0.12 | bash -
-        install_package "nodejs"
-
-    elif [[ $OS == "Darwin" ]]; then
-
-        # Install nvm if not installed
-        if ! nvm -v &> /dev/null; then
-
-            if ! git -v &> /dev/null; then
-
-                echo "[install.sh] Installing git..."
-                install_package "git"
-            fi
-
-            echo "[install.sh] Installing Node Version Manager (nvm)..."
-            git clone git://github.com/creationix/nvm.git ~/.nvm
-            printf "\n# NVM\nif [ -s ~/.nvm/nvm.sh ]; then\n\tNVM_DIR=~/.nvm\n\tsource ~/.nvm/nvm.sh\nfi" >> ~/.profile
-            export NVM_DIR=~/.nvm
-            source ~/.nvm/nvm.sh
-        fi
-
-        echo "[install.sh] Installing nodejs v0.12 using nvm..."
-        nvm install v0.12.0
-
-        if [[ ! $? ]]; then
-            echo "[install.sh] ERROR: nvm failed to nodejs v0.12. Please manually install nodejs v0.12."
-            exit 1;
-        fi
-
-        nvm alias default 0.12
-        nvm use 0.12
-    fi
-}
 
 function install_homebrew() {
 
@@ -114,7 +74,7 @@ function install_package() {
                 do
                     echo "[install.sh] Installing '$PKG' with homebrew"
                     brew install "$PKG"
-                    if [ "$?" != "0" ]; then
+                    if [[ ! $?  ]]; then
                         echo "[install.sh] ERROR: could not 'brew install $PKG', install failed."
                         exit 1;
                     fi
@@ -130,7 +90,7 @@ function install_package() {
 
 #Must be root
 if [[ $EUID -ne 0 ]]; then
-    echo "[install.sh] This script must be run as root:" #1>&2
+    echo "[install.sh] This script must be run as root:"
     echo "    sudo ./install.sh"
     exit 1
 fi
@@ -146,50 +106,10 @@ if [[ $OS == "Linux" ]] || [[ $OS == "Darwin" ]]; then
     if [[ $PKG_SURE == "Y" || $PKG_SURE == "y" || $PKG_SURE == "" ]] ; then
 
         if [[ $OS == "Darwin" ]]; then
-          if xcode-select -v &> /dev/null; then
-            # if xcode command line tools are not installed
-            if ! xcode-select -p &> /dev/null; then
-              echo "[install.sh] Installing xcode command line tools..."
-              xcode-select --install
+            if ! brew -v &> /dev/null; then
+                install_homebrew
             fi
-          else
-            echo "[install.sh] \"xcode-select\" is not installed. Please install Xcode from the App store."
-            exit 1
-          fi
         fi
-
-        if node -v &> /dev/null ; then
-
-        	CURRENT_NODE_VERSION=$(node --version | cut -c1-5);
-        	if [[ "$CURRENT_NODE_VERSION" == "v0.12" ]]; then
-        		echo "[install.sh] Current Nodejs version $CURRENT_NODE_VERSION supported. Not installing Nodejs."
-        	else
-        		echo "[install.sh] $PROJECT_NAME requires Nodejs version v0.12"
-        		echo "[install.sh] You currently have Nodejs version $CURRENT_NODE_VERSION installed."
-        		echo "[install.sh] Would you like to uprade to Nodejs version v0.12 now? (Y/n):"
-        		read NODE_SURE;
-        		if [[ "$NODE_SURE" == "Y" || "$NODE_SURE" == "y" || "$NODE_SURE" == "" ]]; then
-                    install_node
-        		else
-                    echo "[install.sh] Aborting install process. Please install Nodejs v0.12 and other dependencies yourself."
-                    exit 0;
-                fi
-
-        	fi
-        else
-
-          if [[ $OS == "Darwin" ]]; then
-              if ! brew -v &> /dev/null; then
-                  install_homebrew
-              fi
-          fi
-
-          echo "[install.sh] Nodejs is not installed, installing Nodejs..."
-          install_node
-        fi
-
-        # install the rest of the dependencies now that
-        # package managers and nodejs v0.12 are definately installed
 
         install_package "wireshark git mongodb"
 
@@ -200,9 +120,9 @@ if [[ $OS == "Linux" ]] || [[ $OS == "Darwin" ]]; then
         bash "$DIR_NAME/setup_capture_privileges.sh"
 
         echo ""
-        echo "[install.sh] $PROJECT_NAME was installed successfully!"
-        echo "[install.sh] Run the following command(s) to get started:"
-        echo "    $POST_INSTALL_EXAMPLE_CMD"
+        echo "[install.sh] $PROJECT_NAME was installed successfully! You may now open $PROJECT_NAME."
+        # echo "[install.sh] Run the following command(s) to get started:"
+        # echo "    $POST_INSTALL_EXAMPLE_CMD"
         exit 0
     else
         echo "[install.sh] Not installing dependencies '$DEPENDENCIES', exiting install process."
