@@ -44,6 +44,7 @@ function launchServer(options) {
 	// this is pretty bad practice and we should probably be using something
 	// like waitpid(2)
 	setTimeout(function(){
+
 		var wigleAPI = new WigleAPI('mongodb://localhost:27017/probe', function(err, db){
 		
 			// note any /api requests will fail until this callback is run
@@ -52,7 +53,12 @@ function launchServer(options) {
 			} else {
 				console.log('[ server ] MongoDB connection established.');
 			}
+
+			app.use('/api/wigle/hasgeo', function(req, res, next){ wigleAPI.handleHasGeoRequest(req, res, next, probeDataStore) });
+			app.use('/api/wigle', function(req, res, next){ wigleAPI.handleAPIRequest(req, res, next) });
+
 		});
+
 	}, 500);
 
 	var assetManager = new AssetManager(function(err){
@@ -81,9 +87,6 @@ function launchServer(options) {
 		}
 
 		var iface = options.interface || settings.wifiInterface;
-
-		console.log(settings);
-		console.log(iface);
 
 		if (!outputFile) {
 			 outputFile = assetManager.getDataPath() + '/probes.csv';
@@ -187,8 +190,6 @@ function launchServer(options) {
 			}
 		});
 
-		app.use('/api/wigle/hasgeo', function(req, res, next){ wigleAPI.handleHasGeoRequest(req, res, next, probeDataStore) });
-		app.use('/api/wigle', function(req, res, next){ wigleAPI.handleAPIRequest(req, res, next) });
 		app.use('/data', express.static(path.resolve(assetManager.getDataPath())));
 		app.use('/data', express.static(path.resolve(__dirname + '/../../data')));
 		app.use(express.static(path.resolve(__dirname + '/../../public')));

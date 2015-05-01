@@ -64,7 +64,7 @@ function install_package() {
     		else
     			echo "[install.sh] ERROR: No package manager found. Please, manually install:"
     			echo "	$PACKAGE"
-                exit 1;
+                exit 1
     		fi
 
         elif [[ $OS == "Darwin" ]]; then
@@ -78,7 +78,7 @@ function install_package() {
                     ( su $(logname) -c "brew install $PKG" )
                     if [[ ! $?  ]]; then
                         echo "[install.sh] ERROR: could not 'brew install $PKG', install failed."
-                        exit 1;
+                        exit 1
                     fi
                 done
             else
