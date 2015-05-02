@@ -125,7 +125,8 @@ if [[ $OS == "Linux" ]] || [[ $OS == "Darwin" ]]; then
         # create mongodb database folder
         mkdir -p /data/db
         
-        bash "$DIR_NAME/generate_settings.sh"
+        # make user owner of settings folder
+        ( su $(logname) -c "bash $DIR_NAME/generate_settings.sh" )
         bash "$DIR_NAME/setup_capture_privileges.sh"
 
         echo ""
