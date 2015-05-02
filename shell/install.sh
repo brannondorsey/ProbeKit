@@ -18,13 +18,13 @@ PROJECT_NAME="Probe Kit™"
 POST_INSTALL_EXAMPLE_CMD="cd ../node
     sudo node server.js --interface=<device_name>"
 DEPENDENCIES="wireshark mongodb git" # this var is only printed to screen, not used for install
-DIR_NAME=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+DIR_NAME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 function install_homebrew() {
 
     echo "[install.sh] Installing homebrew..."
     if ruby -v &> /dev/null; then
-        ( su $(logname) -c "$DIR_NAME/download_homebrew.sh" )
+        ( su $(logname) -c "$(prinf %q "$DIR_NAME/download_homebrew.sh")" )
     else
         echo "[install.sh] \"ruby\" is not installed. Please manually install ruby and try again."
         exit 1
@@ -98,13 +98,11 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 # check internet connectivity
-wget -q --tries=10 --timeout=20 --spider http://google.com
-if [[ "$?" -ne "0" ]]; then
-    echo "[install.sh] You are not connected to the internet. Aborting install."
-    exit 1
-fi
-
-exit 0;
+# wget -q --tries=10 --timeout=20 --spider http://google.com
+# if [[ "$?" -ne "0" ]]; then
+#     echo "[install.sh] You are not connected to the internet. Aborting install."
+#     exit 1
+# fi
 
 #Must be linux
 OS=$(uname);
