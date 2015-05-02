@@ -26,7 +26,8 @@ ProbeDataStore.prototype.loadFromCSV = function(csvFilePath, callback) {
 	fs.readFile(csvFilePath, { encoding: 'utf8'}, function(err, data) {
 
 		if (err) {
-			callback(err);
+			callback(new Error('ProbeDataStore::loadFromCSV error loading ' + csvFilePath));
+			return;
 		}
 		
 		if (data) {
@@ -41,11 +42,7 @@ ProbeDataStore.prototype.loadFromCSV = function(csvFilePath, callback) {
 			}
 
 			callback(null);
-		} else {
-			callback(new Error('ProbeDataStore::loadFromCSV data not present'));
 		}
-
-		
 	});	
 }
 

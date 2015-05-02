@@ -146,11 +146,10 @@
     var total = 0;
 
     // var map = L.map('map').setView([41.879528,-87.625088], 14); // chicago 
-    var map = L.map('map').setView([25.790130,-80.137371], 14); // miami 
+    var map = L.map('map',{maxZoom:17, minZoom:12}).setView([25.790130,-80.137371], 14); // miami 
+    map.setMaxBounds(new L.LatLngBounds([25.558712, -80.427557], [26.022771, -79.993822]));
     
-    L.tileLayer('http://localhost:3000/data/maps/tiles/miami/{z}/{x}/{y}.png', {
-        maxZoom: 17
-    }).addTo(map);
+    L.tileLayer('http://localhost:3000/data/maps/tiles/miami/{z}/{x}/{y}.png').addTo(map);
     
 
 
@@ -259,10 +258,6 @@
       return MM+"/"+DD+"/"+YY+" "+hh+":"+mm;
     }
 
-
-
-
-    // limit pans on leaflet ( to avoid danger zones )
 
   </script>
 

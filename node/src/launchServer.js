@@ -72,7 +72,7 @@ function launchServer(options) {
 	});
 
 	function onSettingsFileLoaded(err, data) {
-
+		
 		var settings = {};
 
 		if (err) {
@@ -101,7 +101,7 @@ function launchServer(options) {
 				// CSV data
 				
 				if (err) {
-					console.log('[ server ] error loading probe CSV file');
+					console.log('[ server ] Error loading probe CSV file');
 				}
 			});
 		}
