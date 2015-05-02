@@ -24,7 +24,7 @@ function install_homebrew() {
 
     echo "[install.sh] Installing homebrew..."
     if ruby -v &> /dev/null; then
-        ( su $(logname) -c "$(prinf %q "$DIR_NAME/download_homebrew.sh")" )
+        ( su $(logname) -c "$(printf %q "$DIR_NAME/download_homebrew.sh")" )
     else
         echo "[install.sh] \"ruby\" is not installed. Please manually install ruby and try again."
         exit 1
@@ -129,7 +129,7 @@ if [[ $OS == "Linux" ]] || [[ $OS == "Darwin" ]]; then
         mkdir -p /data/db
         
         # delevate privileges so that the is the owner of settings folder
-        ( su $(logname) -c "bash $(prinf %q "$DIR_NAME/generate_settings.sh")" )
+        ( su $(logname) -c "bash $(printf %q "$DIR_NAME/generate_settings.sh")" )
         
         if [[ $? -ne "0" ]] ; then
             echo "[install.sh] Error launching $DIR_NAME/generate_settings.sh"
