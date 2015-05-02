@@ -70,4 +70,24 @@ function ProcessLauncher(interface, hopChannels, settings) {
 	this.mongodProcess = spawn(mongodPath);
 }
 
+ProcessLauncher.prototype.close = function(code) {
+
+	var self = this;
+
+	if (self.tsharkProcess !== undefined) {
+		self.tsharkProcess.kill('SIGTERM');
+		console.log('[ server ] ProcessLauncher::close: sent to tsharkProcess');
+	}
+
+	if (self.mongodProcess !== undefined) {
+		self.mongodProcess.kill('SIGTERM');
+		console.log('[ server ] ProcessLauncher::close: sent to mongoProcess');
+	}
+
+	if (self.channelHopProcess !== undefined) {
+		self.channelHopProcess.kill('SIGTERM');
+		console.log('[ server ] ProcessLauncher::close: sent to channelHopProcess');
+	}
+}
+
 module.exports = ProcessLauncher;
