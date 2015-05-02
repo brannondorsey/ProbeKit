@@ -55,7 +55,7 @@ if [[ $OS == "Linux" ]] || [[ $OS == "Darwin" ]]; then
         fi
 
         echo "[$SCRIPT_NAME] Setting up indexes for $COLLECTION_NAME collection"
-        sed "s/COLLECTION_NAME/$COLLECTION_NAME/" path/to/this/script.js | mongo
+        sed "s/COLLECTION_NAME/$COLLECTION_NAME/" "$DIR_NAME/../data/setup_mongo_indexes.js" | mongo
 
         if [[ $? -ne "0" ]]; then
             die "[$SCRIPT_NAME] Error setting up indexes for $COLLECTION_NAME collection" 1
