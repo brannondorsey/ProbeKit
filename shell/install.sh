@@ -125,8 +125,14 @@ if [[ $OS == "Linux" ]] || [[ $OS == "Darwin" ]]; then
         # create mongodb database folder
         mkdir -p /data/db
         
-        # make user owner of settings folder
-        ( su $(logname) -c "bash $DIR_NAME/generate_settings.sh" )
+        # delevate privileges so that the is the owner of settings folder
+        ( su $(logname) -c "bash $(prinf %q "$DIR_NAME/generate_settings.sh")" )
+        
+        if [[ $? -ne "0" ]] ; then
+            echo "[install.sh] Error launching $DIR_NAME/generate_settings.sh"
+            exit 1
+        fi
+
         bash "$DIR_NAME/setup_capture_privileges.sh"
 
         echo ""
