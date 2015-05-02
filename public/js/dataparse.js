@@ -36,6 +36,7 @@ $.ajax({
 	      var now = new Date();
 	      // console.log(moment(now) - moment(then));
 	  	  applyFilter();
+	  	  initPositions();
 	  });
   	},
   	error: function(err){
@@ -150,6 +151,8 @@ function applyFilter() {
 		for (var i = 0; i < macs.length; i++) {
 			makeButterfly(macs[i].mac, macs[i].knownNetworks);
 		}
+		// initPositions(); << can't go here cause it makes the filter menu desapear
+		// ...who know's why the fuck that happens >_<
 	} else {
 		// no results...
 	}

@@ -25,10 +25,6 @@ function makeButterfly( data, networks ){
 		ssidMatch = filter.networks.indexOf(networks) > -1;
 	}
 
-	// if(!filt.stat || ssidMatch || filter.manufacturer == ndata){
-
-		// updatePositions(); // update responsive grid
-
 		var parent = document.getElementById('net');
 		var butterfly = document.createElement('div');			
 			butterfly.className = "butterfly";
@@ -121,7 +117,7 @@ function updatePositions(){
 	var cols = Math.floor(window.innerWidth/cellWidth);
 	var pad = (window.innerWidth-(Math.floor(window.innerWidth/cellWidth)*cellWidth))/2;
 	for (var i = 0; i < net.childNodes.length; i++) {
-		net.childNodes[i].style.transition = "all "+(Math.random()*2)+0.5+"s ease"; // wtf, not working?
+		// net.childNodes[i].style.transition = "all "+(Math.random()*2)+0.5+"s ease"; // wtf, not working?
 		var lStr = net.childNodes[i].style.left;
 		var l = parseInt( lStr.substring(0,lStr.length-2) );
 		if( (l+cellWidth) > pad + cellWidth*(cols-1) ){
@@ -135,6 +131,22 @@ function updatePositions(){
 
 	};
 }
+
+function initPositions(){
+	var cols = Math.floor(window.innerWidth/cellWidth);
+	var rows = Math.ceil(net.childNodes.length/cols);
+	var pad = (window.innerWidth-(Math.floor(window.innerWidth/cellWidth)*cellWidth))/2;
+	var cnt = 0;
+	for (var x = 0; x < cols; x++) {
+		for (var y = 0; y < rows; y++) {
+			net.childNodes[cnt].style.top = cellHeight*y + "px";
+			net.childNodes[cnt].style.left = pad+(cellWidth*x) + "px";
+			cnt++;
+			if(cnt==net.childNodes.length-1){ break }
+		};
+	};
+}
+
 window.onresize = function(e) {
     var macs = getFilteredMacs();
     $('#net').empty();
@@ -142,7 +154,7 @@ window.onresize = function(e) {
 		for (var i = 0; i < macs.length; i++) {
 			makeButterfly( macs[i].mac, macs[i].knownNetworks );
 		}
-		updatePositions();
+		initPositions();
 	}
 
 };
@@ -411,6 +423,7 @@ var filt = {
 
 			this.display();	// update menu display in DOM
 			applyFilter();	// apply filter
+			initPositions(); // upate positions
 
 		} else {
 
@@ -435,6 +448,7 @@ var filt = {
 				this.mkinput(); 
 				applyFilter();	// apply filter data
 				this.display(); // update menu display in DOM
+				initPositions(); // upate positions
 			}
 		}
 	}
