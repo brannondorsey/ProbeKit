@@ -97,6 +97,15 @@ if [[ $EUID -ne 0 ]]; then
     exit 1
 fi
 
+# check internet connectivity
+wget -q --tries=10 --timeout=20 --spider http://google.com
+if [[ "$?" -ne "0" ]]; then
+    echo "[install.sh] You are not connected to the internet. Aborting install."
+    exit 1
+fi
+
+exit 0;
+
 #Must be linux
 OS=$(uname);
 if [[ $OS == "Linux" ]] || [[ $OS == "Darwin" ]]; then
