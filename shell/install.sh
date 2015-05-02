@@ -97,6 +97,9 @@ if [[ $EUID -ne 0 ]]; then
     exit 1
 fi
 
+# custom hook
+"$DIR_NAME/custom_hooks/hook_install_start.sh"
+
 # check internet connectivity
 # wget -q --tries=10 --timeout=20 --spider http://google.com
 # if [[ "$?" -ne "0" ]]; then
@@ -134,6 +137,9 @@ if [[ $OS == "Linux" ]] || [[ $OS == "Darwin" ]]; then
         fi
 
         bash "$DIR_NAME/setup_capture_privileges.sh"
+
+        # custom hook
+        "$DIR_NAME/custom_hooks/hook_install_done.sh"
 
         echo ""
         echo "[install.sh] $PROJECT_NAME was installed successfully! You may now open $PROJECT_NAME."
