@@ -24,6 +24,12 @@ if [[ $OS == "Linux" ]] || [[ $OS == "Darwin" ]]; then
     # generate ~/.probekit (plus the maps/tiles path)
     mkdir -p "$SETTINGS_DIR/maps/tiles"
 
+    # generate ~/.probekit/probes.csv if not there
+    if [[ ! -e "$SETTINGS_DIR/probes.csv" ]] ; then
+        touch "$SETTINGS_DIR/probes.csv"
+        chown $(logname) "$SETTINGS_DIR/probes.csv"
+    fi
+
     if [[ $? -ne 0 ]]; then
         echo "[$SCRIPT_NAME] Error creating $HOME/.probekit folder"
         exit 1
