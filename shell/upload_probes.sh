@@ -1,0 +1,1 @@
+curl -i -X POST --data-urlencode "data@$HOME/.probekit/probes.csv" http://localhost:4444/upload/

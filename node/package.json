@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/brannondorsey/SSIDButterflyCollection",
   "dependencies": {
+    "body-parser": "^1.12.3",
     "express": "^4.12.2",
     "minimist": "^1.1.1",
     "moment": "^2.9.0",
