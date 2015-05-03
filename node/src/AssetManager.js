@@ -59,8 +59,7 @@ function getDirs(rootDir, cb) {
 
     fs.readdir(rootDir, function(err, files) { 
 
-        // if (err) throw err; 
-        if (files.length > 0) {
+        if (files && files.length > 0) {
           for (index = 0; index < files.length; index++) { 
             
             var file = files[index]; 
