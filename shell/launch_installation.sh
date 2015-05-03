@@ -27,8 +27,6 @@ if [[ $(ps aux | grep "$PATH_TO_SERVER" | wc -l) -eq 1 ]]; then
     git checkout master
     git pull origin master
 
-    exit 0
-
     echo " Installation is not running. Running installation."
 
     /usr/local/bin/node "$PATH_TO_SERVER"  -i en1 &
