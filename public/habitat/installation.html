@@ -20,7 +20,11 @@
 			}
 
 
-			html,body{ margin:0; padding:0; overflow: hidden; font-family: 'Monaco', monospace; }
+			html,body{ 
+				margin:0; padding:0; overflow: hidden; 
+				font-family: 'Monaco', monospace; 
+				cursor: none;
+			}
 /*			iframe{
 				position: absolute;
 				z-index: 3;
@@ -53,7 +57,7 @@
 				top: 50px;
 				/*right: 450px;*/
 				font-family: monospace;
-				font-size: 10px;
+				font-size: 11px;
 				padding: 10px;
 				/*display:none;*/`
 			}
@@ -216,7 +220,7 @@
 					};
 				}
 				
-				document.getElementById('console').innerHTML = totalCatches +' butterflies (ie. mobile devices)<br> captured from the immediate vecinity';
+				document.getElementById('console').innerHTML = totalCatches +' butterflies (ie. mobile devices)<br> captured from the immediate vicinity';
 
 				// update butterfly
 				var p = mac.split(':');
@@ -303,7 +307,8 @@
 			});
 
 			socket.on('probeReceived', function (probe) {
-				console.log();
+				// console.log(); 
+				handleProbe(probe);
 			});
 
 			function handleProbe(probe) {
@@ -540,11 +545,11 @@
 					butterfly.position.copy( boids[ i ].position );
 					butterfly.geometry.verticesNeedUpdate = true;
 
-					o = butterfly.original; // custom object to keep track of original color
-					color = butterfly.material.color;
-					color.r = (1-o.r) * ((400-butterfly.position.z)/1000) + o.r; 
-					color.g = (1-o.g) * ((400-butterfly.position.z)/1000) + o.g;
-					color.b = (1-o.b) * ((400-butterfly.position.z)/1000) + o.b;
+					// o = butterfly.original; // custom object to keep track of original color
+					// color = butterfly.material.color;
+					// color.r = (1-o.r) * ((400-butterfly.position.z)/1000) + o.r; 
+					// color.g = (1-o.g) * ((400-butterfly.position.z)/1000) + o.g;
+					// color.b = (1-o.b) * ((400-butterfly.position.z)/1000) + o.b;
 
 					butterfly.rotation.y = Math.atan2( - boid.velocity.z, boid.velocity.x );
 					butterfly.rotation.z = Math.asin( boid.velocity.y / boid.velocity.length() );
