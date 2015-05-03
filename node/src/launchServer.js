@@ -32,7 +32,6 @@ function launchServer(options) {
 
 	var procLauncher = undefined;
 	var tsharkProcess = undefined;
-	var channelHopProcess = undefined;
 	var writeStream = undefined;
 	var assetManager = undefined;
 
@@ -72,7 +71,7 @@ function launchServer(options) {
 	});
 
 	function onSettingsFileLoaded(err, data) {
-
+		
 		var settings = {};
 
 		if (err) {
@@ -101,15 +100,17 @@ function launchServer(options) {
 				// CSV data
 				
 				if (err) {
-					console.log('[ server ] error loading probe CSV file');
+					console.log('[ server ] Error loading probe CSV file');
 				}
 			});
 		}
 
 		if (!csvOnly) {
+			
 			procLauncher = new ProcessLauncher(iface, true, settings);
 			tsharkProcess = procLauncher.tsharkProcess;
-			channelHopProcess = procLauncher.channelHopProcess;
+			process.on('SIGINT', function(code){ procLauncher.close(); process.exit(0) });
+			process.on('SIGTERM', function(code){ procLauncher.close(); process.exit(0) });
 		}
 
 		if (!dryRun) {

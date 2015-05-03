@@ -41,11 +41,11 @@ if [[ $OS == "Linux" ]] || [[ $OS == "Darwin" ]]; then
         MONGOD_PROC_COUNT=$(ps aux | grep mongod | wc -l) 
         
         # grep outputs at least 1 result
-        if [[ "$MONGOD_PROC_COUNT" -gt "1" ]]; then
+        if [[ "$MONGOD_PROC_COUNT" -eq "1" ]]; then
 
-            echo "[$SCRIPT_NAME] mongod is not running, launching mongod and sleeping for 15 seconds"
+            echo "[$SCRIPT_NAME] mongod is not running, launching mongod and sleeping for 5 seconds"
             mongod &>/dev/null &
-            sleep 15 # allow mongod to start
+            sleep 5 # allow mongod to start
         fi
 
         mkdir -p "$SETTINGS_DIR"
@@ -55,7 +55,7 @@ if [[ $OS == "Linux" ]] || [[ $OS == "Darwin" ]]; then
         fi
 
         echo "[$SCRIPT_NAME] Setting up indexes for $COLLECTION_NAME collection"
-        sed "s/COLLECTION_NAME/$COLLECTION_NAME/" path/to/this/script.js | mongo
+        sed "s/COLLECTION_NAME/$COLLECTION_NAME/" "$DIR_NAME/../data/setup_mongo_indexes.js" | mongo
 
         if [[ $? -ne "0" ]]; then
             die "[$SCRIPT_NAME] Error setting up indexes for $COLLECTION_NAME collection" 1

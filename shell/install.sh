@@ -18,13 +18,18 @@ PROJECT_NAME="Probe Kit™"
 POST_INSTALL_EXAMPLE_CMD="cd ../node
     sudo node server.js --interface=<device_name>"
 DEPENDENCIES="wireshark mongodb git" # this var is only printed to screen, not used for install
-DIR_NAME=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+DIR_NAME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 function install_homebrew() {
 
     echo "[install.sh] Installing homebrew..."
     if ruby -v &> /dev/null; then
-        ( su $(logname) -c "$DIR_NAME/download_homebrew.sh" )
+        ( su $(logname) -c "$(printf %q "$DIR_NAME/download_homebrew.sh")" )
+        if [[ $? -ne "0" ]] ; then
+            echo "[install.sh] Error installing homebrew. If you were prompted"
+            echo "with instructions from xcode follow them now and try again."
+            exit 1
+        fi
     else
         echo "[install.sh] \"ruby\" is not installed. Please manually install ruby and try again."
         exit 1
@@ -97,14 +102,15 @@ if [[ $EUID -ne 0 ]]; then
     exit 1
 fi
 
-# check internet connectivity
-wget -q --tries=10 --timeout=20 --spider http://google.com
-if [[ "$?" -ne "0" ]]; then
-    echo "[install.sh] You are not connected to the internet. Aborting install."
-    exit 1
-fi
+# custom hook
+"$DIR_NAME/custom_hooks/hook_install_start.sh"
 
-exit 0;
+# check internet connectivity
+# wget -q --tries=10 --timeout=20 --spider http://google.com
+# if [[ "$?" -ne "0" ]]; then
+#     echo "[install.sh] You are not connected to the internet. Aborting install."
+#     exit 1
+# fi
 
 #Must be linux
 OS=$(uname);
@@ -127,8 +133,18 @@ if [[ $OS == "Linux" ]] || [[ $OS == "Darwin" ]]; then
         # create mongodb database folder
         mkdir -p /data/db
         
-        bash "$DIR_NAME/generate_settings.sh"
+        # delevate privileges so that the is the owner of settings folder
+        ( su $(logname) -c "bash $(printf %q "$DIR_NAME/generate_settings.sh")" )
+        
+        if [[ $? -ne "0" ]] ; then
+            echo "[install.sh] Error launching $DIR_NAME/generate_settings.sh"
+            exit 1
+        fi
+
         bash "$DIR_NAME/setup_capture_privileges.sh"
+
+        # custom hook
+        "$DIR_NAME/custom_hooks/hook_install_done.sh"
 
         echo ""
         echo "[install.sh] $PROJECT_NAME was installed successfully! You may now open $PROJECT_NAME."

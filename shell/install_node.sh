@@ -55,6 +55,8 @@ function install_node() {
     fi
 }
 
+OS=$(uname)
+
 if [[ $OS == "Darwin" ]]; then
   if xcode-select -v &> /dev/null; then
     # if xcode command line tools are not installed

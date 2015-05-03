@@ -21,8 +21,6 @@ ISSUES_LINK="https://github.com/brannondorsey/ProbeKit/issues"
 
 function osx_capture_privileges() {
 
-    local TAR="$DIR_NAME/../data/ChmodBPF.tar.gz"
-
     which tshark 2>/dev/null >/dev/null
 
     if [[ $? -ne 0 ]]; then
@@ -31,21 +29,17 @@ function osx_capture_privileges() {
         exit 1
     fi
 
-    if [ -f "$TAR" ]; then
-        
-        tar zxf "$TAR" --directory "$DIR_NAME/../data"
-
-        if [[ $? -eq 0 ]]; then
-            open "$DIR_NAME/../data/ChmodBPF/Install ChmodBPF.app"
-        else
-            echo "[$SCRIPT_NAME] Error: $TAR could not be extracted with tar."
-            exit 1
-        fi
-
-    else
-        echo "[$SCRIPT_NAME] Error: $TAR does not exist"
+    # redirect to allow overwrite
+    curl "https://bugs.wireshark.org/bugzilla/attachment.cgi?id=3373" > "$DIR_NAME/../data/ChmodBPF.tar.gz"
+    
+    if [[ $? -ne "0" ]] ; then
+        echo "[$SCRIPT_NAME] Error downloading ChmodBPF.tar.gz with curl. Make sure that you are connected to the internet."
         exit 1
     fi
+
+    tar zxf "$DIR_NAME/../data/ChmodBPF.tar.gz" --directory "$DIR_NAME/../data"
+    open "$DIR_NAME/../data/ChmodBPF/Install ChmodBPF.app"
+    echo "[$SCRIPT_NAME] Please enter your password in the \"Install Chmod\" app window"
 
     return 0
 }
@@ -87,7 +81,7 @@ if [[ $OS == "Linux" ]] || [[ $OS == "Darwin" ]]; then
 
     if [[ $? -eq 0 ]]; then
 
-        echo "[$SCRIPT_NAME] Your capture privileges have been setup correctly."
+        # echo "[$SCRIPT_NAME] Your capture privileges have been setup correctly."
 
         if [[ $OS == "Linux" ]]; then
             

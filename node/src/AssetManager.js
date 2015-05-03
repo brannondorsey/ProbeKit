@@ -25,7 +25,7 @@ function AssetManager(callback) {
 		}
 
 		getDirs(self.getDataPath() + '/maps/tiles', function(folders){
-			
+
 			self._mapPackNames = folders;
 
 			// note this callback runs once
@@ -58,17 +58,20 @@ function getDirs(rootDir, cb) {
 	var dirs = [];
 
     fs.readdir(rootDir, function(err, files) { 
-        
-        if (err) throw err; 
-        
-        for (index = 0; index < files.length; index++) { 
+
+        // if (err) throw err; 
+        if (files.length > 0) {
+          for (index = 0; index < files.length; index++) { 
             
             var file = files[index]; 
             
             if (file[0] !== '.') { 
-            	
-            	foo(index, file, files.length);
+              
+              foo(index, file, files.length);
             }
+          }
+        } else {
+          cb([]); // no files in dir
         }
     });
 
