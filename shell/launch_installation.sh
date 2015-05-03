@@ -35,7 +35,7 @@ if [[ $(ps aux | grep "$PATH_TO_SERVER" | wc -l) -eq 1 ]]; then
     echo "servers launched, sleeping 10 seconds"
     sleep 10
     echo "launching Google Chrome"
-    # /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --kiosk &
+    /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --kiosk &
 
 else
     echo " Installation is already running. Exiting."
