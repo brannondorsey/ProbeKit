@@ -165,7 +165,7 @@
       		 	midpt = {x:(box.x+(tx+13))/2, y:150};
       		 	
       		 	
-      		 	if(tx < box.x && ty > box.y){
+      		 	if(tx < box.x && ty > box.y && !blowingup){
 	      		 	inCircA += 0.1;
 	    			inCircB = inCircA+(Math.PI*1.5);
 				    ctx.beginPath();
@@ -296,46 +296,62 @@
 			// number of MACs are coming in from
 			// uploadSocket.on('probeReceived')
 			var tmpArr = [];
-
+			var blowingup = false;
 			uploadSocket.on('probeReceived', function (probe) {
 			    // add the probe to our master probeData object
+			   	// if (tmpArr.indexOf(probe.mac) == -1) {
+			   		// tmpArr.push(probe.mac);
+			   	// }
 			   	if (tmpArr.indexOf(probe.mac) == -1) {
 			   		tmpArr.push(probe.mac);
-			   		uploads.push(probe);
+			   		// uploads.push(probe);
+			   		handleProbe(probe);
 			   	}
 
-			   	// handleProbe(probe);
-			   	if(checkParser) { parseUpload(); checkParser=false; }
+			   	// if(!blowingup){ blowingup=true;}
+
+			   	if(!blowingup){ blowingup=true; setTimeout(function(){ blowingup=false;},8000);}
+			   	
+			   	
+
+			   	// if(checkParser) { console.log('ran this'); setTimeout(parseUpload,500); checkParser=false; }
+
+			   	// if(!blowingup){ setTimeout(parseUpload,500); blowingup=true;}
+			   	// if(!blowingup){blowingup=true; }
 			});
 
 
-			var uploads = [];
-			var checkParser = true;
-			var uploadCnt = 0;
-			function parseUpload(){
-				
-				for (var i = (uploadCnt*40); i < (uploadCnt*40)+40; i++) {
-					handleProbe( uploads[i] );
-				};
-				uploadCnt++;
-				var leftOffAt = (uploadCnt*40)+40;
-				if(leftOffAt>uploads.length){
-					checkParser = true;
-					uploadCnt=0;
-					uploads = [];
-				} else {
-					setTimeout(parseUpload, 500 );
-				}
-			}
+			// var uploads = [];
+			// // var checkParser = true;
+			// var uploadCnt = 0;
+			// function parseUpload(){
+			// 	var batch = 500;
+			// 	// var delay = Math.random()*300 + 100;
+			// 	for (var i = (uploadCnt*batch); i < (uploadCnt*batch)+batch; i++) {
+			// 		handleProbe( uploads[i] );
+					
+			// 	};
+			// 	uploadCnt++;
+			// 	var leftOffAt = (uploadCnt*batch)+batch;
+			// 	if(leftOffAt>uploads.length){
+			// 		// checkParser = true;
+			// 		blowingup=false;
+			// 		uploadCnt=0;
+			// 		uploads = [];
+			// 	} else {
+			// 		setTimeout(parseUpload, 500 );
+			// 	}
+			// }
 
 			socket.on('probeReceived', function (probe) {
 				// console.log(); 
 				handleProbe(probe);
 			});
 
-			function handleProbe(probe) {
+			function handleProbe(probe) { if(probe && probe.ssid!='kairos'){
 
 				updateDictionary( probe );
+
 
 				// remove first butterfly + boid + macList + scene.child 
 				// to make room for new ones, if habitat is maxed out
@@ -383,7 +399,7 @@
 				updateNetList(probe.mac);
 
 				if(!holdHud){ targetNew( probe.mac, false ); } 
-			}
+			}}
 
 			function giveEmTime(){ 
 				readCnt++;
@@ -457,7 +473,7 @@
 			var newMap = "000";
     
 			function updateHudCSS(show){ // ------------------------------ also part of canvas tracker
-				if(show){ 
+				if(show && !blowingup){ 
 					if(newMap != currentMac){
 						mapElement.src = 'http://'+window.location.host+'/habitat/map-iframe.html?mac='+currentMac;
 						newMap = currentMac;
