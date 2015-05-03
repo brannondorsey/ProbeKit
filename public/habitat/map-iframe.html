@@ -4,8 +4,8 @@
 
   <meta charset="utf-8">
   <title>Probe Kit</title>
-  <link rel="stylesheet" type="text/css" href="css/styles.css">
-  <link rel="stylesheet" href="css/leaflet.css" />
+  <link rel="stylesheet" type="text/css" href="../css/styles.css">
+  <link rel="stylesheet" href="../css/leaflet.css" />
   <style>
     html,body{ padding:0; margin:0; overflow: hidden; }
     #map{ position: absolute; top:0; left:0;}
@@ -16,7 +16,7 @@
       display: none;
 
     }
-    #error div{ 
+/*    #error div{ 
       background: #e9eaee;
       border: 2px solid #ffffff;
       padding: 20px;
@@ -26,42 +26,102 @@
       -webkit-border-radius: 5px;
       -moz-border-radius: 5px;
       border-radius: 5px;
-    }
+    }*/
 
     i { font-style: normal; font-size:10px; }
 
-    #back {
-      position: absolute;
-      z-index: 5;
-      top: 70px;
-      left: 10px;
-      background-color: #fff;
-      border-bottom: 1px solid #ccc;
-      width: 26px;
-      height: 26px;
-      line-height: 26px;
-      display: block;
-      text-align: center;
-      text-decoration: none;
-      color: black;
-      box-shadow: 0 1px 5px rgba(0,0,0,0.65);
-      border-radius: 4px;
+    .spinner {
+        margin: 30% auto;
+        width: 129px;
     }
-    #back:hover { cursor: pointer; background-color: #eee;}
+
+    .dot {
+        width:10px; height:10px;
+        border-radius:20px;
+        background:#f00;
+        margin-left:10px;
+        margin-top:10px;
+        opacity:0.3;
+        display:inline-block;
+    }
+    #d1{ -webkit-animation: load1 1500ms infinite; }
+    #d2{ -webkit-animation: load2 1500ms infinite; }
+    #d3{ -webkit-animation: load1 1500ms infinite; }
+    #d4{ -webkit-animation: load2 1500ms infinite; }
+
+    @-webkit-keyframes load1 {
+        0% {
+            width:10px; height:10px;
+            border-radius:20px;
+            margin-left:15px;
+            margin-top:15px;
+            opacity:0.3;
+        }
+        50% {
+            width:20px; height:20px;
+            border-radius:40px;
+            margin-left:10px;
+            margin-top:0px;
+            opacity:1;
+        }
+        100% {
+            width:10px; height:10px;
+            border-radius:20px;
+            margin-left:15px;
+            margin-top:15px;
+            opacity:0.3;
+        }
+    }
+    @-webkit-keyframes load2 {
+        0% {
+            width:20px; height:20px;
+            border-radius:40px;
+            margin-left:10px;
+            margin-top:0px;
+            opacity:1;
+        }
+        50% {
+            width:10px; height:10px;
+            border-radius:20px;
+            margin-left:15px;
+            margin-top:15px;
+            opacity:0.3;
+        }
+        100% {
+            width:20px; height:20px;
+            border-radius:40px;
+            margin-left:10px;
+            margin-top:0px;
+            opacity:1;
+        }
+    }
+          
+          
+
+
   </style>
 
 </head>
 
 <body>
 
-  <div id="back">⇠</div>
 
-  <div id="error"><div id="nfo"> no GPS data available for these networks</div></div>
+  <div id="error">
+    <!-- <div id="nfo"> no GPS data available for these networks</div> -->
+    <div class="spinner">
+
+      <div class="dot" id="d1"></div>
+      <div class="dot" id="d2"></div>
+      <div class="dot" id="d3"></div>
+      <div class="dot" id="d4"></div>
+
+    </div>
+  </div>
   <div id="map" class="map"></div>
 
-  <script src="js/jquery-1.11.2.min.js"></script>
-  <script src="js/leaflet.js"></script>
-  <script src='js/turf.min.js'></script>
+  <script src="../js/jquery-1.11.2.min.js"></script>
+  <script src="../js/leaflet.js"></script>
+  <script src='../js/turf.min.js'></script>
 
   <script>
 
@@ -73,12 +133,6 @@
         return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
     }
 
-    // ------------------------------------------------------------------------------- back button
-    document.getElementById('back').onclick = function(){
-      // history.go(-1);
-      window.location = "index.html";
-    }
-    
     // ------------------------------------------------------------------------------- get networks
     $.ajax({
       url: 'http://'+window.location.host+'/api/networks?device='+getParameterByName('mac'),
@@ -146,7 +200,7 @@
     var total = 0;
 
     // var map = L.map('map').setView([41.879528,-87.625088], 14); // chicago 
-    var map = L.map('map',{maxZoom:17, minZoom:12}).setView([25.790130,-80.137371], 14); // miami 
+    var map = L.map('map',{maxZoom:17, minZoom:12}).setView([25.790130,-80.137371], 12); // miami 
     map.setMaxBounds(new L.LatLngBounds([25.558712, -80.427557], [26.022771, -79.993822]));
     
     L.tileLayer('http://'+window.location.host+'/data/maps/tiles/miami/{z}/{x}/{y}.png').addTo(map);
@@ -180,7 +234,7 @@
         }
       };
       if(gps_vectors.length >=0 && total==0){
-        document.getElementById('nfo').innerHTML = "GPS data may not be accurate";
+        // document.getElementById('nfo').innerHTML = "GPS data may not be accurate";
         document.getElementById('error').style.display = "block";
       }
       // DRAW
@@ -224,8 +278,11 @@
       else if(pts.features.length>2) {
         var convex = turf.convex(pts).geometry.coordinates[0];
         var polyline = L.polygon(convex, {color: color,opacity:0}).addTo(map);
-        map.fitBounds(polyline.getBounds());
       }
+      var ranSet = Math.floor( Math.random()*points.length);
+      var bds = [points[ranSet],points[ranSet]];
+      // var point = L.point(ranSet[0], ranSet[1]);
+      map.fitBounds(bds,{maxZoom:15});
     }
 
 
@@ -258,7 +315,8 @@
       return MM+"/"+DD+"/"+YY+" "+hh+":"+mm;
     }
 
-
+    $('.leaflet-control-container').css('display','none');
+  
   </script>
 
 </body>

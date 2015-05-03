@@ -5,23 +5,124 @@
 		<title> Device Butterfly Habitat </title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link rel="stylesheet" href="butterfly.css" />
 		<style>
-			html,body{ margin:0; padding:0; overflow: hidden;}
+			@font-face {
+			  font-family: 'Monaco';
+			  src: url('fonts/Monaco.eot');
+			  src: url('fonts/Monaco.eot?#iefix') format('embedded-opentype'),
+			       url('fonts/Monaco.woff2') format('woff2'),
+			       url('fonts/Monaco.woff') format('woff'),
+			       url('fonts/Monaco.ttf') format('truetype'),
+			       url('fonts/Monaco.svg#Monaco') format('svg');
+			  font-weight: normal;
+			  font-style: normal;
+			}
+
+
+			html,body{ margin:0; padding:0; overflow: hidden; font-family: 'Monaco', monospace; }
+/*			iframe{
+				position: absolute;
+				z-index: 3;
+				top: 50px;
+				right: 50px;
+				width: 300px;
+				height: 200px;
+				border: 0;
+				display: none;
+			}*/
+			#map{ 
+				/*display: none;*/
+				position: absolute;
+				top: 50px;
+				right: 50px;
+				z-index: 6;
+				background: #000;
+				width: 260px;
+				height: 200px;
+				border: none;
+			}
+			.leaflet-control-container { display: none;}
+			#nfo{
+				width: 120px;
+				height: 179px;
+				background: white;
+				/*border: 1px solid #ff0000;*/
+				position: absolute;
+				z-index: 4;
+				top: 50px;
+				/*right: 450px;*/
+				font-family: monospace;
+				font-size: 10px;
+				padding: 10px;
+				/*display:none;*/`
+			}
+			#console{
+				position: absolute;
+				top: 8px; left:50%;
+				width: 300px; 
+				z-index: 5;
+				font-size: 13px;
+			}
+			.flapper {  background-color: #f00;}
+
 		</style>
 
 	</head>
 	<body>
+		<div id="console"></div>
 
 		<div id="container"></div>
+
+		<div id="nfo">
+			<div class="butterfly corner">
+				<div class="top"><div class="left" id="tleft"></div><div class="right" id="tright"></div></div>
+				<div class="bottom"><div class="left"></div><div class="right"></div></div>
+			</div>
+			<div id="details"></div>
+			<div id="netlist"></div>
+		</div>
+
+		<!-- <div id="map" class="map"></div> -->
+		<iframe src="" id="map"></iframe>
+
+		<script src="../js/jquery-1.11.2.min.js"></script>
 
 		<script src="js/three.min.js"></script>
 		<script src="js/stats.min.js"></script>
 		<script src="js/Projector.js"></script>
-		<script src="js/boid.js"></script>
+		<script src="js/boid.js">
+			// MAD PROPS to Joshua Koo @BlurSpline !!! http://www.joshuakoo.com/
+			// all the s!ck boid math in js/boid.js is his ++ there's plenty more on his site
+			// + his details here: http://www.lab4games.net/zz85/blog/2013/12/30/webgl-gpgpu-and-flocking-part-1/
+		</script>
 		<script src="js/butterfly.js"></script>
+		<script src="/socket.io/socket.io.js"></script>
 		<script>
 
 
+		Math.norm = function(value, min, max) { return (value - min) / (max - min);};
+		Math.lerp = function(norm, min, max) { return (max - min) * norm + min;};
+		Math.map = function(value, sourceMin, sourceMax, destMin, destMax) { return Math.lerp(Math.norm(value, sourceMin, sourceMax), destMin, destMax);};
+
+			
+
+			var totalCatches = 0;		// total devices caught ( regardless if they're in the scene )
+			var targetNum = 0; 			// the current boid target
+			var currentMac;
+			var MAX_BUTTERFLIES = 675;	// max devices to render in the scene
+			var devices = {};			// devices dictionary w/ probe data
+
+			
+
+
+
+
+			// ------------------------------------ canvas tracker -----
+			// ------------------------------------ canvas tracker -----
+			// ------------------------------------ canvas tracker -----
+			// ------------------------------------ canvas tracker -----
+			// ------------------------------------ canvas tracker -----
 
 			var hud_canvas = document.createElement('canvas');
 				hud_canvas.width = window.innerWidth;
@@ -29,7 +130,7 @@
 				hud_canvas.style.position = "absolute";
 				hud_canvas.style.left = "0px";
 				hud_canvas.style.top = "0px";
-				hud_canvas.style.zIndex = 3;
+				hud_canvas.style.zIndex = 2;
 			document.body.appendChild(hud_canvas);
 
 			var ctx = hud_canvas.getContext('2d');
@@ -37,59 +138,317 @@
 			var inCircA = inCircB = 0;
 			var outCircA = outCircB = Math.PI;
 			var projector = new THREE.Projector();
+			var hud_left = 450; 
+			var hud_top = 50;
+			var HUD_HEIGHT = 200;
+			var HUD_WIDTH = 400;//140;// 400;
+
+			document.getElementById('nfo').style.left = window.innerWidth-hud_left+"px";
+			document.getElementById('console').style.left = window.innerWidth-hud_left+"px";
 
 			function targetButterfly(pos) {
 				ctx.clearRect(0,0,hud_canvas.width,hud_canvas.height);
 			 	
+			 	// butterfly position
 			 	p = pos.matrixWorld.getPosition().clone();
 			 	v = projector.projectVector(p, camera);
 			 	percX = (v.x + 1) / 2;
 				percY = (-v.y + 1) / 2;
 			    tx = percX*window.innerWidth;
 			    ty = percY*window.innerHeight;
-			    // tz = 20 * ((400-pos.position.z)/1000);
-
-			    inCircA += 0.1;
-    			inCircB = inCircA+(Math.PI*1.5);
-			    ctx.beginPath();
-      			ctx.arc(tx, ty, 10, inCircA, inCircB, false);
-      			ctx.strokeStyle = "#ff0000";
-      			ctx.stroke();
-      			ctx.closePath();
-				
-				outCircA -= 0.1;
-    			outCircB = outCircA+(Math.PI*1.5);
-      			ctx.beginPath();
-      			ctx.arc(tx, ty, 13, outCircA, outCircB, false);
-      			ctx.strokeStyle = "#ff0000";
-      			ctx.stroke();
-      			ctx.closePath();
-
-      			box = { x:hud_canvas.width-250, y:50 }
+			    // hud positions
+			    box = { x:window.innerWidth-hud_left, y:hud_top }
       		 	midpt = {x:(box.x+(tx+13))/2, y:150};
+      		 	
+      		 	
+      		 	if(tx < box.x && ty > box.y){
+	      		 	inCircA += 0.1;
+	    			inCircB = inCircA+(Math.PI*1.5);
+				    ctx.beginPath();
+	      			ctx.arc(tx, ty, 10, inCircA, inCircB, false);
+	      			ctx.strokeStyle = "#ff0000";
+	      			ctx.stroke();
+	      			ctx.closePath();
+					
+					outCircA -= 0.1;
+	    			outCircB = outCircA+(Math.PI*1.5);
+	      			ctx.beginPath();
+	      			ctx.arc(tx, ty, 13, outCircA, outCircB, false);
+	      			ctx.strokeStyle = "#ff0000";
+	      			ctx.stroke();
+	      			ctx.closePath();	
 
-      			ctx.strokeRect(box.x,box.y, 200,200 );
+	      			ctx.strokeRect(box.x,box.y, HUD_WIDTH,HUD_HEIGHT );
+	      			ctx.fillStyle = "#fff";
+	      			ctx.fillRect(box.x,box.y, HUD_WIDTH,HUD_HEIGHT );
 
-				ctx.beginPath();
-      			ctx.moveTo(tx+13,ty);
-      			ctx.lineTo(midpt.x,midpt.y);
-      			ctx.stroke();
-      			ctx.closePath();
+					ctx.beginPath();
+	      			ctx.moveTo(tx+13,ty);
+	      			ctx.lineTo(midpt.x,midpt.y);
+	      			ctx.stroke();
+	      			ctx.closePath();
 
-      			ctx.beginPath();
-      			ctx.moveTo(midpt.x,midpt.y);
-      			ctx.lineTo(box.x,midpt.y);
-      			ctx.stroke();
-      			ctx.closePath();
+	      			ctx.beginPath();
+	      			ctx.moveTo(midpt.x,midpt.y);
+	      			ctx.lineTo(box.x,midpt.y);
+	      			ctx.stroke();
+	      			ctx.closePath();
+
+	      		}
+			    
+	      		updateHudCSS(tx < box.x && ty > box.y);
+			}
+
+			function targetNew( mac, brandnew ){
+
+				holdHud = true;
+				if(readCnt==0){giveEmTime();} // reset timer
+				readCnt=0;
+
+				if(brandnew){ targetNum = boids.length-1; currentMac = mac; }
+				else if(!brandnew && mac != currentMac){
+					var idx;
+					for (var i = 0; i < scene.children.length; i++) { 
+						if( scene.children[i].mac == mac){
+							idx = i; 
+							currentMac = mac;
+						}
+					};
+				}
+				
+				document.getElementById('console').innerHTML = totalCatches +' butterflies (ie. mobile devices)<br> captured from the immediate vecinity';
+
+				// update butterfly
+				var p = mac.split(':');
+				var r = parseInt( p[0], 16 );
+				var g = parseInt( p[1], 16 );
+				var b = parseInt( p[2], 16 );
+				var col = "rgb("+r+","+g+","+b+")";
+				$('.left').css('background-color',col);
+				$('.right').css('background-color',col);
+
+				var rad3 = Math.map( parseInt( p[3], 16 ), 0,255, 64,113 );
+				var rad4 = Math.map( parseInt( p[4], 16 ), 0,255, 3,18 );
+				$('#tleft').css('border-radius', "0% "+Math.floor(rad3)+"% "+Math.floor(rad4)+"% 150%");
+				$('#tright').css('border-radius', "150% "+Math.floor(rad4)+"% "+Math.floor(rad3)+"% 0%");
+
+				// update mac && time
+				var e_mac = document.createElement('div').innerHTML = mac;
+				$('#details').html(e_mac+'<br>');
+				var e_time = document.createElement('div').innerHTML = devices[mac].timestamp;
+				$('#details').append(e_time+'<br><br>');
+				// update netwrork list
+				updateNetList( mac );
 
 			}
 
-			// MAD PROPS to Joshua Koo @BlurSpline !!! http://www.joshuakoo.com/
-			// all the s!ck boid math is his ++ there's plenty more on his site
-			// + specifically on webGL + flocking here: 
-			// http://www.lab4games.net/zz85/blog/2013/12/30/webgl-gpgpu-and-flocking-part-1/
+			function updateNetList( mac ){
+				if(mac==currentMac){
+					var e_nets = document.getElementById('netlist');
+						e_nets.innerHTML ="";
+					for (var i = 0; i < devices[mac].knownNetworks.length; i++) {
+						e_nets.innerHTML+=devices[mac].knownNetworks[i]+'<br>';
+					};					
+				}
+				// if($('#netlist').height()>66){
+					HUD_HEIGHT = $('#netlist').height() + 134; // 134 = 200 (original HUD_HEIGHT) - 66 ( min req for net list ) 
+					if(HUD_HEIGHT<200){ HUD_HEIGHT=200; }
+					$('#map').css('height',HUD_HEIGHT+'px');
+				// }
+			}
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+			// ---------------------------------- get DEVICES ------------------
+			// ---------------------------------- get DEVICES ------------------------------------
+			// ---------------------------------- get DEVICES ------------------------------------------------------
+			// ---------------------------------- get DEVICES ------------------------------------------------------------------------
+
+			var socket = io.connect("http://" + window.location.host);
+			var mac_dev, mac_r, mac_g, mac_b, mac_mesh, mac_boid;
+			var firstPush = true;
+			var timeToRead = 8; // seconds
+			var readCnt = 0;
+			var holdHud = false;
+
+			socket.on('probeReceived', function (probe) {
+
+				updateDictionary( probe );
+
+				// remove first butterfly + boid + macList + scene.child 
+				// to make room for new ones, if habitat is maxed out
+				if(boids.length>MAX_BUTTERFLIES){ 
+					boids.shift(); 
+					scene.remove( scene.children[0] );
+				}
+				
+				if(!isInScene(probe)){
+
+					totalCatches++;
+
+					mac_dev = probe.mac.split(':');
+					mac_r = parseInt( mac_dev[0], 16 )/255;
+					mac_g = parseInt( mac_dev[1], 16 )/255;
+					mac_b = parseInt( mac_dev[2], 16 )/255;
+
+					mac_boid = new Boid();
+					mac_boid.position.y = Math.random() * 50 - 25;
+					mac_boid.position.z = Math.random() * 10 + 350;
+					mac_boid.velocity.x = Math.random() * 2 - 1;
+					mac_boid.velocity.y = Math.random() * 2 - 1;
+					mac_boid.velocity.z = Math.random() * 2 - 1;
+					mac_boid.setAvoidWalls( true );
+					mac_boid.setWorldSize( 500, 500, 400 );
+				    boids.push(mac_boid);
+
+					alpha = THREE.ImageUtils.loadTexture('mask'+Math.floor(Math.random()*4)+'.jpg');
+					mat = new THREE.MeshBasicMaterial({
+						shading: THREE.FlatShading, color: 0x000000,  
+						side: THREE.DoubleSide, alphaMap:alpha, alphaTest: 0.5
+					});
+					mac_mesh = new THREE.Mesh(new Butterfly(), mat );
+					mac_mesh.material.color.r = mac_r;
+					mac_mesh.material.color.g = mac_g;
+					mac_mesh.material.color.b = mac_b;
+					mac_mesh.phase = Math.floor( Math.random() * 62.83 );
+					mac_mesh.original = {r:mac_mesh.material.color.r,g:mac_mesh.material.color.g,b:mac_mesh.material.color.b}
+					mac_mesh.mac = probe.mac;
+					scene.add( mac_mesh );
+
+					targetNew( probe.mac, true );
+				}
+				
+				updateNetList(probe.mac);
+
+				if(!holdHud){ targetNew( probe.mac, false ); } 
+
+			});
+
+			function giveEmTime(){ 
+				readCnt++;
+				if(readCnt==timeToRead){ 
+					readCnt=0; holdHud = false; 
+				} else {
+					setTimeout(giveEmTime, 1000);
+				} 
+			}; 
+			
+			function isInScene( probe ){
+				for (var i = 0; i < scene.children.length; i++) {
+					if(scene.children[i].mac == probe.mac){ return true; }
+				};
+			}
+
+			function updateDictionary( probe ){
+				if (!devices.hasOwnProperty(probe.mac)) {
+					devices[probe.mac] = {};
+					devices[probe.mac].mac = probe.mac;
+					devices[probe.mac].timestamp = timeConverter(probe.timestamp);
+					devices[probe.mac].knownNetworks = [probe.ssid ];
+				} else {
+					if(devices[probe.mac].knownNetworks.indexOf(probe.ssid)==-1){
+						devices[probe.mac].knownNetworks.push( probe.ssid ); 
+					}
+					devices[probe.mac].timestamp = timeConverter(probe.timestamp);
+				}
+			}
+
+			function timeConverter(UNIX_timestamp){
+				var a = new Date(UNIX_timestamp);
+				var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+				var year = a.getFullYear();
+				var month = months[a.getMonth()];
+				var date = a.getDate();
+				var hour = a.getHours();
+				var min = a.getMinutes();
+				var time = month + ' ' + date + ', ' + year + ' ' + hour + ':' + min;
+				return time;
+			}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+			// ---------------------------------- MAPS ------------------
+			// ---------------------------------- MAPS ------------------------------------
+			// ---------------------------------- MAPS ------------------------------------------------------
+			// ---------------------------------- MAPS ------------------------------------------------------------------------
+
+
+
+		    // var map = L.map('map',{maxZoom:17, minZoom:12}).setView([25.790130,-80.137371], 14); // miami 
+			// map.setMaxBounds(new L.LatLngBounds([25.558712, -80.427557], [26.022771, -79.993822]));
+			// L.tileLayer('http://'+window.location.host+'/data/maps/tiles/miami/{z}/{x}/{y}.png').addTo(map);
+
+			var mapElement = document.getElementById('map');
+			var nfo = document.getElementById('nfo');
+			var newMap = "000";
+    
+			function updateHudCSS(show){ // ------------------------------ also part of canvas tracker
+				if(show){ 
+					if(newMap != currentMac){
+						mapElement.src = 'http://'+window.location.host+'/habitat/map-iframe.html?mac='+currentMac;
+						newMap = currentMac;
+					}
+					nfo.style.display = 'block';
+					mapElement.style.display = 'block';
+					// mapElement.style.display = 'none'; 
+				} 
+				else {
+					nfo.style.display = 'none';
+					mapElement.style.display = 'none'; 
+				}
+			} updateHudCSS(); // ------------------------------ not from map.html
+
+
+			
+
+
+
+
+
+
+
+
+
+
+
+
+			// HABITAT -----------------------------------------------------------------------
+			// HABITAT -----------------------------------------------------------------------
+			// HABITAT -----------------------------------------------------------------------
+			// HABITAT -----------------------------------------------------------------------
+			// HABITAT -----------------------------------------------------------------------
+			// HABITAT -----------------------------------------------------------------------
+			// HABITAT -----------------------------------------------------------------------
+			// HABITAT -----------------------------------------------------------------------
 			// HABITAT -----------------------------------------------------------------------
 
 			var SCREEN_WIDTH = window.innerWidth,
@@ -99,7 +458,8 @@
 
 			var camera, scene, renderer, stats;
 			var renderDetail;
-			var butterfly, butterflies, boid, boids;
+			var butterfly, boid, boids;
+			
 
 			init();
 			animate();
@@ -110,39 +470,14 @@
 				camera.position.z = 450;
 				scene = new THREE.Scene();
 
-				butterflies = [];
+				// butterflies = [];
 				boids = [];
-
-				for ( var i = 0; i < 750; i ++ ) {
-					boid = boids[ i ] = new Boid();
-					boid.position.x = Math.random() * 400 - 200;
-					boid.position.y = Math.random() * 400 - 200;
-					boid.position.z = Math.random() * 400 - 200;
-					boid.velocity.x = Math.random() * 2 - 1;
-					boid.velocity.y = Math.random() * 2 - 1;
-					boid.velocity.z = Math.random() * 2 - 1;
-					boid.setAvoidWalls( true );
-					boid.setWorldSize( 500, 500, 400 );
-
-					alpha = THREE.ImageUtils.loadTexture('mask'+Math.floor(Math.random()*4)+'.jpg');
-					mat = new THREE.MeshBasicMaterial({
-						shading: THREE.FlatShading, color: 0x000000, //Math.random()*0xffffff, 
-						side: THREE.DoubleSide, alphaMap:alpha, alphaTest: 0.5
-					});
-					butterfly = butterflies[ i ] = new THREE.Mesh(new Butterfly(), mat );
-					butterfly.phase = Math.floor( Math.random() * 62.83 );
-					butterfly.original = {r:butterfly.material.color.r,g:butterfly.material.color.g,b:butterfly.material.color.b}
-					scene.add( butterfly );
-
-
-				}
 
 				renderer = new THREE.WebGLRenderer();
 				renderer.setClearColor( 0xffffff );
 				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( SCREEN_WIDTH, SCREEN_HEIGHT );
 				renderer.autoClear = true;
-
 
 
 				// document.addEventListener( 'mousemove', onDocumentMouseMove, false );
@@ -168,19 +503,6 @@
 				renderer.setSize( window.innerWidth, window.innerHeight );
 			}
 
-			// make butterflies react to mouse move
-			// ... if we decide we want this later ...
-			// -----------------------------------------------
-			// function onDocumentMouseMove( event ) {
-			// 	var vector = new THREE.Vector3( event.clientX - SCREEN_WIDTH_HALF, - event.clientY + SCREEN_HEIGHT_HALF, 0 );
-			// 	for ( var i = 0, il = boids.length; i < il; i++ ) {
-			// 		boid = boids[ i ];
-			// 		vector.z = boid.position.z;
-			// 		boid.repulse( vector );
-			// 	}
-			// }
-			// -----------------------------------------------
-
 			function animate() {
 				requestAnimationFrame( animate );
 				render();
@@ -191,14 +513,13 @@
 
 			function render() {
 
-				for ( var i = 0, il = butterflies.length; i < il; i++ ) {
+				for ( var i = 0, il = boids.length; i < il; i++ ) {
 
 					boid = boids[ i ];
 					boid.run( boids );
 
-					butterfly = butterflies[ i ];
+					butterfly = scene.children[ i ];
 					butterfly.position.copy( boids[ i ].position );
-
 					butterfly.geometry.verticesNeedUpdate = true;
 
 					o = butterfly.original; // custom object to keep track of original color
@@ -218,12 +539,40 @@
 				
 				}
 
-				butterflies[0].material.color.r = 1;
-				targetButterfly(butterflies[0])
+				if(boids[targetNum]){
+					targetButterfly(scene.children[targetNum])
+				}
+				
 				renderer.render( scene, camera ); 
 	
 
 			}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+			// EVENTS --------------------------------- EVENTS ------------------------------------ EVENTS 
+			// EVENTS --------------------------------- EVENTS ------------------------------------ EVENTS 
+			// EVENTS --------------------------------- EVENTS ------------------------------------ EVENTS 
+			// EVENTS --------------------------------- EVENTS ------------------------------------ EVENTS 
+			// EVENTS --------------------------------- EVENTS ------------------------------------ EVENTS 
+			// EVENTS --------------------------------- EVENTS ------------------------------------ EVENTS 
+			// EVENTS --------------------------------- EVENTS ------------------------------------ EVENTS 
+			// EVENTS --------------------------------- EVENTS ------------------------------------ EVENTS 
 
 			// click S to toggle frame rate stats on/off
 			document.onkeypress=function(event){
@@ -238,6 +587,14 @@
 			    	}
 			    }
 			}
+
+			window.onresize = function(e) {
+				hud_canvas.width = window.innerWidth;
+				hud_canvas.height = window.innerHeight;
+				document.getElementById('nfo').style.left = window.innerWidth-hud_left+"px";
+				document.getElementById('console').style.left = window.innerWidth-hud_left+"px";
+			};
+
 
 
 		</script>
