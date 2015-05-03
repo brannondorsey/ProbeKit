@@ -25,6 +25,11 @@ function install_homebrew() {
     echo "[install.sh] Installing homebrew..."
     if ruby -v &> /dev/null; then
         ( su $(logname) -c "$(printf %q "$DIR_NAME/download_homebrew.sh")" )
+        if [[ $? -ne "0" ]] ; then
+            echo "[install.sh] Error installing homebrew. If you were prompted"
+            echo "with instructions from xcode follow them now and try again."
+            exit 1
+        fi
     else
         echo "[install.sh] \"ruby\" is not installed. Please manually install ruby and try again."
         exit 1
