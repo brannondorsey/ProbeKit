@@ -114,7 +114,7 @@
 			var totalCatches = 0;		// total devices caught ( regardless if they're in the scene )
 			var targetNum = 0; 			// the current boid target
 			var currentMac;
-			var MAX_BUTTERFLIES = 675;	// max devices to render in the scene
+			var MAX_BUTTERFLIES = 600;	// max devices to render in the scene
 			var devices = {};			// devices dictionary w/ probe data
 
 			
@@ -301,10 +301,32 @@
 			    // add the probe to our master probeData object
 			   	if (tmpArr.indexOf(probe.mac) == -1) {
 			   		tmpArr.push(probe.mac);
+			   		uploads.push(probe);
 			   	}
 
-			   	handleProbe(probe);
+			   	// handleProbe(probe);
+			   	if(checkParser) { parseUpload(); checkParser=false; }
 			});
+
+
+			var uploads = [];
+			var checkParser = true;
+			var uploadCnt = 0;
+			function parseUpload(){
+				
+				for (var i = (uploadCnt*40); i < (uploadCnt*40)+40; i++) {
+					handleProbe( uploads[i] );
+				};
+				uploadCnt++;
+				var leftOffAt = (uploadCnt*40)+40;
+				if(leftOffAt>uploads.length){
+					checkParser = true;
+					uploadCnt=0;
+					uploads = [];
+				} else {
+					setTimeout(parseUpload, 500 );
+				}
+			}
 
 			socket.on('probeReceived', function (probe) {
 				// console.log(); 
