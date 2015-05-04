@@ -7,7 +7,7 @@ var EventEmitter = require('events').EventEmitter;
 
 var emitter = new EventEmitter();
 
-app.use(bodyParser({limit: '3mb'}));
+app.use(bodyParser({limit: '10mb'}));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.post('/upload', function(req, res, next){
 	
