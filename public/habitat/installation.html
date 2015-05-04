@@ -23,7 +23,7 @@
 			html,body{ 
 				margin:0; padding:0; overflow: hidden; 
 				font-family: 'Monaco', monospace; 
-				/*cursor: none;*/
+				cursor: none;
 			}
 /*			iframe{
 				position: absolute;
@@ -400,7 +400,7 @@
 					mac_mesh.mac = probe.mac;
 					scene.add( mac_mesh );
 
-					targetNew( probe.mac, true );
+					if(!holdHud){ targetNew( probe.mac, true ); }
 				}
 				
 				updateNetList(probe.mac);
@@ -410,6 +410,7 @@
 
 			function giveEmTime(){ 
 				readCnt++;
+				// console.log(readCnt)
 				if(readCnt==timeToRead){ 
 					readCnt=0; holdHud = false; 
 				} else {
