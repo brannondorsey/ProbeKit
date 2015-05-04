@@ -23,7 +23,7 @@
 			html,body{ 
 				margin:0; padding:0; overflow: hidden; 
 				font-family: 'Monaco', monospace; 
-				cursor: none;
+				/*cursor: none;*/
 			}
 /*			iframe{
 				position: absolute;
@@ -209,13 +209,20 @@
 				if(readCnt==0){giveEmTime();} // reset timer
 				readCnt=0;
 
-				if(brandnew){ targetNum = boids.length-1; currentMac = mac; }
-				else if(!brandnew && mac != currentMac){
-					var idx;
+				if(brandnew){ 
+					if(totalCatches>MAX_BUTTERFLIES){
+						targetNum = scene.children.length-2; 
+					} else {
+						targetNum = scene.children.length-1; 	
+					}
+					// targetNum = scene.children.length-1; 
+					currentMac = mac; 
+				}
+				else if( mac != currentMac){
 					for (var i = 0; i < scene.children.length; i++) { 
 						if( scene.children[i].mac == mac){
-							idx = i; 
 							currentMac = mac;
+							targetNum = i;
 						}
 					};
 				}
@@ -355,7 +362,7 @@
 
 				// remove first butterfly + boid + macList + scene.child 
 				// to make room for new ones, if habitat is maxed out
-				if(boids.length>MAX_BUTTERFLIES){ 
+				if(boids.length>=MAX_BUTTERFLIES){ 
 					boids.shift(); 
 					scene.remove( scene.children[0] );
 				}
@@ -600,7 +607,8 @@
 				
 				}
 
-				if(boids[targetNum]){
+				if(scene.children[targetNum]){
+					// console.log(targetNum, scene.children.length);
 					targetButterfly(scene.children[targetNum])
 				}
 				
@@ -656,6 +664,15 @@
 				document.getElementById('console').style.left = window.innerWidth-hud_left+"px";
 			};
 
+
+
+			function checkForNick(){
+				for (var i = 0; i < scene.children.length; i++) {
+					if(scene.children[i].mac == '88:1f:a1:5b:4e:8b'){
+						return i;
+					}
+				};
+			}
 
 
 		</script>
