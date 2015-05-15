@@ -23,7 +23,7 @@
 			html,body{ 
 				margin:0; padding:0; overflow: hidden; 
 				font-family: 'Monaco', monospace; 
-				cursor: none;
+				/*cursor: none;*/
 			}
 /*			iframe{
 				position: absolute;
@@ -147,6 +147,15 @@
 			var HUD_HEIGHT = 200;
 			var HUD_WIDTH = 400;//140;// 400;
 
+			var vendorDictionary = undefined;
+			$.ajax({
+		  		url: "../data/vendorMacs.json",
+		  		dataType: "json",
+		  		success: function(data) {
+			 	 	vendorDictionary = data;
+		  		}
+		  	});
+
 			document.getElementById('nfo').style.left = window.innerWidth-hud_left+"px";
 			document.getElementById('console').style.left = window.innerWidth-hud_left+"px";
 
@@ -243,15 +252,23 @@
 				$('#tleft').css('border-radius', "0% "+Math.floor(rad3)+"% "+Math.floor(rad4)+"% 150%");
 				$('#tright').css('border-radius', "150% "+Math.floor(rad4)+"% "+Math.floor(rad3)+"% 0%");
 
-				// update mac && time
+				// update mac && vendor && time
 				var e_mac = document.createElement('div').innerHTML = mac;
 				$('#details').html(e_mac+'<br>');
+				var ven = mac.substr(0, 8).toUpperCase();
+			    if (vendorDictionary && vendorDictionary.hasOwnProperty(ven)){
+			       	var e_ven = document.createElement('div').innerHTML = "Made by "+vendorDictionary[ven];
+			        $('#details').append(e_ven+'<br>');
+			    }
 				var e_time = document.createElement('div').innerHTML = devices[mac].timestamp;
 				$('#details').append(e_time+'<br><br>');
+
+
 				// update netwrork list
 				updateNetList( mac );
 
 			}
+
 
 			function updateNetList( mac ){
 				if(mac==currentMac){
@@ -262,8 +279,10 @@
 					};					
 				}
 				// if($('#netlist').height()>66){
-					HUD_HEIGHT = $('#netlist').height() + 134; // 134 = 200 (original HUD_HEIGHT) - 66 ( min req for net list ) 
-					if(HUD_HEIGHT<200){ HUD_HEIGHT=200; }
+					// HUD_HEIGHT = $('#netlist').height() + 134; // 134 = 200 (original HUD_HEIGHT) - 66 ( min req for net list ) 
+					HUD_HEIGHT = $('#netlist').height() + 164; // a little more than 134
+
+					if(HUD_HEIGHT<200){ HUD_HEIGHT=230; }
 					$('#map').css('height',HUD_HEIGHT+'px');
 				// }
 			}
