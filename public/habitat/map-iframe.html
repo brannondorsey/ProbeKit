@@ -151,8 +151,8 @@
     function getGPS( networks ){
       var data = {
         ssid: networks,
-        // collection: "wigleChicago"
-        collection: "wigleMiami"
+        collection: "wigleChicago"
+        // collection: "wigleMiami"
       }
 
       $.ajax({
@@ -199,11 +199,12 @@
     var ssid_ranks = {};
     var total = 0;
 
-    // var map = L.map('map').setView([41.879528,-87.625088], 14); // chicago 
-    var map = L.map('map',{maxZoom:17, minZoom:12}).setView([25.790130,-80.137371], 12); // miami 
-    map.setMaxBounds(new L.LatLngBounds([25.558712, -80.427557], [26.022771, -79.993822]));
+    var map = L.map('map').setView([41.879528,-87.625088], 12); // chicago 
+    // var map = L.map('map',{maxZoom:17, minZoom:12}).setView([25.790130,-80.137371], 12); // miami 
+    // map.setMaxBounds(new L.LatLngBounds([25.558712, -80.427557], [26.022771, -79.993822]));
     
-    L.tileLayer('http://'+window.location.host+'/data/maps/tiles/miami/{z}/{x}/{y}.png').addTo(map);
+    // L.tileLayer('http://'+window.location.host+'/data/maps/tiles/miami/{z}/{x}/{y}.png').addTo(map);
+    L.tileLayer('http://'+window.location.host+'/data/maps/tiles/chicago/{z}/{x}/{y}.png').addTo(map);
     
 
 
