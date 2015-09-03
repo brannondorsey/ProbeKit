@@ -17,7 +17,7 @@
 PROJECT_NAME="Probe Kit™"
 POST_INSTALL_EXAMPLE_CMD="cd ../node
     sudo node server.js --interface=<device_name>"
-DEPENDENCIES="wireshark mongodb git" # this var is only printed to screen, not used for install
+DEPENDENCIES="mongodb git" # this var is only printed to screen, not used for install
 DIR_NAME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 function install_homebrew() {
@@ -128,7 +128,7 @@ if [[ $OS == "Linux" ]] || [[ $OS == "Darwin" ]]; then
             fi
         fi
 
-        install_package "wireshark git mongodb"
+        install_package "git mongodb"
 
         # create mongodb database folder
         mkdir -p /data/db

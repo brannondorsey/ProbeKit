@@ -52,6 +52,11 @@ if [[ -d "$TMP_DIR/data/ChmodBPF" ]]; then
     rm -rf "$TMP_DIR/data/ChmodBPF"
 fi
 
+if [[ -d "$TMP_DIR/data/wigle_data" ]]; then
+    echo "[$SCRIPT_NAME] removing $TMP_DIR/data/wigle_data"
+    rm -rf "$TMP_DIR/data/wigle_data"
+fi
+
 if which nwbuild &>/dev/null ; then
 
     echo "[$SCRIPT_NAME] building $BUNDLE_NAME"
