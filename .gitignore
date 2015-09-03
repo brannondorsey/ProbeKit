@@ -4,4 +4,5 @@ node/node_modules/
 data/probes.csv
 data/maps/tiles/*
 data/ChmodBPF/*
+data/wigle_data/
 build/

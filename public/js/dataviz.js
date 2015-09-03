@@ -249,7 +249,7 @@ function getInfo( id, networks ){
 
 	var map = document.createElement('div');
 	$.ajax({
-		url: 'http://localhost:3000/api/wigle/hasgeo?device='+id+'&collection=wigleMiami',
+		url: 'http://localhost:3000/api/wigle/hasgeo?device='+id+'&collection=wigleChicago',
 	  	method: 'GET',
 	  	success: function(data){
 	  		console.log("succeeded",data)
