@@ -1,5 +1,4 @@
 {
     "wifiInterface": "INTERFACE",
-    "tsharkPath": "TSHARK_PATH",
     "mongodPath": "MONGOD_PATH"
 }

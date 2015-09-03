@@ -5,10 +5,8 @@ var spawnSync = require('child_process').spawnSync;
 function ProcessLauncher(interface, hopChannels, settings) {
 
 	this.channelHopProcess = undefined;
-	this.tsharkProcess     = undefined;
 	this.mongodProcess     = undefined;
 
-	var tsharkPath = settings.tsharkPath || '/usr/local/bin/tshark';
 	var mongodPath = settings.mongodPath || '/usr/local/bin/mongod';
 
 	if (!interface) {
@@ -63,21 +61,15 @@ function ProcessLauncher(interface, hopChannels, settings) {
 	// 	console.log(proc.stderr);
 	// 	console.log('ifconfig could not bring up ' + interface + ', make sure that it is not already in use.');
 	// 	process.exit(1);
-	// }
+	// } 
 
 	if (hopChannels) this.channelHopProcess = spawn(__dirname + '/../../shell/channel_hop.sh', [interface]);
-	this.tsharkProcess = spawn(tsharkPath, ['-i', interface, '-n', '-I', '-l', 'subtype', 'probereq']);
 	this.mongodProcess = spawn(mongodPath);
 }
 
 ProcessLauncher.prototype.close = function(code) {
 
 	var self = this;
-
-	if (self.tsharkProcess !== undefined) {
-		self.tsharkProcess.kill('SIGTERM');
-		console.log('[ server ] ProcessLauncher::close: sent to tsharkProcess');
-	}
 
 	if (self.mongodProcess !== undefined) {
 		self.mongodProcess.kill('SIGTERM');

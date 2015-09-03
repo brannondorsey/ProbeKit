@@ -7,7 +7,7 @@ var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 var moment = require('moment');
-var TsharkProbeParser = require('./TsharkProbeParser');
+var ProbeCapture = require('./ProbeCapture');
 var ProcessLauncher = require('./ProcessLauncher');
 var WigleAPI = require('./WigleAPI');
 var ProbeDataStore = require('./ProbeDataStore');
@@ -31,11 +31,10 @@ function launchServer(options) {
 	// }
 
 	var procLauncher = undefined;
-	var tsharkProcess = undefined;
 	var writeStream = undefined;
 	var assetManager = undefined;
 
-	var probeParser = new TsharkProbeParser();
+	var probeCapture = new ProbeCapture();
 	var probeDataStore = new ProbeDataStore();
 
 	// wait half a second before connecting to mongodb on the off chance that
@@ -108,48 +107,16 @@ function launchServer(options) {
 		if (!csvOnly) {
 			
 			procLauncher = new ProcessLauncher(iface, true, settings);
-			tsharkProcess = procLauncher.tsharkProcess;
-			process.on('SIGINT', function(code){ procLauncher.close(); process.exit(0) });
-			process.on('SIGTERM', function(code){ procLauncher.close(); process.exit(0) });
+			process.on('SIGINT', function(code){ procLauncher.close(); probeCapture.close(); process.exit(0); });
+			process.on('SIGTERM', function(code){ procLauncher.close(); probeCapture.close(); process.exit(0); });
 		}
 
 		if (!dryRun) {
 			writeStream = fs.createWriteStream(outputFile, { flags: 'a', encoding: 'utf8' });
 		}
 
-		if (tsharkProcess) {
-
-			tsharkProcess.stdout.on('data', function (data) {
-
-				var lines = data.toString('utf8').split('\n');
-
-				for (var i = 0; i < lines.length; i++) {
-					// this will fire the probeParser.on('probeReceived') event
-					// if the packet is parsed successfully
-					probeParser.parseLine(lines[i]);
-				}
-			});
-
-			tsharkProcess.stderr.on('data', function (data) {
-
-				var buff = data.toString('utf8');
-
-				// tshark v1.10.6 emits stderr integers at regular intervals. Ignore them.
-				if (!buff.match(/\d/)) {
-					console.log('Tshark stderr: ' + buff);
-				}
-			});
-
-			tsharkProcess.on('close', function (code) {
-			  	console.log('[ server ] tshark process exited with code ' + code);
-			  	if (writeStream) {
-			  		writeStream.close();
-			  	}
-			});
-		}
-
 		// register event first
-		probeParser.on('probeReceived', function(packet){
+		probeCapture.on('probeReceived', function(packet){
 
 			if (writeStream) {
 				var csvLine = packet.mac + ',' + packet.ssid + ',' + packet.timestamp + '\n'
@@ -197,7 +164,7 @@ function launchServer(options) {
 
 		io.on('connection', function (socket) {
 
-		    probeParser.on('probeReceived', function(probe){
+		    probeCapture.on('probeReceived', function(probe){
 		    	
 		    	// don't send if csvOnly because client loads
 		    	// csv file from AJAX

@@ -40,12 +40,10 @@ if [[ $OS == "Linux" ]] || [[ $OS == "Darwin" ]]; then
         INTERFACE="wlan0"
     fi
 
-    TSHARK_PATH=$(which tshark)
     MONGOD_PATH=$(which mongod)
 
     SETTINGS=$(cat "$DIR_NAME/../data/settings_template.json")
     SETTINGS=$(echo "$SETTINGS" | sed "s/INTERFACE/$INTERFACE/")
-    SETTINGS=$(echo "$SETTINGS" | sed "s;TSHARK_PATH;$TSHARK_PATH;")
     SETTINGS=$(echo "$SETTINGS" | sed "s;MONGOD_PATH;$MONGOD_PATH;")
 
     echo "$SETTINGS" > "$SETTINGS_DIR/settings.json"

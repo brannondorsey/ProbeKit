@@ -20,7 +20,7 @@ if (!options.interface || options.help) {
 	console.log('                                      This interface will use be set into monitor mode.');
 	console.log('    --output=<file>, -o <file>        Output Probes to CSV file. Using data/probes.csv by default.');
 	console.log('    --csv-only, -n                    Use input CSV only, do not use tshark to live capture probes.');
-	console.log('    --live-only, -l                   Use tshark probe stream only. Do not load probes from CSV.');
+	console.log('    --live-only, -l                   Use live probe capture stream only. Do not load probes from CSV.');
 	console.log('    --dry-run, -d                     Do not stream captured probe requests to output file.');
 	console.log('    --launch-browser, -b              Open the server\'s url in the system\'s default browser.');
 	console.log('    --dont-serve, -x                  Do not launch the server. Used for collecting probe requests only.');
