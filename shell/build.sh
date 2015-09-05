@@ -22,6 +22,7 @@ BUILD_DIR="$DIR_NAME/../build"
 TMP_DIR="$DIR_NAME/../tmp"
 PLATFORMS="$1"
 BUNDLE_NAME="Probe Kit"
+NODE_VERSION="0.12.1"
 
 #Must be root
 if [[ $EUID -ne 0 ]] || [[ $# -ne "1" ]]; then
@@ -46,6 +47,21 @@ cp -rp "$DIR_NAME/../node" "$TMP_DIR/node"
 cp -rp "$DIR_NAME/../data" "$TMP_DIR/data"
 cp -rp "$DIR_NAME/../package.json" "$TMP_DIR/package.json"
 
+# remove data/wigle_data from tmp
+if [[ -d "$TMP_DIR/data/wigle_data" ]]; then
+    echo "[$SCRIPT_NAME] removing $TMP_DIR/data/wigle_data"
+    rm -rf "$TMP_DIR/data/wigle_data"
+fi
+
+# rebuild C++ source node_modules for NW.js
+echo "[$SCRIPT_NAME] rebuilding \"node_pcap\" module for NW.js"
+cd "$TMP_DIR/node/node_modules/pcap/"
+"$TMP_DIR/node/node_modules/nw-gyp/bin/nw-gyp.js" rebuild --target=$NODE_VERSION
+echo "[$SCRIPT_NAME] rebuilding \"node-socketwatcher\" module for NW.js"
+cd "node_modules/socketwatcher"
+"$TMP_DIR/node/node_modules/nw-gyp/bin/nw-gyp.js" rebuild --target=$NODE_VERSION
+cd "$DIR_NAME"
+
 # remove unneeded items
 if [[ -d "$TMP_DIR/data/ChmodBPF" ]]; then
     echo "[$SCRIPT_NAME] removing $TMP_DIR/data/ChmodBPF"
@@ -60,7 +76,7 @@ fi
 if which nwbuild &>/dev/null ; then
 
     echo "[$SCRIPT_NAME] building $BUNDLE_NAME"
-    nwbuild -p "$PLATFORMS" -o "$BUILD_DIR" "$TMP_DIR"
+    nwbuild -v "$NODE_VERSION" -p "$PLATFORMS" -o "$BUILD_DIR" "$TMP_DIR"
 
     if [[ ! $? ]]; then
         echo "[$SCRIPT_NAME] Error building with nwbuild"

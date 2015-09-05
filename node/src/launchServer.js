@@ -13,6 +13,21 @@ var WigleAPI = require('./WigleAPI');
 var ProbeDataStore = require('./ProbeDataStore');
 var AssetManager = require('./AssetManager');
 
+var procLauncher = undefined;
+var probeCapture = undefined;
+
+try {
+
+	var win = require('nw.gui').Window.get();
+	
+	win.on('close', onClose);
+	win.on('closed', onClose);
+
+	console.log('[ server ] Server launched via nwjs process');
+} catch (err) {
+	console.log('[ server ] Server launched via node process');
+}
+
 function launchServer(options) {
 
 	var help = options.help;
@@ -30,11 +45,10 @@ function launchServer(options) {
 	// 	process.exit(0);
 	// }
 
-	var procLauncher = undefined;
 	var writeStream = undefined;
 	var assetManager = undefined;
 
-	var probeCapture = new ProbeCapture();
+	probeCapture = new ProbeCapture();
 	var probeDataStore = new ProbeDataStore();
 
 	// wait half a second before connecting to mongodb on the off chance that
@@ -107,8 +121,8 @@ function launchServer(options) {
 		if (!csvOnly) {
 			
 			procLauncher = new ProcessLauncher(iface, true, settings);
-			process.on('SIGINT', function(code){ procLauncher.close(); probeCapture.close(); process.exit(0); });
-			process.on('SIGTERM', function(code){ procLauncher.close(); probeCapture.close(); process.exit(0); });
+			process.on('SIGINT', function(code){ onClose(); });
+			process.on('SIGTERM', function(code){ onClose(); });
 		}
 
 		if (!dryRun) {
@@ -207,6 +221,13 @@ function launchServer(options) {
 			});
 		}
 	}
+}
+
+function onClose() {
+	console.log('[ server ] Application close event fired');
+	if (procLauncher) procLauncher.close(); 
+	probeCapture.close();
+	process.exit(0);
 }
 
 module.exports = launchServer;
