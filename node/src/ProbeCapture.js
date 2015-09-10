@@ -4,42 +4,50 @@ var EventEmitter = require('events').EventEmitter;
 
 var emitter = new EventEmitter();
 
-function ProbeCapture() {
+function ProbeCapture(interface) {
 
-	this._pcapSession = pcap.createSession('en1', 'type mgt subtype probe-req', 256, true);
+	try {
+		this._pcapSession = pcap.createSession(interface, 'type mgt subtype probe-req', 2097152, true);
+	} catch (err) {
+		console.log('ERROR');
+		console.log(err);
+	}
 
-	this._pcapSession.on("packet", function (raw_packet) {
+	if (this._pcapSession) {
 
-	    try {
-	        var packet = pcap.decode.packet(raw_packet);
-	    } catch (err) {
-	        console.log('[ error ] Packet decode error: ' + err);
-	    }
+			this._pcapSession.on("packet", function (raw_packet) {
 
-	    if (typeof packet !== 'undefined' && 
-	        typeof packet.payload !== 'undefined' &&
-	        typeof packet.payload.ieee802_11Frame !== 'undefined' &&
-	        typeof packet.payload.ieee802_11Frame.probe !== 'undefined' &&
-	        typeof packet.payload.ieee802_11Frame.probe.tags !== 'undefined' &&
-	        packet.payload.ieee802_11Frame.probe.tags.length > 0 &&
-	        typeof packet.payload.ieee802_11Frame.shost !== 'undefined') {
+		    try {
+		        var packet = pcap.decode.packet(raw_packet);
+		    } catch (err) {
+		        console.log('[ error ] Packet decode error: ' + err);
+		    }
 
-	        var frame = packet.payload.ieee802_11Frame;
-	        var tags = frame.probe.tags;
-	        var ssid = tags[0].ssid;
+		    if (typeof packet !== 'undefined' && 
+		        typeof packet.payload !== 'undefined' &&
+		        typeof packet.payload.ieee802_11Frame !== 'undefined' &&
+		        typeof packet.payload.ieee802_11Frame.probe !== 'undefined' &&
+		        typeof packet.payload.ieee802_11Frame.probe.tags !== 'undefined' &&
+		        packet.payload.ieee802_11Frame.probe.tags.length > 0 &&
+		        typeof packet.payload.ieee802_11Frame.shost !== 'undefined') {
 
-	        if (typeof ssid !== undefined && ssid !== "") {
+		        var frame = packet.payload.ieee802_11Frame;
+		        var tags = frame.probe.tags;
+		        var ssid = tags[0].ssid;
 
-	        	var packet = {
-	        		ssid: ssid,
-	        		mac:  formatMAC(frame.shost.addr),
-	        		timestamp: new Date().getTime()
-	        	};
+		        if (typeof ssid !== undefined && ssid !== "") {
 
-	        	emitter.emit('probeReceived', packet);
-	        }
-	    }
-	});
+		        	var packet = {
+		        		ssid: ssid,
+		        		mac:  formatMAC(frame.shost.addr),
+		        		timestamp: new Date().getTime()
+		        	};
+
+		        	emitter.emit('probeReceived', packet);
+		        }
+		    }
+		});
+	}
 
 	function formatMAC(arr) {
 	    return arr.map(function(octet){ return octet.toString(16); }).join(':');
@@ -139,7 +147,7 @@ ProbeCapture.prototype.on = function(eventName, func) {
 }
 
 ProbeCapture.prototype.close = function() {
-	this._pcapSession.close();
+	if (this._pcapSession) this._pcapSession.close();
 	console.log('[ server ] ProbeCapture::close: closed packet capture');
 }
 

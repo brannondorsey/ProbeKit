@@ -158,6 +158,8 @@
     var pollFrequency = 200;
     var redirectURL = "http://localhost:3000/index.html"
     
+    process.mainModule.exports.init();
+
     poll();
 
     function poll() {

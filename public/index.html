@@ -35,7 +35,23 @@
   <script src="js/underscore-1.8.2.min.js"></script>
   <script src="js/moment-min.2.9.0.js"></script>
   <script src="/socket.io/socket.io.js"></script>
+  <script type="text/javascript">
+
+    if (typeof process !== 'undefined' && 
+      typeof process.versions !== 'undefined' &&
+      'node-webkit' in process.versions) {
+
+      // fix for moment.js
+      moment = global.moment;
+
+      // register window close events with node/nw_start.js
+      process.mainModule.exports.registerOnClose();
+    }
+  </script>
   <script src="js/dataviz.js"></script>
   <script src="js/dataparse.js"></script>
+  <script type="text/javascript">
+
+  </script>
 </body>
 </html>

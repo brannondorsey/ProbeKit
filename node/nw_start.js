@@ -1,27 +1,49 @@
-var launchServer = require('./src/launchServer');
+var serverRunning = false;
+var launchServer = null;
 
-var os = require('os');
+// this init hack is a workaround for this bug,
+// which runs node-main twice:
+// https://github.com/nwjs/nw.js/issues/2981
+// https://github.com/nwjs/nw.js/issues/3248
+function init() {
+    
+    if (!serverRunning) {
 
-// var iface = 'en1'; // osx
+        launchServer = require('./src/launchServer');
 
-// if (os.type() == 'Linux') {
-//     iface = 'wlan0';
-// }
+        // check node/server.js for a list of options
+        var options = {}
 
-// check node/server.js for a list of options
-var options = {}
+        launchServer(options);
+        serverRunning = true;
+    }
+}
 
-launchServer(options);
+function onClose() {
+    console.log('[ nw_start.js ] Window closed event received');
+    if (serverRunning) launchServer.onClose();
+}
+
 
 process.on('uncaughtException', function(err) {
     
     if(err.errno === 'EADDRINUSE') {
         
-        console.log('[ server ] Server closing because it received an EADDRINUSE exception.');
-        process.exit(1);
+        console.log('[ nw_start.js ] Server closing because it received an EADDRINUSE exception.');
+        // process.exit(1);
 
     } else {
-        console.log('[ server ] Server recieved an uncaughtException:');
+        console.log('[ nw_start.js ] Server recieved an uncaughtException:');
         console.log(err);
     }
 });
+
+exports.registerOnClose = function() {
+
+    console.log('[ nw_start.js ] on close event registered');
+    var win = window.require('nw.gui').Window.get();
+    win.on('close', onClose);
+    win.on('closed', onClose);   
+}
+
+exports.init = init;

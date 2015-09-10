@@ -16,18 +16,6 @@ var AssetManager = require('./AssetManager');
 var procLauncher = undefined;
 var probeCapture = undefined;
 
-try {
-
-	var win = require('nw.gui').Window.get();
-	
-	win.on('close', onClose);
-	win.on('closed', onClose);
-
-	console.log('[ server ] Server launched via nwjs process');
-} catch (err) {
-	console.log('[ server ] Server launched via node process');
-}
-
 function launchServer(options) {
 
 	var help = options.help;
@@ -48,7 +36,6 @@ function launchServer(options) {
 	var writeStream = undefined;
 	var assetManager = undefined;
 
-	probeCapture = new ProbeCapture();
 	var probeDataStore = new ProbeDataStore();
 
 	// wait half a second before connecting to mongodb on the off chance that
@@ -100,6 +87,8 @@ function launchServer(options) {
 
 		var iface = options.interface || settings.wifiInterface;
 
+		probeCapture = new ProbeCapture(iface);	
+
 		if (!outputFile) {
 			 outputFile = assetManager.getDataPath() + '/probes.csv';
 		}
@@ -130,17 +119,20 @@ function launchServer(options) {
 		}
 
 		// register event first
-		probeCapture.on('probeReceived', function(packet){
+		if (probeCapture) {
+			
+			probeCapture.on('probeReceived', function(packet){
 
-			if (writeStream) {
-				var csvLine = packet.mac + ',' + packet.ssid + ',' + packet.timestamp + '\n'
-				writeStream.write(csvLine);
-			}
+				if (writeStream) {
+					var csvLine = packet.mac + ',' + packet.ssid + ',' + packet.timestamp + '\n'
+					writeStream.write(csvLine);
+				}
 
-			probeDataStore.addPacket(packet);
+				probeDataStore.addPacket(packet);
 
-			console.log(moment(packet.timestamp).format('YYYY-MM-DD HH:mm:ss') + '    MAC: ' + packet.mac + '    SSID: ' + packet.ssid);
-		});
+				console.log(moment(packet.timestamp).format('YYYY-MM-DD HH:mm:ss') + '    MAC: ' + packet.mac + '    SSID: ' + packet.ssid);
+			});
+		}
 
 		if (liveOnly) {
 			app.get('/data/probes.csv', function(req, res){
@@ -178,14 +170,17 @@ function launchServer(options) {
 
 		io.on('connection', function (socket) {
 
-		    probeCapture.on('probeReceived', function(probe){
+			if (probeCapture) {
+				 
+				 probeCapture.on('probeReceived', function(probe){
 		    	
-		    	// don't send if csvOnly because client loads
-		    	// csv file from AJAX
-		    	if (!csvOnly) {
-		    		socket.emit('probeReceived', probe);
-		    	}
-		    });
+		    		// don't send if csvOnly because client loads
+		    		// csv file from AJAX
+		    		if (!csvOnly) {
+		    			socket.emit('probeReceived', probe);
+		    		}
+		    	});
+			}
 
 		    // right now this method is only being used by the 
 			// installation
@@ -226,8 +221,9 @@ function launchServer(options) {
 function onClose() {
 	console.log('[ server ] Application close event fired');
 	if (procLauncher) procLauncher.close(); 
-	probeCapture.close();
+	if (probeCapture) probeCapture.close();
 	process.exit(0);
 }
 
 module.exports = launchServer;
+module.exports.onClose = onClose;
