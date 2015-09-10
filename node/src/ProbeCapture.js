@@ -34,8 +34,8 @@ function ProbeCapture(interface) {
 		        var frame = packet.payload.ieee802_11Frame;
 		        var tags = frame.probe.tags;
 		        var ssid = tags[0].ssid;
-
-		        if (typeof ssid !== undefined && ssid !== "") {
+		        
+		        if (typeof ssid !== 'undefined' && ssid !== '') {
 
 		        	var packet = {
 		        		ssid: ssid,
