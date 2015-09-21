@@ -280,7 +280,7 @@
 				}
 				// if($('#netlist').height()>66){
 					// HUD_HEIGHT = $('#netlist').height() + 134; // 134 = 200 (original HUD_HEIGHT) - 66 ( min req for net list ) 
-					HUD_HEIGHT = $('#netlist').height() + 164; // a little more than 134
+					HUD_HEIGHT = $('#netlist').height() + 200; // a little more than 134
 
 					if(HUD_HEIGHT<200){ HUD_HEIGHT=230; }
 					$('#map').css('height',HUD_HEIGHT+'px');
@@ -374,7 +374,7 @@
 				handleProbe(probe);
 			});
 
-			function handleProbe(probe) { if(probe && probe.ssid!='kairos'){
+			function handleProbe(probe) {
 
 				updateDictionary( probe );
 
@@ -425,7 +425,7 @@
 				updateNetList(probe.mac);
 
 				if(!holdHud){ targetNew( probe.mac, false ); } 
-			}}
+			}
 
 			function giveEmTime(){ 
 				readCnt++;
