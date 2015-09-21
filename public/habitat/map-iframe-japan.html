@@ -153,7 +153,7 @@
 					// ===============
 					drawData();
 					// ===============
-				} else { document.getElementById('error').style.display = "block"; }
+				} else { document.getElementById('error').style.display = "block"; console.log("onGPSResponse: ", data ) }
 			} 
 		}
 
@@ -194,7 +194,7 @@
 			};
 
 			// no blue or red points added above ...
-			if(gps_vectors.length >=0 && total==0){ document.getElementById('error').style.display = "block"; }
+			if(gps_vectors.length >=0 && total==0){ document.getElementById('error').style.display = "block"; console.log('drawData:gps_vectors:', gps_vectors.length,"drawData:total:"+total) }
 
 			// ================  DRAW  ==============================
 			if(redPts.length==0){

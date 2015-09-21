@@ -317,56 +317,57 @@
 			function targetButterfly(pos) { // ==== called in render() loop ====
 				ctx.clearRect(0,0,hud_canvas.width,hud_canvas.height);
 			 	
-			 	// butterfly position
-			 	p = pos.matrixWorld.getPosition().clone();
-			 	v = projector.projectVector(p, camera);
-			 	percX = (v.x + 1) / 2;
-				percY = (-v.y + 1) / 2;
-			    tx = percX*window.innerWidth;
-			    ty = percY*window.innerHeight;
-			    // hud positions
-			    box = { x:window.innerWidth-hud_left, y:hud_top }
-      		 	midpt = {x:(box.x+(tx+13))/2, y:150};
-      		 	
-      		 	
-      		 	if(tx < box.x && ty > box.y && !uploadingProbes){
+			 	if(CURRENT_MAC != undefined){
+					// butterfly position
+				 	p = pos.matrixWorld.getPosition().clone();
+				 	v = projector.projectVector(p, camera);
+				 	percX = (v.x + 1) / 2;
+					percY = (-v.y + 1) / 2;
+				    tx = percX*window.innerWidth;
+				    ty = percY*window.innerHeight;
+				    // hud positions
+				    box = { x:window.innerWidth-hud_left, y:hud_top }
+	      		 	midpt = {x:(box.x+(tx+13))/2, y:150};
+	      		 	
+	      		 	
+	      		 	if(tx < box.x && ty > box.y && !uploadingProbes){
 
-	      		 	inCircA += 0.1;
-	    			inCircB = inCircA+(Math.PI*1.5);
-				    ctx.beginPath();
-	      			ctx.arc(tx, ty, 10, inCircA, inCircB, false);
-	      			ctx.strokeStyle = "#ff0000";
-	      			ctx.stroke();
-	      			ctx.closePath();
-					
-					outCircA -= 0.1;
-	    			outCircB = outCircA+(Math.PI*1.5);
-	      			ctx.beginPath();
-	      			ctx.arc(tx, ty, 13, outCircA, outCircB, false);
-	      			ctx.strokeStyle = "#ff0000";
-	      			ctx.stroke();
-	      			ctx.closePath();	
+		      		 	inCircA += 0.1;
+		    			inCircB = inCircA+(Math.PI*1.5);
+					    ctx.beginPath();
+		      			ctx.arc(tx, ty, 10, inCircA, inCircB, false);
+		      			ctx.strokeStyle = "#ff0000";
+		      			ctx.stroke();
+		      			ctx.closePath();
+						
+						outCircA -= 0.1;
+		    			outCircB = outCircA+(Math.PI*1.5);
+		      			ctx.beginPath();
+		      			ctx.arc(tx, ty, 13, outCircA, outCircB, false);
+		      			ctx.strokeStyle = "#ff0000";
+		      			ctx.stroke();
+		      			ctx.closePath();	
 
-	      			ctx.strokeRect(box.x,box.y, HUD_WIDTH,HUD_HEIGHT );
-	      			ctx.fillStyle = "#fff";
-	      			ctx.fillRect(box.x,box.y, HUD_WIDTH,HUD_HEIGHT );
+		      			ctx.strokeRect(box.x,box.y, HUD_WIDTH,HUD_HEIGHT );
+		      			ctx.fillStyle = "#fff";
+		      			ctx.fillRect(box.x,box.y, HUD_WIDTH,HUD_HEIGHT );
 
-					ctx.beginPath();
-	      			ctx.moveTo(tx+13,ty);
-	      			ctx.lineTo(midpt.x,midpt.y);
-	      			ctx.stroke();
-	      			ctx.closePath();
+						ctx.beginPath();
+		      			ctx.moveTo(tx+13,ty);
+		      			ctx.lineTo(midpt.x,midpt.y);
+		      			ctx.stroke();
+		      			ctx.closePath();
 
-	      			ctx.beginPath();
-	      			ctx.moveTo(midpt.x,midpt.y);
-	      			ctx.lineTo(box.x,midpt.y);
-	      			ctx.stroke();
-	      			ctx.closePath();
+		      			ctx.beginPath();
+		      			ctx.moveTo(midpt.x,midpt.y);
+		      			ctx.lineTo(box.x,midpt.y);
+		      			ctx.stroke();
+		      			ctx.closePath();
 
-	      		}
-			    
-	      		updateHudCSS(tx < box.x && ty > box.y);
-
+		      		}
+				    
+		      		updateHudCSS(tx < box.x && ty > box.y);
+			 	}
 			}
 
 			var mapElement = document.getElementById('map');
@@ -374,8 +375,8 @@
 			var newMap = "000"; // mac address of CURRENT_MAC, if diff update map src below
     
 			function updateHudCSS(show){ // show/hide HUD + update map src 
-				if(show && !uploadingProbes){ 
-					if(newMap != CURRENT_MAC){
+				if(show && !uploadingProbes && CURRENT_MAC != undefined){ 
+					if(newMap != CURRENT_MAC ){
 						mapElement.src = 'http://'+window.location.host+'/habitat/map-iframe-japan.html?mac='+CURRENT_MAC;
 						newMap = CURRENT_MAC;
 					}
@@ -412,6 +413,7 @@
 			
 			var firstCatch = true;
 			var targetQueue = [];	// queue for next target 
+			var randomPool = [];	// perminent queue for randomly picking when targetQueue is empty
 			var timeToRead = 8; 	// min seconds to hold b4 allowing new target, in handleProbe() && targetNew() 
 			var readCnt = 0;		// ....
 			var holdHud = false;	// ....
@@ -469,6 +471,10 @@
 
 				updateNetList(probe.mac); // 7 
 
+				// ------- update console
+				document.getElementById('console').innerHTML = TOTAL_CATCHES +' butterflies (ie. mobile devices)<br> captured from the immediate vicinity';
+ 
+
 			} // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
@@ -484,14 +490,20 @@
 
 					if(targetQueue.length>=1){ // check if queue has wait list
 						if( isInScene( targetQueue[0] ) ){ // check that next up is in scene
-							targetNew( targetQueue.shift(), false ); // 5 ===========TARGET
+							
+							var pullMac = targetQueue.shift();
+							if( randomPool.indexOf(pullMac) < 0) randomPool.push( pullMac );
+							targetNew( pullMac, false ); // 5 ===========TARGET
+						
 						} else {
 							targetQueue.shift();  	// get rid of it if it's no longer in scene ...
 							targetLogic(); return;	// ... && try again w/ next on list								
 						}
 					} else { // if queue is empty, pick at random
-						var ranChild = Math.floor( Math.random() * scene.children.length );
-						targetNew( scene.children[ranChild].mac, false ); // 5 ===========TARGET
+						if(randomPool.length>0){
+							var ranChild = Math.floor( Math.random() * randomPool.length );
+							targetNew( randomPool[ranChild], false ); // 5 ===========TARGET							
+						}
 					}
 
 					// wait for a while before going again
@@ -502,7 +514,6 @@
 				} else {
 					setTimeout(function(){ targetLogic(); }, 1000 );
 				}	
- 
 			}
 							
 								
@@ -604,8 +615,6 @@
 					};
 				}
 				
-				// ------- update console
-				document.getElementById('console').innerHTML = TOTAL_CATCHES +' butterflies (ie. mobile devices)<br> captured from the immediate vicinity';
 
 				// ------- update HUD butterfly
 				var p = mac.split(':');
@@ -643,12 +652,17 @@
 				$.ajax({
 					url: 'http://'+ window.location.host +'/api/wigle/hasgeo?device='+mac+'&collection=wigleChicago',
 				  	method: 'GET',
-				  	success: function(data){				  		
-				  		// if it does have geo for this mac address, check if there are too many geos ( ie. filter out the 'xfinityWiFi' )
-				  		for (var i = 0; i < DEVICES[mac].knownNetworks.length; i++) {											  			
-				  			$.ajax({
-			  					url: 'http://'+ window.location.host +'/api/wigle?ssid='+DEVICES[mac].knownNetworks[i]+'&collection=wigleChicago',
+				  	success: function(data){			
+				  		if(data===true){
+				  			// if it does have geo for this mac address, check if there are too many geos ( ie. filter out the 'xfinityWiFi' )
+					  		var post = {
+								ssid: DEVICES[mac].knownNetworks,
+								collection: "wigleChicago"
+							}
+							$.ajax({
+			  					url: 'http://'+ window.location.host +'/api/wigle',
 			  					method: 'GET',
+			  					data: post,
 			  					success: function ( objs ){ 
 			  						// add to Queue IF the ssid returns less than 110 devices ( b/c map will block out anything over 110 )
 			  						// && if it's not already in the Queue ...
@@ -656,7 +670,7 @@
 			  					},
 								error: function(err){ console.log("errored",err); }
 			  				});	
-				  		};
+				  		} 		
 				  	},
 				  	error: function(err){ console.log("errored",err); }
 				});
@@ -672,13 +686,12 @@
 						e_nets.innerHTML+=DEVICES[mac].knownNetworks[i]+'<br>';
 					};					
 				}
-				// if($('#netlist').height()>66){
-					// HUD_HEIGHT = $('#netlist').height() + 134; // 134 = 200 (original HUD_HEIGHT) - 66 ( min req for net list ) 
-					HUD_HEIGHT = $('#netlist').height() + 200; // a little more than 134
+				// HUD_HEIGHT = $('#netlist').height() + 134; // 134 = 200 (original HUD_HEIGHT) - 66 ( min req for net list ) 
+				HUD_HEIGHT = $('#netlist').height() + 200; // a little more than 134
+				if(HUD_HEIGHT<200){ HUD_HEIGHT=230; }
+				$('#map').css('height',HUD_HEIGHT+'px');
 
-					if(HUD_HEIGHT<200){ HUD_HEIGHT=230; }
-					$('#map').css('height',HUD_HEIGHT+'px');
-				// }
+				updateHudCSS(true);
 			}
 			 
 
