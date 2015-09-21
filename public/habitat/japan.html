@@ -526,12 +526,14 @@
 				}
 			}
 
+
 			//[ 2 ]\\
 			function isInScene( mac ){
 				for (var i = 0; i < scene.children.length; i++) {
 					if(scene.children[i].mac == mac){ return true; }
 				};
 			}
+
 
 			//[ 3 ]\\
 			function createBoid( probe ){
@@ -564,6 +566,7 @@
 				mac_mesh.mac = probe.mac;
 				scene.add( mac_mesh );
 			}
+
 			
 
 			//[ 4 ]\\
@@ -579,6 +582,7 @@
 					setTimeout(giveEmTime, 1000);
 				} 
 			}; 
+
 
 			//[ 5 ]\\
 			function targetNew( mac, brandnew ){ 
@@ -633,65 +637,31 @@
 				updateNetList( mac );
 			}
 
+
 			//[ 6 ]\\
 			function addToQueue( mac ){
 				$.ajax({
 					url: 'http://'+ window.location.host +'/api/wigle/hasgeo?device='+mac+'&collection=wigleChicago',
 				  	method: 'GET',
-				  	success: function(data){
-
-				  				
-				  		
+				  	success: function(data){				  		
 				  		// if it does have geo for this mac address, check if there are too many geos ( ie. filter out the 'xfinityWiFi' )
-				  		for (var i = 0; i < DEVICES[mac].knownNetworks.length; i++) {
-							
-							var currentSSID = DEVICES[mac].knownNetworks[i];				  							  			
-				  			
+				  		for (var i = 0; i < DEVICES[mac].knownNetworks.length; i++) {											  			
 				  			$.ajax({
 			  					url: 'http://'+ window.location.host +'/api/wigle?ssid='+DEVICES[mac].knownNetworks[i]+'&collection=wigleChicago',
 			  					method: 'GET',
 			  					success: function ( objs ){ 
-			  						if( objs.results.length < 110 && objs.results.length > 0  ){ 
 			  						// add to Queue IF the ssid returns less than 110 devices ( b/c map will block out anything over 110 )
-			  							if(	data && targetQueue.indexOf(mac)<0 ) targetQueue.push( mac );
-			  						}
+			  						// && if it's not already in the Queue ...
+			  						if( typeof objs.results.length==="number" && objs.results.length < 110 && targetQueue.indexOf(mac)<0  ) targetQueue.push( mac );		
 			  					},
 								error: function(err){ console.log("errored",err); }
 			  				});	
 				  		};
-
-
-
-
-				  	// 	$.ajax({
-							// url: 'http://'+window.location.host+'/api/networks?device='+mac,
-							// method: 'GET',
-							// success: function( networksArray ){ 
-							// 	// console.log(networksArray);
-							// 	var resultCount = [];
-							// 	for (var i = 0; i < networksArray.length; i++) {	
-							// 		// console.log('/api/wigle?ssid='+networksArray[i]+'&collection=wigleChicago');
-							// 		// loop through array of ssids && see how many results each gets...																							
-							// 		$.ajax({
-					  // 					url: 'http://'+ window.location.host +'/api/wigle?ssid='+networksArray[i]+'&collection=wigleChicago',
-					  // 					method: 'GET',
-					  // 					success: function ( objs ){ 
-					  // 						// console.log( objs );
-					  // 						resultCount.push({ssid:networksArray[i], count:objs.length});
-					  // 					},
-							// 			error: function(err){ console.log("errored",err); }
-					  // 				});	
-							// 	};
-								
-							// 	// only add to Queue if there is count over 0 && less than 110 !!!!!!!!!!!!!!!!
-								
-							// } ,
-							// error: function(err){ console.log("errored",err); }
-						// });
 				  	},
 				  	error: function(err){ console.log("errored",err); }
 				});
 			}
+
 
 			//[ 7 ]\\
 			function updateNetList( mac ){ 
