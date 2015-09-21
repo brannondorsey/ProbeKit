@@ -51,9 +51,6 @@ echo -n "[install.sh] Would you like to install the map/data packs? (Y/n):"
 read PACK_SURE
 if [[ $PACK_SURE == "Y" || $PACK_SURE == "y" || $PACK_SURE == "" ]] ; then
 
-    MAPPACK_URL="https://github.com/brannondorsey/ProbeKit/releases/download/v0.2.0/mappack_chicago_41.8781_-87.6297_16km_zoom_0-17.zip"
-    DATAPACK_URL="https://github.com/brannondorsey/ProbeKit/releases/download/v0.2.0/datapack_chicago_2015-4-19.zip"
-
     GITHUB_RELEASE_URL="https://github.com/brannondorsey/ProbeKit/releases/download/v0.2.0"
 
     FILE_SIZE_CHICAGO="115M"
@@ -68,12 +65,14 @@ if [[ $PACK_SURE == "Y" || $PACK_SURE == "y" || $PACK_SURE == "" ]] ; then
     MAPPACK_FILENAME_NYC="mappack_nyc_40.7265_-73.9946_30km_zoom_0-17.zip"
     MAPPACK_FILENAME_LONDON="mappack_london_51.5066_-0.1280_20km_zoom_0-17.zip"
     MAPPACK_FILENAME_INDIANAPOLIS="mappack_indianapolis_39.7684_-86.1580_18km_zoom_0-17.zip"
+    MAPPACK_FILENAME_TOKYO="mappack_tokyo_35.6894_139.6917_40km_zoom_0-17.zip"
 
     DATAPACK_FILENAME_CHICAGO="datapack_chicago_2015-4-19.zip"
     DATAPACK_FILENAME_MIAMI="datapack_miami_2015-4-19.zip"
     DATAPACK_FILENAME_NYC="datapack_nyc_2015-9-14.zip"
     DATAPACK_FILENAME_LONDON="datapack_london_2015-9-17.zip"
     DATAPACK_FILENAME_INDIANAPOLIS="datapack_indianapolis_2015-9-14.zip"
+    DATAPACK_FILENAME_TOKYO="datapack_tokyo_2015-9-14.zip"
 
     echo "[$SCRIPT_NAME] Available data packs:"
     echo "Seperate multiple selections with spaces, e.g. \"1 3 4\""
