@@ -50,7 +50,9 @@ function ProbeCapture(interface) {
 	}
 
 	function formatMAC(arr) {
-	    return arr.map(function(octet){ return octet.toString(16); }).join(':');
+	    return arr.map(function(octet){ 
+	        return ("00" + octet.toString(16)).slice(-2); 
+	    }).join(':');
 	}
 }
 
