@@ -58,7 +58,7 @@ if [[ $PACK_SURE == "Y" || $PACK_SURE == "y" || $PACK_SURE == "" ]] ; then
     FILE_SIZE_NYC="360M"
     FILE_SIZE_LONDON="293M"
     FILE_SIZE_INDIANAPOLIS="72M"
-    FILE_SIZE_TOKYO="1.06G"
+    FILE_SIZE_TOKYO="581M"
 
     MAPPACK_FILENAME_CHICAGO="mappack_chicago_41.8781_-87.6297_16km_zoom_0-17.zip"
     MAPPACK_FILENAME_MIAMI="mappack_miami_25.7818_-80.2551_25km_zoom_0-17.zip"
@@ -76,7 +76,7 @@ if [[ $PACK_SURE == "Y" || $PACK_SURE == "y" || $PACK_SURE == "" ]] ; then
 
     echo "[$SCRIPT_NAME] Available data packs:"
     echo "Seperate multiple selections with spaces, e.g. \"1 3 4\""
-    echo "  (0) Download all [2.23G]"
+    echo "  (0) Download all [1.77G]"
     echo "  (1) Chicago, IL, USA [$FILE_SIZE_CHICAGO]"
     echo "  (2) Indianapolis, IN, USA [$FILE_SIZE_INDIANAPOLIS]"
     echo "  (3) London, UK [$FILE_SIZE_LONDON]"
