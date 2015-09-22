@@ -56,6 +56,11 @@
 				z-index: 5;
 				font-size: 13px;
 			}
+			.mac_addr{ font-weight: bold; text-transform: uppercase; color:#f00; }
+			.date { color:#888;}
+			.city_name {
+				font-weight: bold;
+			}
 			.flapper {  background-color: #f00;}
 			#hud_canvas{
 				position: absolute;
@@ -63,6 +68,8 @@
 				top: 0px;
 				z-index: 2;
 			}
+
+
 		</style>
 	</head>
 	<body>
@@ -109,10 +116,14 @@
 			var year = a.getFullYear();
 			var month = months[a.getMonth()];
 			var date = a.getDate();
-			var hour = a.getHours();
-			var min = a.getMinutes();
+			var hour = a.getHours().toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false});
+			var min = a.getMinutes().toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false});
 			var time = month + ' ' + date + ', ' + year + ' ' + hour + ':' + min;
 			return time;
+		}
+		function capitalize(s) {
+			// http://stackoverflow.com/a/31392914/1104148
+			return s[0].toUpperCase() + s.substr(1);
 		}
 		// -----------------------------------------------------------------------------------------------
 		</script>
@@ -130,6 +141,8 @@
 			var TARGET_IDX = 0; 		// the current boid target
 			var CURRENT_MAC;			// mac of currently targeted device
 			var DEVICES = {};			// devices dictionary w/ probe data
+			var CITY_LIST = ["chicago","miami","indianapolis","london","nyc","tokyo"];
+			var CITY = undefined;
 			
 			// example object in devices dictionary ...
 			// 
@@ -295,10 +308,12 @@
 			var outCircA = outCircB = Math.PI;
 			var projector = new THREE.Projector();
 			var hud_left = 450; 
-			var hud_top = 50;
+			var hud_top = 85; // <<<<< HUD BOX TOP DISTANCE
 			var HUD_HEIGHT = 200;
 			var HUD_WIDTH = 400; //140;// 400;
 			
+			document.getElementById('nfo').style.top = hud_top+"px";
+			document.getElementById('map').style.top = hud_top+"px";
 			document.getElementById('nfo').style.left = window.innerWidth-hud_left+"px";
 			document.getElementById('console').style.left = window.innerWidth-hud_left+"px";
 
@@ -327,7 +342,7 @@
 				    ty = percY*window.innerHeight;
 				    // hud positions
 				    box = { x:window.innerWidth-hud_left, y:hud_top }
-	      		 	midpt = {x:(box.x+(tx+13))/2, y:150};
+	      		 	midpt = {x:(box.x+(tx+13))/2, y:105+hud_top};
 	      		 	
 	      		 	
 	      		 	if(tx < box.x && ty > box.y && !uploadingProbes){
@@ -346,13 +361,9 @@
 		      			ctx.arc(tx, ty, 13, outCircA, outCircB, false);
 		      			ctx.strokeStyle = "#ff0000";
 		      			ctx.stroke();
-		      			ctx.closePath();	
+		      			ctx.closePath();
 
-		      			ctx.strokeRect(box.x,box.y, HUD_WIDTH,HUD_HEIGHT );
-		      			ctx.fillStyle = "#fff";
-		      			ctx.fillRect(box.x,box.y, HUD_WIDTH,HUD_HEIGHT );
-
-						ctx.beginPath();
+		      			ctx.beginPath();
 		      			ctx.moveTo(tx+13,ty);
 		      			ctx.lineTo(midpt.x,midpt.y);
 		      			ctx.stroke();
@@ -362,11 +373,19 @@
 		      			ctx.moveTo(midpt.x,midpt.y);
 		      			ctx.lineTo(box.x,midpt.y);
 		      			ctx.stroke();
-		      			ctx.closePath();
+		      			ctx.closePath();	
 
 		      		}
+
+		      			ctx.strokeStyle = "#ff0000";
+		      			ctx.strokeRect(box.x,box.y, HUD_WIDTH,HUD_HEIGHT );
+		      			ctx.fillStyle = "#fff";
+		      			ctx.fillRect(box.x,box.y, HUD_WIDTH,HUD_HEIGHT );
+
+
 				    
-		      		updateHudCSS(tx < box.x && ty > box.y);
+		      		//updateHudCSS(tx < box.x && ty > box.y);
+		      		
 			 	}
 			}
 
@@ -377,7 +396,7 @@
 			function updateHudCSS(show){ // show/hide HUD + update map src 
 				if(show && !uploadingProbes && CURRENT_MAC != undefined){ 
 					if(newMap != CURRENT_MAC ){
-						mapElement.src = 'http://'+window.location.host+'/habitat/map-iframe-japan.html?mac='+CURRENT_MAC;
+						mapElement.src = 'http://'+window.location.host+'/habitat/map-iframe-japan.html?mac='+CURRENT_MAC+'&city='+CITY;
 						newMap = CURRENT_MAC;
 					}
 					nfo.style.display = 'block';
@@ -388,11 +407,6 @@
 					mapElement.style.display = 'none'; 
 				}
 			} updateHudCSS(); 
-
-
-
-
-
 
 
 
@@ -463,22 +477,20 @@
 
 					TOTAL_CATCHES++;
 					createBoid( probe ); // 3 
-					addToQueue( probe.mac ); // 6
+					for (var i = 0; i < CITY_LIST.length; i++) {
+						addToQueue( probe.mac, i ); // 4
+					};
+					
 
 					if(firstCatch) targetLogic( probe ); // 0
 					
 				}
 
 				updateNetList(probe.mac); // 7 
-
-				// ------- update console
-				document.getElementById('console').innerHTML = TOTAL_CATCHES +' butterflies (ie. mobile devices)<br> captured from the immediate vicinity';
+				updateConsole(); // 8
  
 
 			} // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
-			// check for if too much GPS data 
 
 
 			//[ 0 ]\\
@@ -493,7 +505,7 @@
 							
 							var pullMac = targetQueue.shift();
 							if( randomPool.indexOf(pullMac) < 0) randomPool.push( pullMac );
-							targetNew( pullMac, false ); // 5 ===========TARGET
+							targetNew( pullMac, false ); // 6 ===========TARGET
 						
 						} else {
 							targetQueue.shift();  	// get rid of it if it's no longer in scene ...
@@ -502,21 +514,24 @@
 					} else { // if queue is empty, pick at random
 						if(randomPool.length>0){
 							var ranChild = Math.floor( Math.random() * randomPool.length );
-							targetNew( randomPool[ranChild], false ); // 5 ===========TARGET							
+							targetNew( randomPool[ranChild], false ); // 6 ===========TARGET							
 						}
 					}
 
 					// wait for a while before going again
 					holdHud = true;
 					readCnt=0;
-					giveEmTime(); // 4 
+					giveEmTime(); // 5 
 								
 				} else {
 					setTimeout(function(){ targetLogic(); }, 1000 );
 				}	
-			}
+			} // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 							
 								
+
+
+
 
 			//
 			// ---------- ---------- ----------  sub-routines ---------- ---------- ----------
@@ -529,6 +544,7 @@
 					DEVICES[probe.mac].mac = probe.mac;
 					DEVICES[probe.mac].timestamp = timeConverter(probe.timestamp);
 					DEVICES[probe.mac].knownNetworks = [probe.ssid ];
+					DEVICES[probe.mac].possibleCities = [];
 				} else {
 					if(DEVICES[probe.mac].knownNetworks.indexOf(probe.ssid)==-1){
 						DEVICES[probe.mac].knownNetworks.push( probe.ssid ); 
@@ -578,9 +594,41 @@
 				scene.add( mac_mesh );
 			}
 
-			
 
 			//[ 4 ]\\
+			function addToQueue( mac, i ){					
+				$.ajax({
+					url: 'http://'+ window.location.host +'/api/wigle/hasgeo?device='+mac+'&collection=wigle'+capitalize(CITY_LIST[i]),
+				  	method: 'GET',
+				  	success: function(data){			
+				  		if(data===true){
+				  			// if it does have geo for this mac address, check if there are too many geos ( ie. filter out the 'xfinityWiFi' )
+					  		var cityName = "wigle"+capitalize(CITY_LIST[i]);
+					  		var post = {
+								ssid: DEVICES[mac].knownNetworks,
+								collection: cityName
+							}
+							$.ajax({
+			  					url: 'http://'+ window.location.host +'/api/wigle',
+			  					method: 'GET',
+			  					data: post,
+			  					success: function ( objs ){ 
+			  						// add to Queue IF the ssid returns less than 110 devices ( b/c map will block out anything over 110 )
+			  						// && if it's not already in the Queue ...
+			  						if( typeof objs.results.length==="number" && objs.results.length < 110 && targetQueue.indexOf(mac)<0  ) targetQueue.push( mac );		
+			  						if( DEVICES[mac].possibleCities.indexOf(CITY_LIST[i]<0) ) DEVICES[mac].possibleCities.push( CITY_LIST[i] );
+			  					},
+								error: function(err){ console.log("errored",err); }
+			  				});	
+				  		} 
+				  	},
+				  	error: function(err){ console.log("errored",err); }
+				});
+			}
+
+			
+
+			//[ 5 ]\\
 			function giveEmTime(){ //...to read the HUD b4 targetting new butterly
 				readCnt++;
 				if(readCnt==timeToRead){ 
@@ -595,7 +643,7 @@
 			}; 
 
 
-			//[ 5 ]\\
+			//[ 6 ]\\
 			function targetNew( mac, brandnew ){ 
 
 				// ------- set TARGET_IDX ( num of current target )
@@ -611,6 +659,10 @@
 						if( scene.children[i].mac == mac){
 							CURRENT_MAC = mac;
 							TARGET_IDX = i;
+							// pick random city from possibleCities for this MAC
+							var ranCity = Math.floor( Math.random()*DEVICES[CURRENT_MAC].possibleCities.length );
+							CITY = DEVICES[CURRENT_MAC].possibleCities[ranCity];
+							updateConsole();
 						}
 					};
 				}
@@ -632,48 +684,18 @@
 
 				// ------- update mac && vendor && time
 				var e_mac = document.createElement('div').innerHTML = mac;
-				$('#details').html(e_mac+'<br>');
+				$('#details').html('<span class="mac_addr">'+e_mac+'</span><br>');
 				var ven = mac.substr(0, 8).toUpperCase();
 			    if (vendorDictionary && vendorDictionary.hasOwnProperty(ven)){
 			       	var e_ven = document.createElement('div').innerHTML = "Made by "+vendorDictionary[ven];
 			        $('#details').append(e_ven+'<br>');
 			    }
 				var e_time = document.createElement('div').innerHTML = DEVICES[mac].timestamp;
-				$('#details').append(e_time+'<br><br>');
+				$('#details').append('<span class="date">'+e_time+'</span><br><br>');
 
 
 				// ...already happening in handleProbe() ... do i need to call it again here?
 				updateNetList( mac );
-			}
-
-
-			//[ 6 ]\\
-			function addToQueue( mac ){
-				$.ajax({
-					url: 'http://'+ window.location.host +'/api/wigle/hasgeo?device='+mac+'&collection=wigleChicago',
-				  	method: 'GET',
-				  	success: function(data){			
-				  		if(data===true){
-				  			// if it does have geo for this mac address, check if there are too many geos ( ie. filter out the 'xfinityWiFi' )
-					  		var post = {
-								ssid: DEVICES[mac].knownNetworks,
-								collection: "wigleChicago"
-							}
-							$.ajax({
-			  					url: 'http://'+ window.location.host +'/api/wigle',
-			  					method: 'GET',
-			  					data: post,
-			  					success: function ( objs ){ 
-			  						// add to Queue IF the ssid returns less than 110 devices ( b/c map will block out anything over 110 )
-			  						// && if it's not already in the Queue ...
-			  						if( typeof objs.results.length==="number" && objs.results.length < 110 && targetQueue.indexOf(mac)<0  ) targetQueue.push( mac );		
-			  					},
-								error: function(err){ console.log("errored",err); }
-			  				});	
-				  		} 		
-				  	},
-				  	error: function(err){ console.log("errored",err); }
-				});
 			}
 
 
@@ -692,6 +714,17 @@
 				$('#map').css('height',HUD_HEIGHT+'px');
 
 				updateHudCSS(true);
+			}
+
+			//[ 8 ]\\
+			function updateConsole(){				
+				var htmlString = '<b>'+TOTAL_CATCHES +'</b> butterflies (ie. mobile devices)<br>captured from the immediate vicinity<br>';
+				if( CITY !== undefined) {
+					var cityConsoleName =  (CITY=="nyc") ? "NYC" : capitalize(CITY);
+					htmlString +='----------------------------------<br>';
+					htmlString +='possible network coordinates<br> found in <span class="city_name">'+cityConsoleName+'</span>';
+				}
+				document.getElementById('console').innerHTML = htmlString;				
 			}
 			 
 
