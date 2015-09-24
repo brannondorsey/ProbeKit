@@ -59,6 +59,8 @@ if [[ $PACK_SURE == "Y" || $PACK_SURE == "y" || $PACK_SURE == "" ]] ; then
     FILE_SIZE_LONDON="293M"
     FILE_SIZE_INDIANAPOLIS="72M"
     FILE_SIZE_TOKYO="581M"
+    FILE_SIZE_BERLIN="277M"
+    FILE_SIZE_FUKUOKA="45M"
 
     MAPPACK_FILENAME_CHICAGO="mappack_chicago_41.8781_-87.6297_16km_zoom_0-17.zip"
     MAPPACK_FILENAME_MIAMI="mappack_miami_25.7818_-80.2551_25km_zoom_0-17.zip"
@@ -66,6 +68,8 @@ if [[ $PACK_SURE == "Y" || $PACK_SURE == "y" || $PACK_SURE == "" ]] ; then
     MAPPACK_FILENAME_LONDON="mappack_london_51.5066_-0.1280_20km_zoom_0-17.zip"
     MAPPACK_FILENAME_INDIANAPOLIS="mappack_indianapolis_39.7684_-86.1580_18km_zoom_0-17.zip"
     MAPPACK_FILENAME_TOKYO="mappack_tokyo_35.6894_139.6917_40km_zoom_0-17.zip"
+    MAPPACK_FILENAME_BERLIN="mappack_berlin_52.5182_13.4019_20km.zip"
+    MAPPACK_FILENAME_FUKUOKA="mappack_fukuoka_33.6245_130.4358_20km.zip"
 
     DATAPACK_FILENAME_CHICAGO="datapack_chicago_2015-4-19.zip"
     DATAPACK_FILENAME_MIAMI="datapack_miami_2015-4-19.zip"
@@ -73,16 +77,20 @@ if [[ $PACK_SURE == "Y" || $PACK_SURE == "y" || $PACK_SURE == "" ]] ; then
     DATAPACK_FILENAME_LONDON="datapack_london_2015-9-17.zip"
     DATAPACK_FILENAME_INDIANAPOLIS="datapack_indianapolis_2015-9-14.zip"
     DATAPACK_FILENAME_TOKYO="datapack_tokyo_2015-9-14.zip"
+    DATAPACK_FILENAME_BERLIN="datapack_berlin_2015-9-24.zip"
+    DATAPACK_FILENAME_FUKUOKA="datapack_fukuoka_2015-9-24.zip"
 
     echo "[$SCRIPT_NAME] Available data packs:"
     echo "Seperate multiple selections with spaces, e.g. \"1 3 4\""
-    echo "  (0) Download all [1.77G]"
-    echo "  (1) Chicago, IL, USA [$FILE_SIZE_CHICAGO]"
-    echo "  (2) Indianapolis, IN, USA [$FILE_SIZE_INDIANAPOLIS]"
-    echo "  (3) London, UK [$FILE_SIZE_LONDON]"
-    echo "  (4) Miami, FL, USA [$FILE_SIZE_MIAMI]"
-    echo "  (5) New York, NY, USA, [$FILE_SIZE_NYC]"    
-    echo "  (6) Tokyo, JP [$FILE_SIZE_TOKYO]"
+    echo "  (0) Download all [1.85G]"
+    echo "  (1) Berlin, DE [$FILE_SIZE_BERLIN]"
+    echo "  (2) Chicago, IL, USA [$FILE_SIZE_CHICAGO]"
+    echo "  (3) Fukuoka, JP [$FILE_SIZE_FUKUOKA]"
+    echo "  (4) Indianapolis, IN, USA [$FILE_SIZE_INDIANAPOLIS]"
+    echo "  (5) London, UK [$FILE_SIZE_LONDON]"
+    echo "  (6) Miami, FL, USA [$FILE_SIZE_MIAMI]"
+    echo "  (7) New York, NY, USA, [$FILE_SIZE_NYC]"    
+    echo "  (8) Tokyo, JP [$FILE_SIZE_TOKYO]"
     echo ""
     echo -n "Selection: "
     
@@ -96,7 +104,9 @@ if [[ $PACK_SURE == "Y" || $PACK_SURE == "y" || $PACK_SURE == "" ]] ; then
         if [[ $SELECTION == "0" ]]; then
 
             # download all
+            download "Berlin" $MAPPACK_FILENAME_BERLIN $DATAPACK_FILENAME_BERLIN "wigleBerlin"
             download "Chicago" $MAPPACK_FILENAME_CHICAGO $DATAPACK_FILENAME_CHICAGO "wigleChicago"
+            download "Fukuoka" $MAPPACK_FILENAME_FUKUOKA $DATAPACK_FILENAME_FUKUOKA "wigleFukuoka"
             download "Indianapolis" $MAPPACK_FILENAME_INDIANAPOLIS $DATAPACK_FILENAME_INDIANAPOLIS "wigleIndianapolis"
             download "London" $MAPPACK_FILENAME_LONDON $DATAPACK_FILENAME_LONDON "wigleLondon"
             download "Miami" $MAPPACK_FILENAME_MIAMI $DATAPACK_FILENAME_MIAMI "wigleMiami"
@@ -104,16 +114,20 @@ if [[ $PACK_SURE == "Y" || $PACK_SURE == "y" || $PACK_SURE == "" ]] ; then
             download "Tokyo" $MAPPACK_FILENAME_TOKYO $DATAPACK_FILENAME_TOKYO "wigleTokyo"
 
         elif [[ $SELECTION == "1" ]]; then
-            download "Chicago" $MAPPACK_FILENAME_CHICAGO $DATAPACK_FILENAME_CHICAGO "wigleChicago"
+            download "Berlin" $MAPPACK_FILENAME_BERLIN $DATAPACK_FILENAME_BERLIN "wigleBerlin"
         elif [[ $SELECTION == "2" ]]; then
-            download "Indianapolis" $MAPPACK_FILENAME_INDIANAPOLIS $DATAPACK_FILENAME_INDIANAPOLIS "wigleIndianapolis"
+            download "Chicago" $MAPPACK_FILENAME_CHICAGO $DATAPACK_FILENAME_CHICAGO "wigleChicago"
         elif [[ $SELECTION == "3" ]]; then
-            download "London" $MAPPACK_FILENAME_LONDON $DATAPACK_FILENAME_LONDON "wigleLondon"
+            download "Fukuoka" $MAPPACK_FILENAME_FUKUOKA $DATAPACK_FILENAME_FUKUOKA "wigleFukuoka"
         elif [[ $SELECTION == "4" ]]; then
-            download "Miami" $MAPPACK_FILENAME_MIAMI $DATAPACK_FILENAME_MIAMI "wigleMiami"
+            download "Indianapolis" $MAPPACK_FILENAME_INDIANAPOLIS $DATAPACK_FILENAME_INDIANAPOLIS "wigleIndianapolis"
         elif [[ $SELECTION == "5" ]]; then
-            download "New York" $MAPPACK_FILENAME_NYC $DATAPACK_FILENAME_NYC "wigleNyc"
+            download "London" $MAPPACK_FILENAME_LONDON $DATAPACK_FILENAME_LONDON "wigleLondon"
         elif [[ $SELECTION == "6" ]]; then
+            download "Miami" $MAPPACK_FILENAME_MIAMI $DATAPACK_FILENAME_MIAMI "wigleMiami"
+        elif [[ $SELECTION == "7" ]]; then
+            download "New York" $MAPPACK_FILENAME_NYC $DATAPACK_FILENAME_NYC "wigleNyc"
+        elif [[ $SELECTION == "8" ]]; then
             download "Tokyo" $MAPPACK_FILENAME_TOKYO $DATAPACK_FILENAME_TOKYO "wigleTokyo"
         fi     
     done
