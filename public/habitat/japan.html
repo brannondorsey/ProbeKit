@@ -184,6 +184,9 @@
 
 
 
+
+
+
 			// HABITAT -----------------------------------------------------------------------
 			// HABITAT -----------------------------------------------------------------------
 			// HABITAT -----------------------------------------------------------------------
@@ -198,6 +201,8 @@
 			SCREEN_HEIGHT = window.innerHeight,
 			SCREEN_WIDTH_HALF = SCREEN_WIDTH  / 2,
 			SCREEN_HEIGHT_HALF = SCREEN_HEIGHT / 2;
+			var DATE = new Date();
+
 			var camera, scene, renderer, stats;
 			var renderDetail;
 			var butterfly, boid, boids;
@@ -244,6 +249,17 @@
 				stats.update();
 			}
 
+			function refresh(){
+				DATE = new Date();
+				if(
+					DATE.getHours() <= 0 &&
+					DATE.getMinutes() <= 0 &&
+					DATE.getSeconds() <= 0 
+				){
+					window.location = window.location;
+				}
+			}
+
 			function render() {
 				for ( var i = 0, il = boids.length; i < il; i++ ) {
 
@@ -280,6 +296,9 @@
 				
 				// console.log( holdHud, readCnt);
 				renderer.render( scene, camera ); 
+
+				//check for refresh
+				refresh();
 			}
 
 
@@ -615,8 +634,10 @@
 			  					success: function ( objs ){ 
 			  						// add to Queue IF the ssid returns less than 110 devices ( b/c map will block out anything over 110 )
 			  						// && if it's not already in the Queue ...
-			  						if( typeof objs.results.length==="number" && objs.results.length < 110 && targetQueue.indexOf(mac)<0  ) targetQueue.push( mac );		
-			  						if( DEVICES[mac].possibleCities.indexOf(CITY_LIST[i]<0) ) DEVICES[mac].possibleCities.push( CITY_LIST[i] );
+			  						if( typeof objs.results.length==="number" && objs.results.length < 110  ){
+			  							if(targetQueue.indexOf(mac)<0 ) targetQueue.push( mac );
+			  							if( DEVICES[mac].possibleCities.indexOf(CITY_LIST[i]<0) ) DEVICES[mac].possibleCities.push( CITY_LIST[i] );
+			  						}	
 			  					},
 								error: function(err){ console.log("errored",err); }
 			  				});	
@@ -718,7 +739,7 @@
 
 			//[ 8 ]\\
 			function updateConsole(){				
-				var htmlString = '<b>'+TOTAL_CATCHES +'</b> butterflies (ie. mobile devices)<br>captured from the immediate vicinity<br>';
+				var htmlString = '<b>'+TOTAL_CATCHES +'</b> butterflies (ie. mobile devices)<br>captured from the vicinity today<br>';
 				if( CITY !== undefined) {
 					var cityConsoleName =  (CITY=="nyc") ? "NYC" : capitalize(CITY);
 					htmlString +='----------------------------------<br>';
@@ -727,15 +748,6 @@
 				document.getElementById('console').innerHTML = htmlString;				
 			}
 			 
-
-
-
-
-
-
-
-
-					
 
 
 		</script>
