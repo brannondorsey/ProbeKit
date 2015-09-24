@@ -76,6 +76,11 @@
 			var mm = str.charAt(10) + str.charAt(11);
 			return MM+"/"+DD+"/"+YY+" "+hh+":"+mm;
 		}
+
+		function capitalize(s) {
+			// http://stackoverflow.com/a/31392914/1104148
+			return s[0].toUpperCase() + s.substr(1);
+		}
 		//
 		// ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -102,12 +107,13 @@
 
 		document.getElementById('map').style.height = window.innerHeight+"px";
 		document.getElementById('map').style.width = window.innerWidth+"px";
-		
-		var map = L.map('map').setView([41.879528,-87.625088], 12); // chicago 
+
+		var map = L.map('map').setView([0,0], 12);		
+		//var map = L.map('map').setView([41.879528,-87.625088], 12); // chicago 
 		// var map = L.map('map',{maxZoom:17, minZoom:12}).setView([25.790130,-80.137371], 12); // miami 
 		// map.setMaxBounds(new L.LatLngBounds([25.558712, -80.427557], [26.022771, -79.993822]));
 
-		L.tileLayer('http://'+window.location.host+'/data/maps/tiles/chicago/{z}/{x}/{y}.png').addTo(map);
+		L.tileLayer('http://'+window.location.host+'/data/maps/tiles/'+getParameterByName('city')+'/{z}/{x}/{y}.png').addTo(map);
 		// L.tileLayer('http://'+window.location.host+'/data/maps/tiles/miami/{z}/{x}/{y}.png').addTo(map);
 
 
@@ -124,14 +130,15 @@
 		$.ajax({
 			url: 'http://'+window.location.host+'/api/networks?device='+getParameterByName('mac'),
 			method: 'GET',
-			success: function( data ){ getGPS( data ); /*console.log( "networks", data );*/ } ,
+			success: function( data ){ getGPS( data, capitalize(getParameterByName('city')) ); /*console.log( "networks", data );*/ } ,
 			error: function(err){ /* console.log(err); */ }
 		});
 
-		function getGPS( networks ){
+		function getGPS( networks, cityName ){
+			var city = "wigle"+cityName;
 			var data = {
 				ssid: networks,
-				collection: "wigleChicago"
+				collection: city
 				// collection: "wigleMiami"
 			}
 
