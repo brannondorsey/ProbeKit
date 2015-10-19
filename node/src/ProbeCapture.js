@@ -35,7 +35,9 @@ function ProbeCapture(interface) {
 		        var tags = frame.probe.tags;
 		        var ssid = tags[0].ssid;
 		        
-		        if (typeof ssid !== 'undefined' && ssid !== '') {
+		        if (typeof ssid !== 'undefined' && 
+		        	ssid !== '' && 
+		        	! /\\u[0-F]{4}/.test(ssid)) { // filter Unicode garbled SSIDs
 
 		        	var packet = {
 		        		ssid: ssid,
@@ -44,6 +46,10 @@ function ProbeCapture(interface) {
 		        	};
 
 		        	emitter.emit('probeReceived', packet);
+		        }
+
+		        if (/\\u[0-F]{4}/.test(ssid)) {
+		        	console.log('FILTERED OUT:', ssid);
 		        }
 		    }
 		});
