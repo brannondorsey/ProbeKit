@@ -52,7 +52,7 @@
 			#console{
 				position: absolute;
 				top: 8px; left:50%;
-				width: 300px; 
+				width: 350px; 
 				z-index: 5;
 				font-size: 13px;
 			}
@@ -67,6 +67,13 @@
 				left: 0px;
 				top: 0px;
 				z-index: 2;
+			}
+
+			.ellipsis {
+				max-width:140px;
+			    white-space: nowrap;
+			    overflow: hidden;
+			    text-overflow: ellipsis;
 			}
 
 
@@ -141,7 +148,7 @@
 			var TARGET_IDX = 0; 		// the current boid target
 			var CURRENT_MAC;			// mac of currently targeted device
 			var DEVICES = {};			// devices dictionary w/ probe data
-			var CITY_LIST = ["chicago","miami","indianapolis","london","nyc","tokyo"];
+			var CITY_LIST = ["chicago","miami","indianapolis","london","nyc","tokyo","berlin","fukuoka"];
 			var CITY = undefined;
 			
 			// example object in devices dictionary ...
@@ -252,7 +259,7 @@
 			function refresh(){
 				DATE = new Date();
 				if(
-					DATE.getHours() <= 0 &&
+					DATE.getHours() == 8 &&
 					DATE.getMinutes() <= 0 &&
 					DATE.getSeconds() <= 0 
 				){
@@ -726,7 +733,7 @@
 					var e_nets = document.getElementById('netlist');
 						e_nets.innerHTML ="";
 					for (var i = 0; i < DEVICES[mac].knownNetworks.length; i++) {
-						e_nets.innerHTML+=DEVICES[mac].knownNetworks[i]+'<br>';
+						e_nets.innerHTML+="<div class='ellipsis'>"+DEVICES[mac].knownNetworks[i]+'</div>';
 					};					
 				}
 				// HUD_HEIGHT = $('#netlist').height() + 134; // 134 = 200 (original HUD_HEIGHT) - 66 ( min req for net list ) 
@@ -738,15 +745,36 @@
 			}
 
 			//[ 8 ]\\
+			
+			var consoleLang = "english";
+			var consoleTxt1 = ['<b>', '</b> butterflies (ie. mobile devices)<br>captured from the vicinity today<br>'];
+			var consoleTxt2 = ['possible network coordinates<br> found in <span class="city_name">','</span>'];
+
 			function updateConsole(){				
-				var htmlString = '<b>'+TOTAL_CATCHES +'</b> butterflies (ie. mobile devices)<br>captured from the vicinity today<br>';
+				var htmlString = consoleTxt1[0] + TOTAL_CATCHES + consoleTxt1[1]; 
 				if( CITY !== undefined) {
 					var cityConsoleName =  (CITY=="nyc") ? "NYC" : capitalize(CITY);
 					htmlString +='----------------------------------<br>';
-					htmlString +='possible network coordinates<br> found in <span class="city_name">'+cityConsoleName+'</span>';
+					htmlString += consoleTxt2[0] + cityConsoleName + consoleTxt2[1];
 				}
 				document.getElementById('console').innerHTML = htmlString;				
 			}
+
+			//[ 8b ]\\
+			function translateConsole(){
+
+				consoleLang = (consoleLang=="english") ? "japanese" : "english";
+
+				if(consoleLang=="english"){
+			 		consoleTxt1 = ['<b>', '</b> butterflies (ie. mobile devices)<br>captured from the vicinity today<br>'];
+			 		consoleTxt2 = ['possible network coordinates<br> found in <span class="city_name">','</span>'];
+				}
+				else if(consoleLang=="japanese"){
+			 		consoleTxt1 = ['このマップ周辺で <b>','</b> 匹のスマホ蝶が捕獲されました。<br>'];
+			 		consoleTxt2 = ['<span class="city_name">','</span> 周辺ネットワークエリア'];
+				}
+			}
+			setInterval( translateConsole, 8000 );
 			 
 
 
