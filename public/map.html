@@ -61,205 +61,240 @@
 
   <script src="js/jquery-1.11.2.min.js"></script>
   <script src="js/leaflet.js"></script>
-  <script src='js/turf.min.js'></script>
 
   <script>
 
-    // via http://stackoverflow.com/questions/901115/how-can-i-get-query-string-values-in-javascript
-    function getParameterByName(name) {
-        name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
-        var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
-            results = regex.exec(location.search);
-        return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
-    }
+  $(document).ready(function(){
 
-    // ------------------------------------------------------------------------------- back button
-    document.getElementById('back').onclick = function(){
-      // history.go(-1);
-      window.location = "index.html";
-    }
-    
-    // ------------------------------------------------------------------------------- get networks
-    $.ajax({
-      url: 'http://'+window.location.host+'/api/networks?device='+getParameterByName('mac'),
-      method: 'GET',
-      success: onNetworksResponse,
-      error: function(err){
-        // console.log(err);
-      }
-    });
-    function onNetworksResponse(data){
-      // console.log( "networks", data );
-      getGPS( data );
-    }
+      var runFromNW = false;
 
-    // ------------------------------------------------------------------------------- get GPS 
-    function getGPS( networks ){
-      var data = {
-        ssid: networks,
-        collection: "wigleChicago"
-        // collection: "wigleMiami"
+      if (typeof process !== 'undefined' && 
+          typeof process.versions !== 'undefined' &&
+          'node-webkit' in process.versions) { // node-webkit
+  
+          runFromNW = true;
+
+          // horrible hack for Node Webkit. 
+          // javascript and global.javascript are both undefined
+          // until $.getScript() is run. We run once at beginning
+          // to set global.javascript and then run start()
+          // to actually do our stuff.
+          $.getScript('js/turf.js').done(start).fail(start);
+
+      } else { // not node-webkit
+        start();
       }
 
-      $.ajax({
-        url: 'http://'+window.location.host+'/api/wigle',
-        method: 'GET',
-        data: data,
-        success: onGPSResponse,
-        error: function(err){
-          // console.log(err);
+      function start() {
+
+        if (runFromNW) {
+          javascript = global.javascript;
         }
-      });
+
+        $.getScript("js/turf.js").done(function(data, textStatus, jqxhr){
       
-      function onGPSResponse(data){
-        if (!data.error) {
-          // console.log(data)
-          var results = data.results;
-          for (var i = 0; i < results.length; i++) {
-            var network = results[i];
-            gps_vectors.push({ssid:network.ssid, lat:network.geo.lat, lon:network.geo.lon, date:network.lastupdt});
+           // via http://stackoverflow.com/questions/901115/how-can-i-get-query-string-values-in-javascript
+          function getParameterByName(name) {
+              name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+              var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+                  results = regex.exec(location.search);
+              return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
           }
-          // console.log("gps data", gps_vectors)
-          drawData();
-        } else {
-          // console.log(data);
-          document.getElementById('error').style.display = "block";
+
+          // ------------------------------------------------------------------------------- back button
+          document.getElementById('back').onclick = function(){
+            // history.go(-1);
+            window.location = "index.html";
+          }
+          
+          // ------------------------------------------------------------------------------- get networks
+          $.ajax({
+            url: 'http://' + window.location.host + '/api/networks?device='+getParameterByName('mac'),
+            method: 'GET',
+            success: onNetworksResponse,
+            error: function(err){
+              console.log(err);
+            }
+          });
+
+          function onNetworksResponse(data){
+            debugger;
+            // console.log( "networks", data );
+            getGPS( data );
+          }
+
+          // ------------------------------------------------------------------------------- get GPS 
+          function getGPS( networks ){
+            var data = {
+              ssid: networks,
+              collection: "wigleChicago"
+              // collection: "wigleMiami"
+            }
+
+            $.ajax({
+              url: 'http://'+window.location.host+'/api/wigle',
+              method: 'GET',
+              data: data,
+              success: onGPSResponse,
+              error: function(err){
+                console.log(err);
+              }
+            });
+            
+            function onGPSResponse(data){
+              console.log('onGPSResponse ', data);
+              if (!data.error) {
+                // console.log(data)
+                var results = data.results;
+                for (var i = 0; i < results.length; i++) {
+                  var network = results[i];
+                  gps_vectors.push({ssid:network.ssid, lat:network.geo.lat, lon:network.geo.lon, date:network.lastupdt});
+                }
+                // console.log("gps data", gps_vectors)
+                drawData();
+              } else {
+                // console.log(data);
+                document.getElementById('error').style.display = "block";
+              }
+            } 
+          }
+        }).fail(function(jqxhr, settings, exception   ){
+          console.log('fail');
+          console.log( settings ); // Data returned
+          console.log( exception ); // Success
+        }); // end nwHack();
+        
+
+
+        // maps -------------------------------------------------------------------------------
+        document.getElementById('map').style.height = window.innerHeight+"px";
+        document.getElementById('map').style.width = window.innerWidth+"px";
+
+        var gps_vectors = []; // aray of objects vectors
+        var redPts = []; 
+        var bluePts = []; 
+        var redSSIDs = []; // for drawLines
+        var rssid = []; // for drawDots
+        var bssid = []; // for drawDots
+        var rdates = []; // for drawDots
+        var bdates = []; // for drawDots
+        var ssid_ranks = {};
+        var total = 0;
+
+        var map = L.map('map', {maxZoom:17, minZoom:12}).setView([41.879528,-87.625088], 14); // chicago 
+        map.setMaxBounds(new L.LatLngBounds([41.98, -87.85], [41.80, -87.51])); // chicago
+        // var map = L.map('map',{maxZoom:17, minZoom:12}).setView([25.790130,-80.137371], 14); // miami 
+        // map.setMaxBounds(new L.LatLngBounds([25.558712, -80.427557], [26.022771, -79.993822])); // miami
+        
+        L.tileLayer('http://'+window.location.host+'/data/maps/tiles/chicago/{z}/{x}/{y}.png').addTo(map);
+        
+
+        function drawData() {
+          for (var i = 0; i < gps_vectors.length; i++) { // rank them
+            if(ssid_ranks[gps_vectors[i].ssid]==undefined){ ssid_ranks[gps_vectors[i].ssid] = 0; } 
+            else { ssid_ranks[gps_vectors[i].ssid]++; }
+          };
+          for (var i = 0; i < gps_vectors.length; i++) { 
+            var x = gps_vectors[i].lat;
+            var y = gps_vectors[i].lon;
+            var ssid = gps_vectors[i].ssid;
+            var date = parseDate( gps_vectors[i].date );
+            if(ssid_ranks[gps_vectors[i].ssid] > 10 && ssid_ranks[gps_vectors[i].ssid] < 110 ){
+              bluePts.push([x,y]); 
+              bssid.push(gps_vectors[i].ssid);
+              bdates.push(date);
+              total++;
+            } 
+            else if(ssid_ranks[gps_vectors[i].ssid] <= 10) {
+              redPts.push([x,y]); 
+              rssid.push(gps_vectors[i].ssid);
+              rdates.push(date);
+              total++;
+              if(redSSIDs.indexOf(gps_vectors[i].ssid)==-1){
+                redSSIDs.push(gps_vectors[i].ssid);
+              }
+            }
+          };
+          if(gps_vectors.length >=0 && total==0){
+            document.getElementById('nfo').innerHTML = "GPS data may not be accurate";
+            document.getElementById('error').style.display = "block";
+          }
+          // DRAW
+          if(redPts.length==0){
+            drawZone(bluePts, "#6E73E0");
+          } else { 
+            drawZone(redPts, "yellow"); 
+            drawLines();
+          }
+          drawDots();
+          
         }
-      } 
-    }
-    
 
 
-    // maps -------------------------------------------------------------------------------
-    document.getElementById('map').style.height = window.innerHeight+"px";
-    document.getElementById('map').style.width = window.innerWidth+"px";
+        function drawDots(){
+          for (var i = 0; i < bluePts.length; i++) {
+            L.circleMarker(bluePts[i],{"color":"#6E73E0","fillOpacity":0.5,"opacity":0}).setRadius(7).addTo(map).bindPopup(bssid[i]+"<br><i>"+bdates[i]+"</i>*").on("mouseover",function(e){this.openPopup()});
+          };
+          for (var i = 0; i < redPts.length; i++) {
+            L.circleMarker(redPts[i],{"color":"#E06667","fillOpacity":1}).setRadius(7).addTo(map).bindPopup(rssid[i]+"<br><i>"+rdates[i]+"</i>*").on("mouseover",function(e){this.openPopup()}); 
 
-    var gps_vectors = []; // aray of objects vectors
-    var redPts = []; 
-    var bluePts = []; 
-    var redSSIDs = []; // for drawLines
-    var rssid = []; // for drawDots
-    var bssid = []; // for drawDots
-    var rdates = []; // for drawDots
-    var bdates = []; // for drawDots
-    var ssid_ranks = {};
-    var total = 0;
-
-    var map = L.map('map', {maxZoom:17, minZoom:12}).setView([41.879528,-87.625088], 14); // chicago 
-    map.setMaxBounds(new L.LatLngBounds([41.98, -87.85], [41.80, -87.51])); // chicago
-    // var map = L.map('map',{maxZoom:17, minZoom:12}).setView([25.790130,-80.137371], 14); // miami 
-    // map.setMaxBounds(new L.LatLngBounds([25.558712, -80.427557], [26.022771, -79.993822])); // miami
-    
-    L.tileLayer('http://'+window.location.host+'/data/maps/tiles/chicago/{z}/{x}/{y}.png').addTo(map);
-    
+          };
+        }
 
 
-    function drawData() {
-      for (var i = 0; i < gps_vectors.length; i++) { // rank them
-        if(ssid_ranks[gps_vectors[i].ssid]==undefined){ ssid_ranks[gps_vectors[i].ssid] = 0; } 
-        else { ssid_ranks[gps_vectors[i].ssid]++; }
-      };
-      for (var i = 0; i < gps_vectors.length; i++) { 
-        var x = gps_vectors[i].lat;
-        var y = gps_vectors[i].lon;
-        var ssid = gps_vectors[i].ssid;
-        var date = parseDate( gps_vectors[i].date );
-        if(ssid_ranks[gps_vectors[i].ssid] > 10 && ssid_ranks[gps_vectors[i].ssid] < 110 ){
-          bluePts.push([x,y]); 
-          bssid.push(gps_vectors[i].ssid);
-          bdates.push(date);
-          total++;
-        } 
-        else if(ssid_ranks[gps_vectors[i].ssid] <= 10) {
-          redPts.push([x,y]); 
-          rssid.push(gps_vectors[i].ssid);
-          rdates.push(date);
-          total++;
-          if(redSSIDs.indexOf(gps_vectors[i].ssid)==-1){
-            redSSIDs.push(gps_vectors[i].ssid);
+        function drawZone(points, color){
+          
+          var features=[];
+          for (var i = 0; i < points.length; i++) {
+            features.push( turf.point(points[i]) );
+          };   
+          var pts = turf.featurecollection(features);
+          
+          if(pts.features.length==1){
+            map.fitBounds(points); 
+          }
+          else if(pts.features.length==2){
+            var polyline = L.polyline(points, {color: color}).addTo(map);
+            map.fitBounds(polyline.getBounds()); 
+          } 
+          else if(pts.features.length>2) {
+            var convex = turf.convex(pts).geometry.coordinates[0];
+            var polyline = L.polygon(convex, {color: color,opacity:0}).addTo(map);
+            map.fitBounds(polyline.getBounds());
           }
         }
-      };
-      if(gps_vectors.length >=0 && total==0){
-        document.getElementById('nfo').innerHTML = "GPS data may not be accurate";
-        document.getElementById('error').style.display = "block";
-      }
-      // DRAW
-      if(redPts.length==0){
-        drawZone(bluePts, "#6E73E0");
-      } else { 
-        drawZone(redPts, "yellow"); 
-        drawLines();
-      }
-      drawDots();
-      
-    }
 
 
-    function drawDots(){
-      for (var i = 0; i < bluePts.length; i++) {
-        L.circleMarker(bluePts[i],{"color":"#6E73E0","fillOpacity":0.5,"opacity":0}).setRadius(7).addTo(map).bindPopup(bssid[i]+"<br><i>"+bdates[i]+"</i>*").on("mouseover",function(e){this.openPopup()});
-      };
-      for (var i = 0; i < redPts.length; i++) {
-        L.circleMarker(redPts[i],{"color":"#E06667","fillOpacity":1}).setRadius(7).addTo(map).bindPopup(rssid[i]+"<br><i>"+rdates[i]+"</i>*").on("mouseover",function(e){this.openPopup()}); 
-
-      };
-    }
-
-
-    function drawZone(points, color){
-      
-      var features=[];
-      for (var i = 0; i < points.length; i++) {
-        features.push( turf.point(points[i]) );
-      };   
-      var pts = turf.featurecollection(features);
-      
-      if(pts.features.length==1){
-        map.fitBounds(points); 
-      }
-      else if(pts.features.length==2){
-        var polyline = L.polyline(points, {color: color}).addTo(map);
-        map.fitBounds(polyline.getBounds()); 
-      } 
-      else if(pts.features.length>2) {
-        var convex = turf.convex(pts).geometry.coordinates[0];
-        var polyline = L.polygon(convex, {color: color,opacity:0}).addTo(map);
-        map.fitBounds(polyline.getBounds());
-      }
-    }
+        function drawLines(){ // for red networks of the same name
+          var sets = [];
+          for (var i = 0; i < redSSIDs.length; i++) {
+            var subset = [];
+            for (var j = 0; j< gps_vectors.length; j++) {
+              if(redSSIDs[i]==gps_vectors[j].ssid){
+                subset.push([gps_vectors[j].lat, gps_vectors[j].lon]);
+              }
+            };
+            sets.push(subset);
+          };
+          console.log(sets.length)
+          for (var i = 0; i < sets.length; i++) {
+            var line = turf.linestring(sets[i]).geometry.coordinates;
+            var polyline = L.polyline(line, {color: "#E06667"}).addTo(map);
+          };
+        }
 
 
-    function drawLines(){ // for red networks of the same name
-      var sets = [];
-      for (var i = 0; i < redSSIDs.length; i++) {
-        var subset = [];
-        for (var j = 0; j< gps_vectors.length; j++) {
-          if(redSSIDs[i]==gps_vectors[j].ssid){
-            subset.push([gps_vectors[j].lat, gps_vectors[j].lon]);
-          }
-        };
-        sets.push(subset);
-      };
-      console.log(sets.length)
-      for (var i = 0; i < sets.length; i++) {
-        var line = turf.linestring(sets[i]).geometry.coordinates;
-        var polyline = L.polyline(line, {color: "#E06667"}).addTo(map);
-      };
-    }
-
-
-    function parseDate( int ){
-      var str = int.toString();
-      var YY = str.charAt(0) + str.charAt(1) + str.charAt(2) + str.charAt(3);
-      var MM = str.charAt(4) + str.charAt(5);
-      var DD = str.charAt(6) + str.charAt(7);
-      var hh = str.charAt(8) + str.charAt(9);
-      var mm = str.charAt(10) + str.charAt(11);
-      return MM+"/"+DD+"/"+YY+" "+hh+":"+mm;
-    }
-
-
+        function parseDate( int ){
+          var str = int.toString();
+          var YY = str.charAt(0) + str.charAt(1) + str.charAt(2) + str.charAt(3);
+          var MM = str.charAt(4) + str.charAt(5);
+          var DD = str.charAt(6) + str.charAt(7);
+          var hh = str.charAt(8) + str.charAt(9);
+          var mm = str.charAt(10) + str.charAt(11);
+          return MM+"/"+DD+"/"+YY+" "+hh+":"+mm;
+        }
+    };
+}); // document ready()
   </script>
 
 </body>
