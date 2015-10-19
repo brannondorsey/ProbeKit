@@ -39,7 +39,7 @@ WigleAPI.prototype.getResults = function(options, callback) {
 
 	var collection = self.db.collection(options.collection);
 
-	if (typeof options.ssid == "string") {
+	if (typeof options.ssid === "string") {
 		options.ssid = [ options.ssid ];
 	} 
 	

@@ -133,7 +133,7 @@ function addProbe(probeData, mac, ssid, timestamp, fromCSV) {
 
 	probeData.macs[mac].lastSeen = timestamp;
 	probeData.macs[mac].timesSeen++;
-
+	// console.log('ProbeDataStore SSID: ' + ssid);
 	if (probeData.macs[mac].knownNetworks.indexOf(ssid) == -1) {
 		probeData.macs[mac].knownNetworks.push(ssid);
 	}
