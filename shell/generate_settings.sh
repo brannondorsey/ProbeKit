@@ -19,6 +19,7 @@ SCRIPT_NAME=$(basename $0)
 DIR_NAME=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 SETTINGS_DIR="$HOME/.probekit"
 
+echo "LOGGED IN USER IS $(logname)"
 if [[ $OS == "Linux" ]] || [[ $OS == "Darwin" ]]; then
 
     # generate ~/.probekit (plus the maps/tiles path)

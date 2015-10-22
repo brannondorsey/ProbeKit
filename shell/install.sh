@@ -103,7 +103,7 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 # custom hook
-( su $(logname) -c "$(printf %q "$DIR_NAME/custom_hooks/hook_install_start.sh")" )
+( su $(logname) -c "bash $(printf %q "$DIR_NAME/custom_hooks/hook_install_start.sh")" )
 
 # check internet connectivity
 # wget -q --tries=10 --timeout=20 --spider http://google.com
@@ -144,7 +144,7 @@ if [[ $OS == "Linux" ]] || [[ $OS == "Darwin" ]]; then
         bash "$DIR_NAME/setup_capture_privileges.sh"
 
         # custom hook
-        ( su $(logname) -c "$(printf %q "$DIR_NAME/custom_hooks/hook_install_done.sh 1")" )
+        ( su $(logname) -c "bash $(printf %q "$DIR_NAME/custom_hooks/hook_install_done.sh") 1" )
 
         echo ""
         echo "[install.sh] $PROJECT_NAME was installed successfully! You may now open $PROJECT_NAME."
