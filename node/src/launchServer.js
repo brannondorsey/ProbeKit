@@ -164,6 +164,14 @@ function launchServer(options) {
 			}
 		});
 
+		app.use('/api/maps', function(req, res, next){ 
+			res.send(assetManager.getInstalledMapPackNames());
+		});
+
+		app.use('/api/map', function(req, res, next){ 
+			res.send(settings.map || '');
+		});
+
 		app.use('/data', express.static(path.resolve(assetManager.getDataPath())));
 		app.use('/data', express.static(path.resolve(__dirname + '/../../data')));
 		app.use(express.static(path.resolve(__dirname + '/../../public')));
