@@ -48,9 +48,9 @@ function ProbeCapture(interface) {
 		        	emitter.emit('probeReceived', packet);
 		        }
 
-		        if (ssid !== '' &&  ! /^[a-zA-Z\d\s@#$%^&*()!~`\[\]'"?\\.,<>:;|{}\-_+=]+$/.test(ssid)) {
-		        	console.log('FILTERED OUT:', ssid);
-		        }
+		        // if (ssid !== '' &&  ! /^[a-zA-Z\d\s@#$%^&*()!~`\[\]'"?\\.,<>:;|{}\-_+=]+$/.test(ssid)) {
+		        // 	console.log('FILTERED OUT:', ssid);
+		        // }
 		    }
 		});
 	}

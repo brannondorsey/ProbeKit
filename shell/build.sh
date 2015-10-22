@@ -22,7 +22,7 @@ BUILD_DIR="$DIR_NAME/../build"
 TMP_DIR="$DIR_NAME/../tmp"
 PLATFORMS="$1"
 BUNDLE_NAME="Probe Kit"
-NODE_VERSION="0.12.1"
+NODE_VERSION="0.11.6"
 
 #Must be root
 if [[ $EUID -ne 0 ]] || [[ $# -ne "1" ]]; then
@@ -44,23 +44,27 @@ echo "[$SCRIPT_NAME] copying files to $TMP_DIR"
 cp -rp "$DIR_NAME/../shell" "$TMP_DIR/shell"
 cp -rp "$DIR_NAME/../public" "$TMP_DIR/public"
 cp -rp "$DIR_NAME/../node" "$TMP_DIR/node"
-cp -rp "$DIR_NAME/../data" "$TMP_DIR/data"
 cp -rp "$DIR_NAME/../package.json" "$TMP_DIR/package.json"
+mkdir "$TMP_DIR/data"
 
-# remove data/wigle_data from tmp
-if [[ -d "$TMP_DIR/data/wigle_data" ]]; then
-    echo "[$SCRIPT_NAME] removing $TMP_DIR/data/wigle_data"
-    rm -rf "$TMP_DIR/data/wigle_data"
-fi
+for FILE in $(ls $DIR_NAME/../data); do
+    echo "$DIR_NAME/../data/$FILE"
+    echo "$TMP_DIR/data/"
+    echo ""
+    if [ ! "$FILE" == "wigle_data" ]; then
+        echo "IN HERE: $FILE"
+        cp -rp "$DIR_NAME/../data/$FILE" "$TMP_DIR/data/"
+    fi
+done
 
-# rebuild C++ source node_modules for NW.js
-echo "[$SCRIPT_NAME] rebuilding \"node_pcap\" module for NW.js"
-cd "$TMP_DIR/node/node_modules/pcap/"
-"$TMP_DIR/node/node_modules/nw-gyp/bin/nw-gyp.js" rebuild --target=$NODE_VERSION
-echo "[$SCRIPT_NAME] rebuilding \"node-socketwatcher\" module for NW.js"
-cd "node_modules/socketwatcher"
-"$TMP_DIR/node/node_modules/nw-gyp/bin/nw-gyp.js" rebuild --target=$NODE_VERSION
-cd "$DIR_NAME"
+# rebuild C++ source node_modules for NW.js <- needed only for NW v0.12.0 and above
+# echo "[$SCRIPT_NAME] rebuilding \"node_pcap\" module for NW.js"
+# cd "$TMP_DIR/node/node_modules/pcap/"
+# "$TMP_DIR/node/node_modules/nw-gyp/bin/nw-gyp.js" rebuild --target=$NODE_VERSION
+# echo "[$SCRIPT_NAME] rebuilding \"node-socketwatcher\" module for NW.js"
+# cd "node_modules/socketwatcher"
+# "$TMP_DIR/node/node_modules/nw-gyp/bin/nw-gyp.js" rebuild --target=$NODE_VERSION
+# cd "$DIR_NAME"
 
 # remove unneeded items
 if [[ -d "$TMP_DIR/data/ChmodBPF" ]]; then

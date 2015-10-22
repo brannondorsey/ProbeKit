@@ -2,7 +2,7 @@
 # are run inside of install.sh. This script is run right after
 # all other install processes have run but before the install.sh
 # script finishes (see install.sh to see exactly where)
-# This script is gauranteed to have sudo privileges
+# This script DOES NOT have sudo privileges
 
 # download and install mappacks/datapacks
 
@@ -41,7 +41,7 @@ function download() {
         $DOWNLOAD_CMD
     fi
 
-    echo "[$SCRIPT_NAME] installing Chicago data pack"
+    echo "[$SCRIPT_NAME] installing $CITY_NAME data pack"
     unzip -q "$SETTINGS_DIR/$DATAPACK_FILENAME" -d "$SETTINGS_DIR"
     "$DIR_NAME/../import_datapack.sh" "$SETTINGS_DIR/$COLLECTION_NAME.json" "$COLLECTION_NAME"
     rm "$SETTINGS_DIR/$COLLECTION_NAME.json" "$SETTINGS_DIR/$DATAPACK_FILENAME"

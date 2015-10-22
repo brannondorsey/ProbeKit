@@ -62,7 +62,7 @@ if [[ $OS == "Linux" ]] || [[ $OS == "Darwin" ]]; then
         fi
 
         echo "[$SCRIPT_NAME] Importing $DATA_PACK to $COLLECTION_NAME collection"
-        mongoimport --db probe --collection "$COLLECTION_NAME" --file "$DATA_PACK"
+        mongoimport --db probe --collection "$COLLECTION_NAME" --file "$DATA_PACK" --host=127.0.0.1
 
         if [[ $? -ne "0" ]]; then
             die "[$SCRIPT_NAME] Error importing $DATA_PACK to $COLLECTION_NAME collection" 1
