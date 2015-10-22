@@ -3,6 +3,9 @@
 # all other install processes have run but before the install.sh
 # script finishes (see install.sh to see exactly where)
 # This script DOES NOT have sudo privileges
+# 
+# Also, when this script is called from inside install.sh it recieves
+# the positional argument "1" which is checked against w/ "if [[ ! -z $1 ]]"
 
 # download and install mappacks/datapacks
 
@@ -47,6 +50,23 @@ function download() {
     rm "$SETTINGS_DIR/$COLLECTION_NAME.json" "$SETTINGS_DIR/$DATAPACK_FILENAME"
 }
 
+function update_settings() {
+    
+    local CITY_NAME=$1
+    local OS=$(uname)
+
+    grep "\"map\"" "$SETTINGS_DIR/settings.json"
+
+    if [[ $? == "1" ]]; then
+        
+        if [[ $OS == "Darwin" ]]; then
+            sed -i '' "s/}/    ,\"map\": \"$CITY_NAME\" }/" "$SETTINGS_DIR/settings.json"
+        elif [[ $OS == "Linux" ]]; then
+            sed -i "s/}/    ,\"map\": \"$CITY_NAME\" }/" "$SETTINGS_DIR/settings.json"
+        fi
+    fi
+}
+
 echo -n "[install.sh] Would you like to install the map/data packs? (Y/n):"
 read PACK_SURE
 if [[ $PACK_SURE == "Y" || $PACK_SURE == "y" || $PACK_SURE == "" ]] ; then
@@ -81,8 +101,8 @@ if [[ $PACK_SURE == "Y" || $PACK_SURE == "y" || $PACK_SURE == "" ]] ; then
     DATAPACK_FILENAME_FUKUOKA="datapack_fukuoka_2015-9-24.zip"
 
     echo "[$SCRIPT_NAME] Available data packs:"
-    echo "Seperate multiple selections with spaces, e.g. \"1 3 4\""
-    echo "  (0) Download all [1.85G]"
+    if [[ -z $1 ]]; then echo "Seperate multiple selections with spaces, e.g. \"1 3 4\""; fi
+    if [[ -z $1 ]]; then echo "  (0) Download all [1.85G]"; fi
     echo "  (1) Berlin, DE [$FILE_SIZE_BERLIN]"
     echo "  (2) Chicago, IL, USA [$FILE_SIZE_CHICAGO]"
     echo "  (3) Fukuoka, JP [$FILE_SIZE_FUKUOKA]"
@@ -92,16 +112,20 @@ if [[ $PACK_SURE == "Y" || $PACK_SURE == "y" || $PACK_SURE == "" ]] ; then
     echo "  (7) New York, NY, USA, [$FILE_SIZE_NYC]"    
     echo "  (8) Tokyo, JP [$FILE_SIZE_TOKYO]"
     echo ""
+    echo "If map data is not available for your location, our apologies, we are a two-person team with limited resources."
+    echo "To request data for a location or aid in development post an issue at http://github.com/brannondorsey/ProbeKit/issues"
     echo -n "Selection: "
-    
+
     # make if not exist
     mkdir -p $SETTINGS_DIR
 
     read -a PACK_SELECTION
 
+    update_settings "chicago"
+
     for SELECTION in ${PACK_SELECTION[@]}; do
-        
-        if [[ $SELECTION == "0" ]]; then
+    
+        if [[ $SELECTION == "0" ]] && [[ -z $1 ]]; then
 
             # download all
             download "Berlin" $MAPPACK_FILENAME_BERLIN $DATAPACK_FILENAME_BERLIN "wigleBerlin"
@@ -115,20 +139,30 @@ if [[ $PACK_SURE == "Y" || $PACK_SURE == "y" || $PACK_SURE == "" ]] ; then
 
         elif [[ $SELECTION == "1" ]]; then
             download "Berlin" $MAPPACK_FILENAME_BERLIN $DATAPACK_FILENAME_BERLIN "wigleBerlin"
+            if [[ ! -z $1 ]]; then update_settings "berlin"; fi
         elif [[ $SELECTION == "2" ]]; then
             download "Chicago" $MAPPACK_FILENAME_CHICAGO $DATAPACK_FILENAME_CHICAGO "wigleChicago"
+            if [[ ! -z $1 ]]; then update_settings "chicago"; fi
         elif [[ $SELECTION == "3" ]]; then
             download "Fukuoka" $MAPPACK_FILENAME_FUKUOKA $DATAPACK_FILENAME_FUKUOKA "wigleFukuoka"
+            if [[ ! -z $1 ]]; then update_settings "fukuoka"; fi
         elif [[ $SELECTION == "4" ]]; then
             download "Indianapolis" $MAPPACK_FILENAME_INDIANAPOLIS $DATAPACK_FILENAME_INDIANAPOLIS "wigleIndianapolis"
+            if [[ ! -z $1 ]]; then update_settings "indianapolis"; fi
         elif [[ $SELECTION == "5" ]]; then
             download "London" $MAPPACK_FILENAME_LONDON $DATAPACK_FILENAME_LONDON "wigleLondon"
+            if [[ ! -z $1 ]]; then update_settings "london"; fi
         elif [[ $SELECTION == "6" ]]; then
             download "Miami" $MAPPACK_FILENAME_MIAMI $DATAPACK_FILENAME_MIAMI "wigleMiami"
+            if [[ ! -z $1 ]]; then update_settings "miami"; fi
         elif [[ $SELECTION == "7" ]]; then
             download "New York" $MAPPACK_FILENAME_NYC $DATAPACK_FILENAME_NYC "wigleNyc"
+            if [[ ! -z $1 ]]; then update_settings "nyc"; fi
         elif [[ $SELECTION == "8" ]]; then
             download "Tokyo" $MAPPACK_FILENAME_TOKYO $DATAPACK_FILENAME_TOKYO "wigleTokyo"
-        fi     
+            if [[ ! -z $1 ]]; then update_settings "tokyo"; fi
+        fi 
+
+        if [[ ! -z $1 ]]; then break; fi
     done
 fi
