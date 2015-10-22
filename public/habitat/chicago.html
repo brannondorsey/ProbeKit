@@ -5,7 +5,7 @@
 		<title> Habitat </title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-		<link rel="stylesheet" href="butterfly.css" />
+		<link rel="stylesheet" href="butterfly.css" /> <!-- for modal flapping CSS butterfly -->
 		<style>
 			@font-face {
 			  font-family: 'Monaco';
@@ -148,7 +148,7 @@
 			var TARGET_IDX = 0; 		// the current boid target
 			var CURRENT_MAC;			// mac of currently targeted device
 			var DEVICES = {};			// devices dictionary w/ probe data
-			var CITY_LIST = ["chicago","miami","indianapolis","london","nyc","tokyo","berlin","fukuoka"];
+			var CITY_LIST = ["chicago"];
 			var CITY = undefined;
 			
 			// example object in devices dictionary ...
@@ -169,7 +169,7 @@
 			
 			document.onkeypress=function(event){
 			    var key = (event.keyCode ? event.keyCode : event.which);
-			    // console.log(key)
+			    // console.log(key);
 			    if(key == 115) { // click S to toggle frame rate stats on/off
 			    	var statDisplay = stats.domElement.style.display;
 			    	if(statDisplay=="none")stats.domElement.style.display = "block"	;
@@ -188,9 +188,6 @@
 				document.getElementById('nfo').style.left = window.innerWidth-hud_left+"px";
 				document.getElementById('console').style.left = window.innerWidth-hud_left+"px";
 			};
-
-
-
 
 
 
@@ -334,7 +331,7 @@
 			var outCircA = outCircB = Math.PI;
 			var projector = new THREE.Projector();
 			var hud_left = 450; 
-			var hud_top = 85; // <<<<< HUD BOX TOP DISTANCE
+			var hud_top = 55; // <<<<< HUD BOX TOP DISTANCE
 			var HUD_HEIGHT = 200;
 			var HUD_WIDTH = 400; //140;// 400;
 			
@@ -422,7 +419,7 @@
 			function updateHudCSS(show){ // show/hide HUD + update map src 
 				if(show && !uploadingProbes && CURRENT_MAC != undefined){ 
 					if(newMap != CURRENT_MAC ){
-						mapElement.src = 'http://'+window.location.host+'/habitat/map-iframe-japan.html?mac='+CURRENT_MAC+'&city='+CITY;
+						mapElement.src = 'http://'+window.location.host+'/habitat/mapiframe.html?mac='+CURRENT_MAC+'&city='+CITY;
 						newMap = CURRENT_MAC;
 					}
 					nfo.style.display = 'block';
@@ -748,35 +745,16 @@
 			
 			var consoleLang = "english";
 			var consoleTxt1 = ['<b>', '</b> butterflies (ie. mobile devices)<br>captured from the vicinity today<br>'];
-			var consoleTxt2 = ['possible network coordinates<br> found in <span class="city_name">','</span>'];
 
 			function updateConsole(){				
 				var htmlString = consoleTxt1[0] + TOTAL_CATCHES + consoleTxt1[1]; 
-				if( CITY !== undefined) {
-					var cityConsoleName =  (CITY=="nyc") ? "NYC" : capitalize(CITY);
-					htmlString +='----------------------------------<br>';
-					htmlString += consoleTxt2[0] + cityConsoleName + consoleTxt2[1];
-				}
+				// this is different in the international version
 				document.getElementById('console').innerHTML = htmlString;				
 			}
 
 			//[ 8b ]\\
-			function translateConsole(){
-
-				consoleLang = (consoleLang=="english") ? "japanese" : "english";
-
-				if(consoleLang=="english"){
-			 		consoleTxt1 = ['<b>', '</b> butterflies (ie. mobile devices)<br>captured from the vicinity today<br>'];
-			 		consoleTxt2 = ['possible network coordinates<br> found in <span class="city_name">','</span>'];
-				}
-				else if(consoleLang=="japanese"){
-			 		consoleTxt1 = ['このマップ周辺で <b>','</b> 匹のスマホ蝶が捕獲されました。<br>'];
-			 		consoleTxt2 = ['<span class="city_name">','</span> 周辺ネットワークエリア'];
-				}
-			}
-			setInterval( translateConsole, 8000 );
-			 
-
+			// function translateConsole() { ... };
+			// this has different language options in the international version
 
 		</script>
 	</body>

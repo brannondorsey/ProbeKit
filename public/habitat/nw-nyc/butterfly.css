@@ -1,0 +1,121 @@
+/* ~'~._.~'~._.~'~._.~'~._.~'~._.~'~. BUTTERFLY ~'~._.~'~._.~'~._.~'~._. */
+	/* ~'~._.~'~._.~'~._.~'~._.~'~._.~'~._.~'~._.~'~._.~'~._.~'~._.~'~._.~'~.*/
+
+
+	.butterfly {
+		width:340px;
+		height:300px;
+		margin: 0 auto;
+	 	/*transition: all 0.5s ease;*/
+	 	cursor: pointer;
+	}
+		.butterfly .top, .nfo-butterfly .top {  	
+		 	/*display:block; */
+		 	width: 90%; 
+		 	height: 46%; 
+		}
+			.butterfly .top .left {
+				display:inline-block;
+				float:left; 
+				width: 44%;
+				height: 100%; 
+				background-color: #FF7475; 
+				-webkit-border-radius: 0% 83% 10% 150%;
+				border-radius: 0% 83% 10% 150%;
+				-webkit-transform: rotate(160deg) rotateY(20deg);
+				transform: rotate(160deg) rotateY(20deg);
+				position: relative; left:2%;
+				-webkit-animation : flap-lt 800ms ease-in infinite alternate;
+				animation : flap-lt 800ms ease-in infinite alternate;
+			}
+			.butterfly .top .right {
+				display:inline-block; 
+				float: right;
+				width: 44%;
+				height: 100%; 
+				background-color: #FF7475; 
+				-webkit-border-radius: 150% 10% 83% 0%; 
+				border-radius: 150% 10% 83% 0%; 
+				-webkit-transform: rotate(20deg) rotateY(20deg);
+				transform: rotate(20deg) rotateY(20deg);
+				position: relative; left:-2%;
+				-webkit-animation : flap-rt 800ms ease-in infinite alternate;
+				animation : flap-rt 800ms ease-in infinite alternate;
+			}
+
+		.butterfly .bottom {
+		 	/*display:block; */
+		 	width: 90%; 
+		 	height: 46%; 
+		}
+			.butterfly .bottom .left {
+				display: inline-block;
+				width: 26.4%;
+				height: 60%;
+				background-color: #FF7475;
+				-webkit-border-radius: 108% 10% 120% 40%;
+				border-radius: 108% 10% 120% 40%;
+				position: relative; left:1%; top:-21%;
+				-webkit-animation : flap-lb 800ms ease-in infinite alternate;
+				animation : flap-lb 800ms ease-in infinite alternate;
+			}
+			.butterfly .bottom .right {
+				display: inline-block;
+				width: 26.4%;
+				height: 60%;
+				background-color: #FF7475;
+				-webkit-border-radius: 10% 108% 40% 120%;
+				border-radius: 10% 108% 40% 120%;
+				position: relative; left:-1%; top:-21%;
+				-webkit-animation : flap-rb 800ms ease-in infinite alternate;
+				animation : flap-rb 800ms ease-in infinite alternate;
+				padding: 1px;
+			}
+
+			@keyframes flap-lt {
+			  100% { transform  : rotate(160deg) rotateY(60deg); left:12%; }
+			}
+			@keyframes flap-lb {
+			  100% { transform  : rotateY(60deg); left:8%; }
+			}
+			@keyframes flap-rt {
+			  100% { transform  : rotate(20deg) rotateY(60deg); left:-12%; }
+			}
+			@keyframes flap-rb {
+			  100% { transform  : rotateY(60deg); left:-8%; }
+			}
+
+			@-webkit-keyframes flap-lt {
+			  100% { 
+			  	-webkit-transform  : rotate(160deg) rotateY(60deg);
+			  	transform  : rotate(160deg) rotateY(60deg); 
+			  	left:12%; 
+			  }
+			}
+			@-webkit-keyframes flap-lb {
+			  100% { 
+			  	-webkit-transform  : rotateY(60deg);
+			  	transform  : rotateY(60deg); 
+			  	left:8%; 
+			  }
+			}
+			@-webkit-keyframes flap-rt {
+			  100% { 
+			  	-webkit-transform  : rotate(20deg) rotateY(60deg); 
+			  	transform  : rotate(20deg) rotateY(60deg); 
+			  	left:-12%; 
+			  }
+			}
+			@-webkit-keyframes flap-rb {
+			  100% { 
+			  	-webkit-transform  : rotateY(60deg);
+			  	transform  : rotateY(60deg); 
+			  	left:-8%; 
+			  }
+			}
+		.corner { width:100px; height:88px; }
+		.corner .bottom { margin-left: 21px; }
+		.corner .top .left { background: #000 }
+		.corner .top .right { background: #000 }
+		.corner .bottom .left { background: #000 }
+		.corner .bottom .right { background: #000 }

@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+  	<title>Probe Kit</title>
+  	<link rel="stylesheet" type="text/css" href="../../css/styles.css">
+  	<link rel="stylesheet" href="../../css/leaflet.css" />
+  	<style type="text/css">
+
+		html,body{ padding:0; margin:0; overflow: hidden; }
+	
+		#map{ position: absolute; top:0; left:0;}
+		
+		i { font-style: normal; font-size:10px; }
+
+		/* ~ ~ ~ ~ ~ ~ ~ ~ ~ ~  ERROR LOADER CSS  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ */
+
+		#error { position: fixed; z-index: 2; top:0; left:0; width:100%; height:100%; background-color: rgba(0,0,0,0.8); display: none; }
+		.spinner { margin: 30% auto; width: 129px;}
+		.dot { width:10px; height:10px; border-radius:20px; background:#f00; margin-left:10px; margin-top:10px; opacity:0.3; display:inline-block; }
+		#d1{ -webkit-animation: load1 1500ms infinite; }
+		#d2{ -webkit-animation: load2 1500ms infinite; }
+		#d3{ -webkit-animation: load1 1500ms infinite; }
+		#d4{ -webkit-animation: load2 1500ms infinite; }
+		@-webkit-keyframes load1 {
+			0% { width:10px; height:10px; border-radius:20px; margin-left:15px; margin-top:15px; opacity:0.3; }
+			50% { width:20px; height:20px; border-radius:40px; margin-left:10px; margin-top:0px; opacity:1; }
+			100% { width:10px; height:10px; border-radius:20px; margin-left:15px; margin-top:15px; opacity:0.3; }
+		}
+		@-webkit-keyframes load2 {
+			0% { width:20px; height:20px; border-radius:40px; margin-left:10px; margin-top:0px; opacity:1; }
+			50% { width:10px; height:10px; border-radius:20px; margin-left:15px; margin-top:15px; opacity:0.3; }
+			100% { width:20px; height:20px; border-radius:40px; margin-left:10px; margin-top:0px; opacity:1; }
+		}
+
+
+
+  	</style>
+</head>
+<body>
+
+	<!-- ERROR SPINNER ( NO DATA ) -->
+	<div id="error">
+		<div class="spinner">
+			<div class="dot" id="d1"></div>
+			<div class="dot" id="d2"></div>
+			<div class="dot" id="d3"></div>
+			<div class="dot" id="d4"></div>
+		</div>
+	</div>
+
+	<!-- THE MAP -->
+	<div id="map" class="map"></div>
+
+	<script src="../../js/jquery-1.11.2.min.js"></script>
+	<script src="../../js/leaflet.js"></script>
+	<script src='../../js/turf.min.js'></script>
+	<script>
+	$(document).ready(function(){
+
+		var runFromNW = false;
+
+		if (typeof process !== 'undefined' && 
+		  typeof process.versions !== 'undefined' &&
+		  'node-webkit' in process.versions) { // node-webkit
+
+			runFromNW = true;
+
+			// horrible hack for Node Webkit. 
+			// javascript and global.javascript are both undefined
+			// until $.getScript() is run. We run once at beginning
+			// to set global.javascript and then run start()
+			// to actually do our stuff.
+			$.getScript('../../js/turf.min.js').done(start).fail(start);
+
+		} else { // not node-webkit
+			start();
+		}
+
+		function start() {
+
+	        if (runFromNW) {
+	          javascript = global.javascript;
+	        }
+
+	        $.getScript("../../js/turf.min.js").done(function(data, textStatus, jqxhr){	
+
+				// ////////////////// UTILS ///////////////////////////////////////////////////////////////////
+				// 		
+				function getParameterByName(name) {
+				// via http://stackoverflow.com/questions/901115/how-can-i-get-query-string-values-in-javascript
+					name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+					var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+						results = regex.exec(location.search);
+					return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+				} 
+
+				function parseDate( int ){
+					var str = int.toString();
+					var YY = str.charAt(0) + str.charAt(1) + str.charAt(2) + str.charAt(3);
+					var MM = str.charAt(4) + str.charAt(5);
+					var DD = str.charAt(6) + str.charAt(7);
+					var hh = str.charAt(8) + str.charAt(9);
+					var mm = str.charAt(10) + str.charAt(11);
+					return MM+"/"+DD+"/"+YY+" "+hh+":"+mm;
+				}
+
+				function capitalize(s) {
+					// http://stackoverflow.com/a/31392914/1104148
+					return s[0].toUpperCase() + s.substr(1);
+				}
+				//
+				// ////////////////////////////////////////////////////////////////////////////////////////////
+
+				//
+				//
+				//
+				
+
+				var gps_vectors = []; // { ssid:.., lat:.., lon:.., date:..}, {}, etc.
+				var ssid_ranks = {};
+				
+				var redPts = []; 	// [x,y] for <= 10
+				var rssid = []; 	// .. for drawDots
+				var rdates = []; 	// .. for drawDots
+				var redSSIDs = []; 	// .. unique for drawLines
+
+				var bluePts = []; 	// [x,y] for > 10 && < 110 
+				var bssid = []; 	// .. for drawDots
+				var bdates = []; 	// .. for drawDots
+
+				var total = 0;		// blue && red 
+
+				// >> MAKE MAP >>
+
+				document.getElementById('map').style.height = window.innerHeight+"px";
+				document.getElementById('map').style.width = window.innerWidth+"px";
+
+				var map = L.map('map').setView([0,0], 12);		
+				//var map = L.map('map').setView([41.879528,-87.625088], 12); // chicago 
+				// var map = L.map('map',{maxZoom:17, minZoom:12}).setView([25.790130,-80.137371], 12); // miami 
+				// map.setMaxBounds(new L.LatLngBounds([25.558712, -80.427557], [26.022771, -79.993822]));
+
+				L.tileLayer('http://'+window.location.host+'/data/maps/tiles/'+getParameterByName('city')+'/{z}/{x}/{y}.png').addTo(map);
+				// L.tileLayer('http://'+window.location.host+'/data/maps/tiles/miami/{z}/{x}/{y}.png').addTo(map);
+
+
+		    	$('.leaflet-control-container').css('display','none'); // get rid of zoom UI
+
+
+
+				// ~ * ~ . ~ * ~ . ~ * ~ . ~ * ~ .  GET DATA ~ * ~ . ~ * ~ . ~ * ~ . ~ * ~ . ~ * ~ . ~
+				// ~ * ~ . ~ * ~ . ~ * ~ . ~ * ~ .  GET DATA ~ * ~ . ~ * ~ . ~ * ~ . ~ * ~ . ~ * ~ . ~
+				// ~ * ~ . ~ * ~ . ~ * ~ . ~ * ~ .  GET DATA ~ * ~ . ~ * ~ . ~ * ~ . ~ * ~ . ~ * ~ . ~
+				// ~ * ~ . ~ * ~ . ~ * ~ . ~ * ~ .  GET DATA ~ * ~ . ~ * ~ . ~ * ~ . ~ * ~ . ~ * ~ . ~
+				// ~ * ~ . ~ * ~ . ~ * ~ . ~ * ~ .  GET DATA ~ * ~ . ~ * ~ . ~ * ~ . ~ * ~ . ~ * ~ . ~
+
+				$.ajax({
+					url: 'http://'+window.location.host+'/api/networks?device='+getParameterByName('mac'),
+					method: 'GET',
+					success: function( data ){ getGPS( data, capitalize(getParameterByName('city')) ); /*console.log( "networks", data );*/ } ,
+					error: function(err){ /* console.log(err); */ }
+				});
+
+				function getGPS( networks, cityName ){
+					var city = "wigle"+cityName;
+					var data = {
+						ssid: networks,
+						collection: city
+						// collection: "wigleMiami"
+					}
+
+					$.ajax({
+						url: 'http://'+window.location.host+'/api/wigle',
+						method: 'GET',
+						data: data,
+						success: onGPSResponse,
+						error: function(err){ /* console.log(err); */ }
+					});
+
+					function onGPSResponse(data){
+						if (!data.error) {
+							var results = data.results;
+							for (var i = 0; i < results.length; i++) {
+								var network = results[i];
+								gps_vectors.push({ssid:network.ssid, lat:network.geo.lat, lon:network.geo.lon, date:network.lastupdt});
+							}
+							// ===============
+							drawData();
+							// ===============
+						} else { document.getElementById('error').style.display = "block"; console.log("onGPSResponse: ", data ) }
+					} 
+				}
+
+
+				// ~ * ~ . ~ * ~ . ~ * ~ . ~ * ~ .  DRAW DATA ~ * ~ . ~ * ~ . ~ * ~ . ~ * ~ . ~ * ~ . ~
+				// ~ * ~ . ~ * ~ . ~ * ~ . ~ * ~ .  DRAW DATA ~ * ~ . ~ * ~ . ~ * ~ . ~ * ~ . ~ * ~ . ~
+				// ~ * ~ . ~ * ~ . ~ * ~ . ~ * ~ .  DRAW DATA ~ * ~ . ~ * ~ . ~ * ~ . ~ * ~ . ~ * ~ . ~
+				// ~ * ~ . ~ * ~ . ~ * ~ . ~ * ~ .  DRAW DATA ~ * ~ . ~ * ~ . ~ * ~ . ~ * ~ . ~ * ~ . ~
+				// ~ * ~ . ~ * ~ . ~ * ~ . ~ * ~ .  DRAW DATA ~ * ~ . ~ * ~ . ~ * ~ . ~ * ~ . ~ * ~ . ~
+			
+
+				function drawData() {
+					for (var i = 0; i < gps_vectors.length; i++) { // rank them
+						if(ssid_ranks[gps_vectors[i].ssid]==undefined){ ssid_ranks[gps_vectors[i].ssid] = 0; } 
+						else { ssid_ranks[gps_vectors[i].ssid]++; }
+					};
+
+					for (var i = 0; i < gps_vectors.length; i++) { 
+						var x = gps_vectors[i].lat;
+						var y = gps_vectors[i].lon;
+						var ssid = gps_vectors[i].ssid;
+						var date = parseDate( gps_vectors[i].date );
+						// BLUE DOTS ----------------------------------------------------------------------
+						if(ssid_ranks[gps_vectors[i].ssid] > 10 && ssid_ranks[gps_vectors[i].ssid] < 110 ){
+							bluePts.push([x,y]); 
+							bssid.push(gps_vectors[i].ssid);
+							bdates.push(date);
+							total++;
+						} 
+						// RED DOTS ------------------------------------------------------------------------
+						else if(ssid_ranks[gps_vectors[i].ssid] <= 10) {
+							redPts.push([x,y]); 
+							rssid.push(gps_vectors[i].ssid);
+							rdates.push(date);
+							total++;
+							if(redSSIDs.indexOf(gps_vectors[i].ssid)==-1) redSSIDs.push(gps_vectors[i].ssid);
+						}
+					};
+
+					// no blue or red points added above ...
+					if(gps_vectors.length >=0 && total==0){ document.getElementById('error').style.display = "block"; console.log('drawData:gps_vectors:', gps_vectors.length,"drawData:total:"+total) }
+
+					// ================  DRAW  ==============================
+					if(redPts.length==0){
+						drawZone(bluePts, "#6E73E0");
+					} else { 
+						drawZone(redPts, "yellow"); 
+						drawLines();
+					}
+					drawDots();
+					// ======================================================
+				}
+
+				// ~ * ~ . ~ * ~ . ~ * ~ . ~ * ~ .  drawData - Sub-Routines ~ * ~ . ~ * ~ . ~ * ~ . ~ * ~ . ~ * ~ . ~
+				// 					. ~ * ~ . ~ * ~ .. ~ * ~ . ~ * ~ .. ~ * ~ . ~ * ~ .
+				// 							. ~ * ~ . ~ * ~ .. ~ * ~ . ~ * ~ .	
+				// 									. ~ * ~ . ~ * ~ .	
+			
+
+				function drawDots(){
+					// DRAW BLUE DOTS -------------------------------------------------------------
+					for (var i = 0; i < bluePts.length; i++) {
+						L.circleMarker(bluePts[i],{
+							"color":"#6E73E0",
+							"fillOpacity":0.5,
+							"opacity":0
+						}).setRadius(7).addTo(map).bindPopup(bssid[i]+"<br><i>"+bdates[i]+"</i>*").on("mouseover",function(e){this.openPopup()});
+					};
+					// DRAW RED DOTS --------------------------------------------------------------
+					for (var i = 0; i < redPts.length; i++) {
+						L.circleMarker(redPts[i],{
+							"color":"#E06667",
+							"fillOpacity":1
+						}).setRadius(7).addTo(map).bindPopup(rssid[i]+"<br><i>"+rdates[i]+"</i>*").on("mouseover",function(e){this.openPopup()}); 
+					};
+				}
+
+
+				function drawZone(points, color){
+
+					var features=[];
+					for (var i = 0; i < points.length; i++) {
+						features.push( turf.point(points[i]) );
+					};   
+					
+					var pts = turf.featurecollection(features);
+					if(pts.features.length==1){
+						map.fitBounds(points); 
+					}
+					else if(pts.features.length==2){
+						var polyline = L.polyline(points, {color: color}).addTo(map);
+						map.fitBounds(polyline.getBounds()); 
+					} 
+					else if(pts.features.length>2) {
+						var convex = turf.convex(pts).geometry.coordinates[0];
+						var polyline = L.polygon(convex, {color: color,opacity:0}).addTo(map);
+					}
+					var ranSet = Math.floor( Math.random()*points.length);
+					var bds = [points[ranSet],points[ranSet]];
+					// var point = L.point(ranSet[0], ranSet[1]);
+					map.fitBounds(bds,{maxZoom:15});
+				}
+
+
+				function drawLines(){ // for red networks of the same name
+					var sets = [];
+					for (var i = 0; i < redSSIDs.length; i++) {
+						var subset = [];
+						for (var j = 0; j< gps_vectors.length; j++) {
+							if(redSSIDs[i]==gps_vectors[j].ssid) subset.push([gps_vectors[j].lat, gps_vectors[j].lon]);					
+						};
+						sets.push(subset);
+					};
+					for (var i = 0; i < sets.length; i++) {
+						var line = turf.linestring(sets[i]).geometry.coordinates;
+						var polyline = L.polyline(line, {color: "#E06667"}).addTo(map);
+					};
+				}
+
+			}).fail(function(jqxhr, settings, exception   ){
+	          console.log('fail');
+	          console.log( settings ); // Data returned
+	          console.log( exception ); // Success
+	        }); // end nwHack();;	
+		}
+	}); // document ready()
+
+	</script>
+</body>
+</html>
