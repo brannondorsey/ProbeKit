@@ -15,5 +15,17 @@
   	"min_width": 1024,
   	"min_height": 600
   },
-  "node-remote": "http://localhost:3000"
+  "node-remote": "http://localhost:3000",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:brannondorsey/ProbeKit.git"
+  },
+  "dependencies": {
+    "minimist": "",
+    "express": "",
+    "socket.io": "",
+    "moment": "",
+    "pcap": ""
+  }
 }
