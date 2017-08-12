@@ -3,8 +3,7 @@ var argv = require('minimist')(process.argv.slice(2));
 var _ = require('underscore');
 var WigleBatchDownloader = require('./src/WigleBatchDownloader');
 
-var username = argv.username || argv.u || '46ea0d5b2';
-var password = argv.password || argv.p || '46ea0d5b2';
+var api_token = argv.token || argv.t || '46ea0d5b2';
 var lastupdt = argv.lastupdt || argv.l;
 var latrange1 = argv.north || argv.latrange1;
 var latrange2 = argv.south || argv.latrange2;
@@ -24,8 +23,7 @@ if (!(latrange1 && latrange2 && longrange1 && longrange2)) {
 	console.log('    --east=<max_long>, longrange2=<max_long>');
 	console.log();
 	console.log('Options:');
-	console.log('    --username=[username],   -u [username]   Wigle.net username.');
-	console.log('    --password=[password],   -c [password]   Wigle.net password.');
+	console.log('    --token=[api_token],   -t [api_token]   Wigle.net API token.');
 	console.log('    --chunkSize=[chunkSize], -c [chunkSize]  Set the chunkSize. i.e. 0.005');
 	console.log('    --lastupdt=[lastupdt],   -l [lastupdt]   Search only networks found since YYYYMMDDHHMMSS. i.e. 20100101000000');
 	console.log('    --dryRun,                -d              Calculate number of prepaired requests only. Does not actually execute reqests.');
@@ -72,11 +70,11 @@ if (dryRun) {
 	process.exit(0);
 }
 
-var batchDownloader = new WigleBatchDownloader(username, password, function(err){
+var batchDownloader = new WigleBatchDownloader(api_token, function(err){
 	
 	// fires on wigle.net login or (err on login failed
 	if (err) {
-		console.log('Login failed using username: ' + username + ' password: ' + password);
+		console.log('Login failed using this API token: ' + api_token);
 		process.exit(1);
 	}
 
