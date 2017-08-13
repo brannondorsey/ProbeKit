@@ -71,6 +71,30 @@ sudo ./install.sh
 open "Probe Kit.app" # OS X only
 ```
 
+### Source Code Install with Virtualenv
+
+That is for you minimalist guy...
+
+```bash
+sudo apt-get install libpcap-dev virtualenv mongodb tshark
+sudo -E useradd -G wireshark $USER
+git clone https://github.com/brannondorsey/ProbeKit.git
+cd ProbeKit/
+virtualenv -p python3 ._env
+source ._env/bin/activate
+pip install nodeenv
+nodeenv --python-virtualenv
+npm install node/
+./shell/generate_settings.sh
+```
+To run web server and upload server.
+
+```bash
+node node/server.js -i <wireless interface> &
+node node/upload_server.js &
+
+```
+
 ## Getting Started
 
 ## License and Attribution
