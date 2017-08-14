@@ -65,7 +65,7 @@ npm install
 sudo npm install -g nw
 sudo npm install -g node-webkit-builder
 cd ../shell
-sudo ./build osx64 #comma-seperated list of build platforms, see node-webkit-builder docs
+sudo ./build.sh osx64 #comma-seperated list of build platforms, see node-webkit-builder docs
 cd "../build/Probe Kit/osx64/"
 sudo ./install.sh
 open "Probe Kit.app" # OS X only
