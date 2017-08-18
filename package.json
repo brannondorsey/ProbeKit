@@ -16,6 +16,7 @@
     "min_height": 600
   },
   "dependencies": {
-    "ProbeKit": "file:node"
+    "ProbeKit": "file:node",
+    "noble": "^1.8.1"
   }
 }
