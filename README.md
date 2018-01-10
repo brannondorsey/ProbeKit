@@ -8,6 +8,8 @@ E-mails, instant messages, videos, photos, voice chats, social network profile d
 
 ## Download and Install
 
+>**Note (August, 2017): This project is no longer mainatined**. We are hoping to do a significant overhaul/rewrite in the coming months, but for the moment, treat this software as increadibly unstable. I haven't run the code in years, and while some folks have recently been able to get up and running with it on linux only, your mileage may vary. We appreciate your interest, but we cannot provide support at this time. Here be dragons. 
+
 The latest version of Probe Kit can be downloaded from the [project website](http://probekit.io) or from this GitHub [releases page](https://github.com/brannondorsey/ProbeKit/releases). Once you've downloaded Probe Kit, pick an install method that works best for you (see below).
 
 Currently Probe Kit is supported on OS X and Linux only.
@@ -65,7 +67,7 @@ npm install
 sudo npm install -g nw
 sudo npm install -g node-webkit-builder
 cd ../shell
-sudo ./build osx64 #comma-seperated list of build platforms, see node-webkit-builder docs
+sudo ./build.sh osx64 #comma-seperated list of build platforms, see node-webkit-builder docs
 cd "../build/Probe Kit/osx64/"
 sudo ./install.sh
 open "Probe Kit.app" # OS X only
