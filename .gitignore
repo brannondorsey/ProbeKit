@@ -1,6 +1,6 @@
 .DS_Store
 ._*
-node/node_modules/
+node_modules/
 data/probes.csv
 data/maps/tiles/*
 data/ChmodBPF/*

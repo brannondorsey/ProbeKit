@@ -1,0 +1,23 @@
+{
+  "name": "habitat",
+  "version": "1.0.0",
+  "description": "nw habitat window for installation machines",
+  "main": "http://localhost:3000/habitat/nw-la/index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "nick briz && brannon dorsey",
+  "license": "ISC",
+  "dependencies": {
+    "nw": "^0.12.3",
+    "nw-builder": "^2.0.2"
+  },
+  "node-remote" : "localhost",
+  "window": {
+    "toolbar": false,
+    "width": 600,
+    "height": 400,
+    "min_width": 200,
+    "min_height": 200
+  }
+}
