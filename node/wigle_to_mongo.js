@@ -77,7 +77,7 @@ function updateDatabase(json) {
 			});
 
 			json = _.filter(json, function(network){
-				return network.ssid != "<no ssid>" && ! network.ssid.match(/^\s+$/);
+				return network.ssid && network.ssid != "<no ssid>" && ! network.ssid.match(/^\s+$/);
 			});
 
 			console.log('[verbose] Proposing ' + json.length + ' networks to be added to database.');

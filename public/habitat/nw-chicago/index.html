@@ -657,7 +657,9 @@
 			  					success: function ( objs ){ 
 			  						// add to Queue IF the ssid returns less than 110 devices ( b/c map will block out anything over 110 )
 			  						// && if it's not already in the Queue ...
-			  						if( typeof objs.results.length==="number" && objs.results.length < 110  ){
+			  						// if( objs.results && objs.results.length < 110  ){
+			  						if( objs.results && objs.results.length < 110  ){
+			  							
 			  							if(targetQueue.indexOf(mac)<0 ) targetQueue.push( mac );
 			  							if( DEVICES[mac].possibleCities.indexOf(CITY_LIST[i]<0) ) DEVICES[mac].possibleCities.push( CITY_LIST[i] );
 			  						}	
