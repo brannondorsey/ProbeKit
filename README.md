@@ -1,5 +1,7 @@
 # [Probe Kit](http://probekit.io)
 
+> NOTE: This project has evolved into [Wifi Data Safari](https://github.com/brangerbriz/wifi-data-safari). Check out the most up-to-date version there!
+
 "A must-have hobby kit for any amateur network data collection."
 
 E-mails, instant messages, videos, photos, voice chats, social network profile details ¹ and other file transfers are floating all around us everyday in the form of network datagrams ². While most of us have little appreciation for this, some of us are born with the irresistible urge ³ to capture all this data! If this is you, there’s a chance you haven’t started a personal collection of network data because of the fancy equipment ⁴ required or the expense of storing ⁵ it all. Fear not! Introducing Probe Kit™, designed for amateur and hobby network data collectors interested in getting started. No need to make secret deals ⁶ with large Internet companies, with our kit you can start your own network data collection from the comfort of your own desktop! Probe Kit™ is an all-in-one starter kit for collecting probe requests, one of the fluttering data packets from wireless devices out in the wild.
