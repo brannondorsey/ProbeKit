@@ -5,3 +5,5 @@ data/probes.csv
 data/maps/tiles/*
 data/ChmodBPF/*
 build/
+package-lock.json
+node_modules

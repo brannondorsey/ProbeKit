@@ -2,15 +2,15 @@ var util = require('util');
 var wigle = require('./wigle-api');
 var _ = require('underscore');
 
-function WigleBatchDownloader(username, password, callback) {
+function WigleBatchDownloader(api_token, callback) {
 	
 	var self = this;
 	self.requestTimeout = 1000 * 60; // default
 	// self.maxConcurrentRequests = 1;
 	self.downloading = false;
 
-	if (username && password && callback) {
-		self.wigleClient = wigle.createClient(username, password, callback);
+	if (api_token && callback) {
+		self.wigleClient = wigle.createClient(api_token, callback);
 	}
 }
 
